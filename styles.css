@@ -1613,3 +1613,103 @@ html.intro-active { overflow: hidden; }
 body.modal-open {
   overflow: hidden;
 }
+
+/* ========================================
+   MASCOTA VIRTUAL — Yorkshire Terrier
+   Single scroll companion
+   ======================================== */
+.mascota {
+  position: fixed;
+  z-index: 900;
+  width: 90px;
+  height: 90px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  filter: drop-shadow(0 4px 10px rgba(140, 120, 80, 0.25));
+  transition: filter 0.3s ease;
+  pointer-events: auto;
+  will-change: left, top;
+}
+
+.mascota:hover {
+  filter: drop-shadow(0 6px 16px rgba(140, 120, 80, 0.4));
+}
+
+.mascota:active {
+  filter: drop-shadow(0 2px 6px rgba(140, 120, 80, 0.3));
+}
+
+.mascota__inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  animation: mascotaFloat 3s ease-in-out infinite;
+}
+
+.mascota__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+/* --- Speech Bubble --- */
+.mascota__bubble {
+  position: absolute;
+  bottom: 92%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--white);
+  color: var(--gold);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+  white-space: nowrap;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.mascota__bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--white);
+}
+
+/* --- Hearts --- */
+.mascota__hearts {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.mascota__heart {
+  position: absolute;
+  font-size: 16px;
+  color: #E88B8B;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* --- Float animation --- */
+@keyframes mascotaFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
