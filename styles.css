@@ -1282,6 +1282,9 @@ html:has(.intro) { overflow: hidden; }
 .intro__char {
   display: inline-block;
   opacity: 0;
+  overflow: visible;
+  padding: 0.15em 0;
+  margin: -0.15em 0;
 }
 
 /* --- Names with gold shimmer --- */
@@ -1289,7 +1292,7 @@ html:has(.intro) { overflow: hidden; }
   font-family: 'Waterfall', cursive;
   font-weight: 400;
   font-size: clamp(70px, 18vw, 130px);
-  line-height: 0.85;
+  line-height: 1.1;
   text-align: center;
   opacity: 0; /* hidden until JS splits into chars */
 }
