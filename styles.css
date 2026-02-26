@@ -1292,12 +1292,9 @@ html:has(.intro) { overflow: hidden; }
   font-family: 'Waterfall', cursive;
   font-weight: 400;
   font-size: clamp(70px, 18vw, 130px);
-  line-height: 1.1;
+  line-height: 1.15;
   text-align: center;
-  opacity: 0; /* hidden until JS splits into chars */
-}
-
-.intro__name .intro__char {
+  opacity: 0;
   background: linear-gradient(90deg, #BFA880, #f0e0c6, #fff8ee, #e0c89c, #BFA880);
   background-size: 300% auto;
   -webkit-background-clip: text;

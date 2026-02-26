@@ -120,13 +120,10 @@
     }
 
     var subtitleChars = splitTextIntoChars(subtitle);
-    var name1Chars = splitTextIntoChars(name1);
-    var name2Chars = splitTextIntoChars(name2);
 
-    // Show parents now that chars control their own opacity
+    // Show subtitle parent (chars control their own opacity)
     if (subtitle) subtitle.style.opacity = '1';
-    if (name1) name1.style.opacity = '1';
-    if (name2) name2.style.opacity = '1';
+    // Names animate as whole words (cursive font swashes clip with per-char splitting)
 
     // ============================
     // GSAP ENTRANCE TIMELINE
@@ -167,18 +164,17 @@
         ease: 'power2.out'
       }, 1.5)
 
-      // Name 1 chars reveal
-      .fromTo(name1Chars, {
+      // Name 1 reveal (whole word — preserves cursive swashes)
+      .fromTo(name1, {
         opacity: 0,
-        y: 30,
-        scale: 0.8
+        y: 25,
+        filter: 'blur(6px)'
       }, {
         opacity: 1,
         y: 0,
-        scale: 1,
-        duration: 0.7,
-        stagger: 0.04,
-        ease: 'back.out(1.7)'
+        filter: 'blur(0px)',
+        duration: 1.2,
+        ease: 'power3.out'
       }, 2.8)
 
       // Ampersand
@@ -188,18 +184,17 @@
         ease: 'power1.inOut'
       }, 3.6)
 
-      // Name 2 chars reveal
-      .fromTo(name2Chars, {
+      // Name 2 reveal (whole word)
+      .fromTo(name2, {
         opacity: 0,
-        y: 30,
-        scale: 0.8
+        y: 25,
+        filter: 'blur(6px)'
       }, {
         opacity: 1,
         y: 0,
-        scale: 1,
-        duration: 0.7,
-        stagger: 0.04,
-        ease: 'back.out(1.7)'
+        filter: 'blur(0px)',
+        duration: 1.2,
+        ease: 'power3.out'
       }, 3.8)
 
       // Date with letter-spacing animation
@@ -220,15 +215,15 @@
         ease: 'power1.inOut'
       }, 5.2);
 
-    // Gold shimmer on name chars
-    var allNameChars = name1Chars.concat(name2Chars);
-    allNameChars.forEach(function (ch, i) {
-      gsap.to(ch, {
+    // Gold shimmer on names (whole elements)
+    [name1, name2].forEach(function (el, i) {
+      if (!el) return;
+      gsap.to(el, {
         backgroundPosition: '-300% center',
-        duration: 3 + Math.random() * 2,
+        duration: 4,
         ease: 'none',
         repeat: -1,
-        delay: 3.5 + i * 0.08
+        delay: 3.5 + i * 0.5
       });
     });
 
@@ -251,7 +246,8 @@
       exiting = true;
 
       gsap.killTweensOf(tap);
-      allNameChars.forEach(function (ch) { gsap.killTweensOf(ch); });
+      gsap.killTweensOf(name1);
+      gsap.killTweensOf(name2);
 
       var exitTL = gsap.timeline();
 
@@ -269,23 +265,21 @@
           ease: 'power2.in'
         }, 0)
 
-        .to(name1Chars, {
+        .to(name1, {
           opacity: 0,
           y: -25,
           filter: 'blur(6px)',
           duration: 0.5,
-          stagger: 0.015,
           ease: 'power2.in'
         }, 0.1)
 
         .to(amp, { opacity: 0, duration: 0.3 }, 0.1)
 
-        .to(name2Chars, {
+        .to(name2, {
           opacity: 0,
           y: -25,
           filter: 'blur(6px)',
           duration: 0.5,
-          stagger: 0.015,
           ease: 'power2.in'
         }, 0.15)
 
