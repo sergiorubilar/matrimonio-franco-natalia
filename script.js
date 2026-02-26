@@ -197,14 +197,16 @@
         ease: 'power3.out'
       }, 3.8)
 
-      // Date with letter-spacing animation
+      // Date reveal
       .fromTo(dateEl, {
         opacity: 0,
-        letterSpacing: '20px'
+        y: 10,
+        filter: 'blur(4px)'
       }, {
         opacity: 1,
-        letterSpacing: '6px',
-        duration: 1.2,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: 1,
         ease: 'power2.out'
       }, 4.6)
 
