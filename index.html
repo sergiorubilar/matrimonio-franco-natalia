@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Natalia & Franco — 01.05.2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Birthstone&family=Nunito:wght@200;300;500&family=Waterfall&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ===== INTRO ANIMATION ===== -->
+  <div class="intro" id="intro">
+    <div class="intro__rays"></div>
+    <p class="intro__text" id="intro-text">Esta es una invitación<br>exclusiva para ti</p>
+    <div class="intro__seal-wrapper" id="intro-seal">
+      <div class="intro__seal">
+        <div class="intro__seal-monogram">
+          <span>N</span>
+          <span>&</span>
+          <span>F</span>
+        </div>
+      </div>
+      <p class="intro__tap">Toca para abrir</p>
+    </div>
+    <div class="intro__shockwave"></div>
+    <div class="intro__shockwave intro__shockwave--2"></div>
+    <div class="intro__flash"></div>
+  </div>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero">
+    <div class="hero__photo">
+      <img src="assets/foto-banner.jpg" alt="Natalia y Franco">
+    </div>
+    <div class="hero__overlay">
+      <div class="hero__date">
+        <span class="hero__date-line"></span>
+        <span class="hero__date-text">01.05.2026</span>
+        <span class="hero__date-line"></span>
+      </div>
+      <h1 class="hero__names">Natalia<br>&<br>Franco</h1>
+      <span class="hero__line-bottom"></span>
+    </div>
+    <img src="assets/espiga-2.svg" alt="" class="hero__espiga hero__espiga--left" aria-hidden="true">
+    <img src="assets/espiga.svg" alt="" class="hero__espiga hero__espiga--right" aria-hidden="true">
+  </section>
+
+  <!-- ===== COUNTDOWN BUBBLE ===== -->
+  <div class="countdown">
+    <img src="assets/vector-2.svg" alt="" class="countdown__wave countdown__wave--back" aria-hidden="true">
+    <img src="assets/vector-1.svg" alt="" class="countdown__wave countdown__wave--front" aria-hidden="true">
+    <img src="assets/vector-3.svg" alt="" class="countdown__wave countdown__wave--line" aria-hidden="true">
+    <img src="assets/Vector.svg" alt="" class="countdown__vector" aria-hidden="true">
+    <div class="countdown__bubble">
+      <span class="countdown__title">Faltan</span>
+      <div class="countdown__timer">
+        <div class="countdown__block">
+          <span class="countdown__number" id="countdown-days">67</span>
+          <span class="countdown__label">días</span>
+        </div>
+        <span class="countdown__separator"></span>
+        <div class="countdown__block">
+          <span class="countdown__number" id="countdown-hours">12</span>
+          <span class="countdown__label">hrs</span>
+        </div>
+        <span class="countdown__separator"></span>
+        <div class="countdown__block">
+          <span class="countdown__number" id="countdown-minutes">56</span>
+          <span class="countdown__label">min</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MESSAGE ===== -->
+  <section class="message">
+    <img src="assets/Vector.svg" alt="" class="message__leaf" aria-hidden="true">
+    <p class="message__text">¡Nos encantaría compartir este<br>momento contigo!</p>
+  </section>
+
+  <!-- ===== FECHA SECTION ===== -->
+  <section class="fecha">
+    <h2 class="fecha__title">Fecha</h2>
+    <p class="fecha__day">Viernes 1 de mayo - 19 hrs</p>
+    <p class="fecha__venue">Centro de Eventos Claro de Luna</p>
+    <p class="fecha__city">San Fernando</p>
+    <button class="btn btn--primary" id="btn-confirmar">Confirmar asistencia</button>
+    <button class="btn btn--link" id="btn-mapa">Ver mapa de ubicación</button>
+  </section>
+
+  <!-- ===== LA FIESTA SECTION ===== -->
+  <section class="fiesta">
+    <!-- Decorative grapes -->
+    <img src="assets/racimo-de-uvas.png" alt="" class="fiesta__deco fiesta__deco--grapes" aria-hidden="true">
+    <!-- Decorative waves behind música card -->
+    <img src="assets/vector-4.svg" alt="" class="fiesta__wave fiesta__wave--back" aria-hidden="true">
+    <img src="assets/vector-5.svg" alt="" class="fiesta__wave fiesta__wave--front" aria-hidden="true">
+
+    <h2 class="fiesta__title">La Fiesta</h2>
+
+    <div class="fiesta__cards">
+      <!-- Dress Code Card -->
+      <div class="fiesta__card">
+        <h3 class="fiesta__card-heading">Dress Code</h3>
+        <img src="assets/dress-code.png" alt="Dress Code" class="fiesta__card-icon">
+        <p class="fiesta__card-text">Para acompañarnos en esta noche tan especial, <strong>les pedimos asistir con atuendo formal.</strong></p>
+      </div>
+
+      <!-- Música Card -->
+      <div class="fiesta__card">
+        <h3 class="fiesta__card-heading">Música</h3>
+        <img src="assets/musica.png" alt="Música" class="fiesta__card-icon fiesta__card-icon--music">
+        <p class="fiesta__card-text">¿Que canción no puede faltar en la fiesta?</p>
+        <div class="fiesta__qr">
+          <img src="assets/qr-spotify.jpeg" alt="QR Spotify" class="fiesta__qr-img">
+        </div>
+        <a href="https://open.spotify.com/playlist/6xwxXEeLFj0UlWe9L6RPQ2?si=pH7RB2ECRJKkMrP7yIBusg&pt=0d346228aabaf6ab8ea50b5609360bf8" class="btn btn--primary" id="btn-playlist" target="_blank" rel="noopener">Ir a la playlist</a>
+      </div>
+    </div>
+
+    <!-- Decorative cart -->
+    <img src="assets/carreta.png" alt="" class="fiesta__deco fiesta__deco--cart" aria-hidden="true">
+  </section>
+
+  <!-- ===== MAP FULLSCREEN ===== -->
+  <div class="fullscreen" id="screen-mapa" aria-hidden="true">
+    <div class="fullscreen__content fullscreen__content--map">
+      <h2 class="fullscreen__title">Ubicación</h2>
+      <div class="fullscreen__map-frame">
+        <div id="leaflet-map" style="width:100%;height:100%;"></div>
+        <button class="fullscreen__close fullscreen__close--map" id="btn-close-mapa" aria-label="Cerrar">X</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONFIRMATION FULLSCREEN ===== -->
+  <div class="fullscreen" id="screen-confirmar" aria-hidden="true">
+    <div class="fullscreen__content">
+      <img src="assets/Vector.svg" alt="" class="fullscreen__vector" aria-hidden="true">
+      <h2 class="fullscreen__title">Confirmar<br>asistencia</h2>
+
+      <form class="form" id="form-confirmacion">
+        <!-- ¿Asistirás? -->
+        <div class="form__group">
+          <label class="form__label">¿Asistirás?</label>
+          <div class="form__radios">
+            <label class="form__radio">
+              <input type="radio" name="asistencia" value="si" required>
+              <span class="form__radio-custom"></span>
+              Sí
+            </label>
+            <label class="form__radio">
+              <input type="radio" name="asistencia" value="no">
+              <span class="form__radio-custom"></span>
+              No
+            </label>
+          </div>
+        </div>
+
+        <!-- ¿Alergia? -->
+        <div class="form__group">
+          <label class="form__label">¿Tienes alguna<br>alergia alimentaria?</label>
+          <div class="form__radios">
+            <label class="form__radio">
+              <input type="radio" name="alergia" value="si" id="alergia-si">
+              <span class="form__radio-custom"></span>
+              Sí
+            </label>
+            <label class="form__radio">
+              <input type="radio" name="alergia" value="no" id="alergia-no">
+              <span class="form__radio-custom"></span>
+              No
+            </label>
+          </div>
+        </div>
+
+        <!-- ¿Cuál? -->
+        <div class="form__group form__group--textarea" id="group-cual">
+          <label class="form__label" for="alergia-detalle">¿Cuál?</label>
+          <textarea class="form__textarea" id="alergia-detalle" name="alergia_detalle" rows="3" placeholder=""></textarea>
+        </div>
+
+        <button type="submit" class="btn btn--submit">Enviar</button>
+      </form>
+    </div>
+    <div class="fullscreen__bottom">
+      <img src="assets/Vector.svg" alt="" class="fullscreen__vector-bottom" aria-hidden="true">
+      <button class="fullscreen__close" id="btn-close-confirmar" aria-label="Cerrar">X</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
