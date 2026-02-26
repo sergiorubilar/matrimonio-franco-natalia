@@ -1127,26 +1127,6 @@ img {
 }
 
 /* ========================================
-   ANIMATIONS (fade in on scroll)
-   ======================================== */
-.fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.fade-in.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Ensure content is visible if JS fails */
-.no-js .fade-in {
-  opacity: 1;
-  transform: none;
-}
-
-/* ========================================
    TOAST NOTIFICATION
    ======================================== */
 .toast {

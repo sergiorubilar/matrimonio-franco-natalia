@@ -23,6 +23,119 @@
   }
 
   // ============================
+  // PAGE REVEAL ANIMATIONS
+  // ============================
+  var revealHero = null;
+
+  function initPageAnimations() {
+    if (typeof gsap === 'undefined') return;
+
+    // --- Initial hidden states: Hero ---
+    gsap.set('.hero__photo', { opacity: 0 });
+    gsap.set('.hero__photo img', { scale: 1.05 });
+    gsap.set('.hero__date-line', { scaleX: 0 });
+    gsap.set('.hero__date-text', { opacity: 0 });
+    gsap.set('.hero__names', { opacity: 0, y: 20 });
+    gsap.set('.hero__line-bottom', { scaleX: 0 });
+    gsap.set('.hero__espiga--left', { opacity: 0, x: -30 });
+    gsap.set('.hero__espiga--right', { opacity: 0, x: 30 });
+
+    // --- Initial hidden states: Countdown ---
+    gsap.set('.countdown__bubble', { opacity: 0, y: 20 });
+    gsap.set('.countdown__vector', { opacity: 0 });
+
+    // --- Initial hidden states: Message ---
+    gsap.set('.message__text', { opacity: 0, y: 20 });
+    gsap.set('.message__leaf', { opacity: 0, scale: 0.9 });
+
+    // --- Initial hidden states: Fecha ---
+    gsap.set('.fecha__title', { opacity: 0, y: 20 });
+    gsap.set('.fecha__day, .fecha__venue, .fecha__city', { opacity: 0, y: 15 });
+    gsap.set('.fecha .btn', { opacity: 0, y: 10 });
+
+    // --- Initial hidden states: Fiesta ---
+    gsap.set('.fiesta__title', { opacity: 0, y: 20 });
+    gsap.set('.fiesta__card', { opacity: 0, y: 30 });
+    gsap.set('.fiesta__deco', { opacity: 0 });
+
+    // --- Hero reveal timeline ---
+    revealHero = function () {
+      gsap.timeline()
+        .to('.hero__photo', { opacity: 1, duration: 1.5, ease: 'power2.out' }, 0)
+        .to('.hero__photo img', { scale: 1, duration: 2.5, ease: 'power2.out' }, 0)
+        .to('.hero__date-line', { scaleX: 1, duration: 0.8, ease: 'power2.inOut' }, 0.4)
+        .to('.hero__date-text', { opacity: 1, duration: 0.7, ease: 'power2.out' }, 0.6)
+        .to('.hero__names', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 0.7)
+        .to('.hero__line-bottom', { scaleX: 1, duration: 0.6, ease: 'power2.inOut' }, 1.2)
+        .to('.hero__espiga--left', { opacity: 1, x: 0, duration: 1.2, ease: 'power2.out' }, 0.5)
+        .to('.hero__espiga--right', { opacity: 1, x: 0, duration: 1.2, ease: 'power2.out' }, 0.7);
+    };
+
+    // If no intro, reveal hero immediately
+    if (!document.getElementById('intro')) {
+      revealHero();
+    }
+
+    // --- Scroll-triggered section reveals ---
+    var sectionDefs = [
+      {
+        el: '.countdown',
+        anim: function () {
+          gsap.timeline()
+            .to('.countdown__vector', { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0)
+            .to('.countdown__bubble', { opacity: 1, y: 0, duration: 1, ease: 'back.out(1.4)' }, 0.1);
+        }
+      },
+      {
+        el: '.message',
+        anim: function () {
+          gsap.timeline()
+            .to('.message__leaf', { opacity: 0.5, scale: 1, duration: 1, ease: 'power2.out' }, 0)
+            .to('.message__text', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0.15);
+        }
+      },
+      {
+        el: '.fecha',
+        anim: function () {
+          gsap.timeline()
+            .to('.fecha__title', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0)
+            .to('.fecha__day', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.1)
+            .to('.fecha__venue', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.2)
+            .to('.fecha__city', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.3)
+            .to('.fecha .btn', { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }, 0.4);
+        }
+      },
+      {
+        el: '.fiesta',
+        anim: function () {
+          gsap.timeline()
+            .to('.fiesta__title', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0)
+            .to('.fiesta__card', { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: 'power2.out' }, 0.15)
+            .to('.fiesta__deco--grapes', { opacity: 0.4, duration: 1.2, ease: 'power1.inOut' }, 0.3)
+            .to('.fiesta__deco--cart', { opacity: 0.25, duration: 1.2, ease: 'power1.inOut' }, 0.5);
+        }
+      }
+    ];
+
+    var scrollObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var fn = entry.target._revealAnim;
+        if (fn) fn();
+        scrollObs.unobserve(entry.target);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    sectionDefs.forEach(function (def) {
+      var el = document.querySelector(def.el);
+      if (el) {
+        el._revealAnim = def.anim;
+        scrollObs.observe(el);
+      }
+    });
+  }
+
+  // ============================
   // INTRO ANIMATION (GSAP)
   // ============================
   function initIntro() {
@@ -317,11 +430,12 @@
           ease: 'power2.in'
         }, 0.8)
 
-        // Remove intro
+        // Remove intro and reveal page
         .add(function () {
           bokehRunning = false;
           window.removeEventListener('resize', resizeCanvas);
           intro.remove();
+          if (revealHero) revealHero();
         }, 1.6);
     });
   }
@@ -402,7 +516,10 @@
     });
   }
 
-  // Iniciar: si hay token, buscar info del invitado primero
+  // Iniciar animaciones de página
+  initPageAnimations();
+
+  // Si hay token, buscar info del invitado primero
   if (guestToken && isConfigured()) {
     Promise.race([
       fetch(APPS_SCRIPT_URL + '?' + new URLSearchParams({
@@ -670,30 +787,6 @@
       }, 400);
     }, 3000);
   }
-
-  // ============================
-  // SCROLL ANIMATIONS
-  // ============================
-  var fadeTargets = document.querySelectorAll(
-    '.countdown, .message, .fecha, .fiesta__card, .fiesta__title'
-  );
-
-  fadeTargets.forEach(function (el) {
-    el.classList.add('fade-in');
-  });
-
-  var observer = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.05, rootMargin: '0px 0px 50px 0px' });
-
-  fadeTargets.forEach(function (el) {
-    observer.observe(el);
-  });
 
   // ============================
   // LEAFLET MAP
