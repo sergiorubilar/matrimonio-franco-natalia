@@ -13,6 +13,25 @@
   var currentDetailGuest = null;
 
   // ============================
+  // MESSAGE TEMPLATE
+  // ============================
+  var DEFAULT_MSG_TEMPLATE = 'Hola {saludo}!\n\n'
+    + 'Están cordialmente invitados al matrimonio de *Natalia & Franco*\n\n'
+    + 'Viernes 1 de mayo, 2026\n'
+    + '19:00 hrs\n'
+    + 'Centro de Eventos Claro de Luna, San Fernando\n\n'
+    + 'Confirma tu asistencia aquí:\n'
+    + '{link}';
+
+  function getMsgTemplate() {
+    return localStorage.getItem('wa_msg_template') || DEFAULT_MSG_TEMPLATE;
+  }
+
+  function saveMsgTemplate(tpl) {
+    localStorage.setItem('wa_msg_template', tpl);
+  }
+
+  // ============================
   // DOM ELEMENTS
   // ============================
   var loginScreen = document.getElementById('login');
@@ -273,22 +292,26 @@
   // ============================
   // WHATSAPP LINKS
   // ============================
-  function buildWhatsAppLink(g) {
-    var url = BASE_URL + '/?token=' + g.token;
+  function buildSaludo(g) {
     var saludo = g.nombre.split(' ')[0];
     if (g.acompanante && g.acompanante.toLowerCase() !== 'pareja' && g.acompanante.trim() !== '') {
       saludo += ' y ' + g.acompanante.split(' ')[0];
     }
+    return saludo;
+  }
 
-    var mensaje = 'Hola ' + saludo + '!\n\n'
-      + 'Están cordialmente invitados al matrimonio de *Natalia & Franco*\n\n'
-      + 'Viernes 1 de mayo, 2026\n'
-      + '19:00 hrs\n'
-      + 'Centro de Eventos Claro de Luna, San Fernando\n\n'
-      + 'Confirma tu asistencia aquí:\n'
-      + url;
+  function buildMessage(g) {
+    var url = BASE_URL + '/?token=' + g.token;
+    var template = getMsgTemplate();
+    return template
+      .replace(/\{saludo\}/g, buildSaludo(g))
+      .replace(/\{nombre\}/g, g.nombre || '')
+      .replace(/\{acompanante\}/g, g.acompanante || '')
+      .replace(/\{link\}/g, url);
+  }
 
-    return 'https://wa.me/' + g.telefono + '?text=' + encodeURIComponent(mensaje);
+  function buildWhatsAppLink(g) {
+    return 'https://wa.me/' + g.telefono + '?text=' + encodeURIComponent(buildMessage(g));
   }
 
   function buildInvitationUrl(g) {
@@ -629,6 +652,55 @@
       confirmModal.style.display = 'none';
       pendingDeleteToken = null;
     }
+  });
+
+  // ============================
+  // MESSAGE TEMPLATE MODAL
+  // ============================
+  var msgModal = document.getElementById('msg-modal');
+  var msgTemplate = document.getElementById('msg-template');
+  var msgPreview = document.getElementById('msg-preview');
+
+  function updateMsgPreview() {
+    var sampleGuest = guests[0] || {
+      nombre: 'Juan Pérez', acompanante: 'María López', token: 'abc123'
+    };
+    var tpl = msgTemplate.value;
+    var url = BASE_URL + '/?token=' + sampleGuest.token;
+    var preview = tpl
+      .replace(/\{saludo\}/g, buildSaludo(sampleGuest))
+      .replace(/\{nombre\}/g, sampleGuest.nombre || '')
+      .replace(/\{acompanante\}/g, sampleGuest.acompanante || '')
+      .replace(/\{link\}/g, url);
+    msgPreview.textContent = preview;
+  }
+
+  document.getElementById('btn-edit-msg').addEventListener('click', function () {
+    msgTemplate.value = getMsgTemplate();
+    updateMsgPreview();
+    msgModal.style.display = '';
+  });
+
+  msgTemplate.addEventListener('input', updateMsgPreview);
+
+  document.getElementById('msg-save').addEventListener('click', function () {
+    saveMsgTemplate(msgTemplate.value);
+    showToast('Mensaje guardado', 'success');
+    msgModal.style.display = 'none';
+    renderTable(); // re-render WA links with new message
+  });
+
+  document.getElementById('msg-reset').addEventListener('click', function () {
+    msgTemplate.value = DEFAULT_MSG_TEMPLATE;
+    updateMsgPreview();
+  });
+
+  document.getElementById('msg-cancel').addEventListener('click', function () {
+    msgModal.style.display = 'none';
+  });
+
+  msgModal.addEventListener('click', function (e) {
+    if (e.target === msgModal) msgModal.style.display = 'none';
   });
 
   // ============================
