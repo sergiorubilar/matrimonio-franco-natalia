@@ -50,7 +50,7 @@
   --shadow: 0 4px 24px rgba(140, 120, 80, 0.10);
   --font-script: 'Birthstone', cursive;
   --font-script-alt: 'Waterfall', cursive;
-  --font-body: 'SF Pro Rounded', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Nunito', 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 html {
@@ -1445,15 +1445,6 @@ img {
 
   .fiesta__title {
     font-size: 68px;
-  }
-
-  .fiesta__cards {
-    flex-direction: row;
-    max-width: 600px;
-  }
-
-  .fiesta__card {
-    flex: 1;
   }
 
   .modal__map-frame {
