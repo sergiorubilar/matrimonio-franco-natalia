@@ -27,214 +27,187 @@
   // ============================
   function initIntro() {
     var intro = document.getElementById('intro');
-    var introText = document.getElementById('intro-text');
-    var introSeal = document.getElementById('intro-seal');
+    var envelope = document.getElementById('envelope');
+    var flap = document.getElementById('envelope-flap');
+    var card = document.getElementById('envelope-card');
+    var tap = document.getElementById('intro-tap');
 
-    if (intro && introText && introSeal && typeof gsap !== 'undefined') {
+    if (!intro || !envelope || !flap || !card || typeof gsap === 'undefined') return;
 
-      // 1. Split text into word spans
-      (function () {
-        var html = introText.innerHTML;
-        var parts = html.split(/(<br\s*\/?>)/);
-        introText.innerHTML = '';
-        parts.forEach(function (part) {
-          if (part.match(/<br\s*\/?>/)) {
-            introText.appendChild(document.createElement('br'));
-            return;
-          }
-          var words = part.trim().split(/\s+/);
-          words.forEach(function (word, i) {
-            if (!word) return;
-            var span = document.createElement('span');
-            span.className = 'intro__word';
-            span.textContent = word;
-            introText.appendChild(span);
-            if (i < words.length - 1) introText.appendChild(document.createTextNode(' '));
-          });
-        });
-      })();
+    // 1. Ambient golden dust
+    for (var d = 0; d < 20; d++) {
+      var dust = document.createElement('div');
+      dust.className = 'intro__dust';
+      dust.style.left = Math.random() * 100 + '%';
+      dust.style.animationDelay = Math.random() * 8 + 's';
+      dust.style.animationDuration = 5 + Math.random() * 7 + 's';
+      intro.appendChild(dust);
+    }
 
-      // 2. Ambient golden dust (CSS animated)
-      for (var d = 0; d < 30; d++) {
-        var dust = document.createElement('div');
-        dust.className = 'intro__dust';
-        dust.style.left = Math.random() * 100 + '%';
-        dust.style.animationDelay = Math.random() * 8 + 's';
-        dust.style.animationDuration = 5 + Math.random() * 7 + 's';
-        intro.appendChild(dust);
+    // 2. Initial state: envelope hidden, will fade in
+    gsap.set('.intro__scene', { opacity: 0, scale: 0.85, y: 40 });
+    gsap.set(flap, { rotationX: 0 });
+    gsap.set(card, { y: 0 });
+    gsap.set(tap, { opacity: 0 });
+
+    // 3. Entrance animation — envelope fades in elegantly
+    var entranceTl = gsap.timeline({ delay: 0.5 });
+
+    entranceTl
+      .to('.intro__scene', {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 1.8,
+        ease: 'power2.out'
+      })
+      .to(tap, {
+        opacity: 0.6,
+        duration: 1,
+        ease: 'power1.out'
+      }, '-=0.6');
+
+    // 4. Subtle seal breathing loop
+    gsap.to('.envelope__seal', {
+      scale: 1.05,
+      duration: 2.5,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+      delay: 2.5
+    });
+
+    // Tap text pulse
+    gsap.to(tap, {
+      opacity: 0.9,
+      duration: 2,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+      delay: 3
+    });
+
+    // 5. Click to open envelope
+    var opened = false;
+    envelope.addEventListener('click', function () {
+      if (opened) return;
+      opened = true;
+
+      gsap.killTweensOf('.envelope__seal');
+      gsap.killTweensOf(tap);
+
+      // Particle burst from the seal
+      var sealRect = document.querySelector('.envelope__seal').getBoundingClientRect();
+      var introRect = intro.getBoundingClientRect();
+      var burstX = sealRect.left + sealRect.width / 2 - introRect.left;
+      var burstY = sealRect.top + sealRect.height / 2 - introRect.top;
+
+      var particles = [];
+      for (var i = 0; i < 40; i++) {
+        var p = document.createElement('div');
+        p.className = 'intro__particle';
+        var size = 2 + Math.random() * 4;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = burstX + 'px';
+        p.style.top = burstY + 'px';
+        var alpha = (0.5 + Math.random() * 0.5).toFixed(2);
+        p.style.background = 'rgba(191,168,128,' + alpha + ')';
+        p.style.boxShadow = '0 0 ' + (3 + Math.random() * 8).toFixed(0) + 'px rgba(191,168,128,0.5)';
+        intro.appendChild(p);
+        particles.push(p);
       }
 
-      // 3. GSAP — Cinematic entrance (blur-to-sharp reveal)
-      gsap.set('.intro__text', { opacity: 1 });
-      gsap.set('.intro__word', { opacity: 0, y: 30, filter: 'blur(16px)', scale: 0.96 });
+      var openTl = gsap.timeline();
 
-      var entranceTl = gsap.timeline({ delay: 0.6 });
+      openTl
+        // Hide tap text
+        .to(tap, { opacity: 0, duration: 0.3 }, 0)
 
-      entranceTl
-        .to('.intro__word', {
-          y: 0,
-          opacity: 1,
-          filter: 'blur(0px)',
-          scale: 1,
-          stagger: 0.11,
-          duration: 1,
-          ease: 'power3.out'
-        })
-        .fromTo('.intro__seal-wrapper', {
+        // Seal vibration before breaking
+        .to('.envelope__seal', {
+          scale: 1.08,
+          duration: 0.05,
+          ease: 'power2.inOut',
+          yoyo: true,
+          repeat: 3
+        }, 0)
+
+        // Seal dissolves
+        .to('.envelope__seal', {
+          scale: 2,
           opacity: 0,
-          filter: 'blur(20px)',
-          scale: 0.8,
-          y: 30
-        }, {
-          opacity: 1,
-          filter: 'blur(0px)',
-          scale: 1,
-          y: 0,
+          duration: 0.7,
+          ease: 'power3.out'
+        }, 0.3)
+
+        // Burst particles outward from seal
+        .add(function () {
+          particles.forEach(function (p) {
+            var angle = Math.random() * Math.PI * 2;
+            var distance = 60 + Math.random() * 200;
+            gsap.fromTo(p,
+              { x: 0, y: 0, scale: 1, opacity: 1 },
+              {
+                x: Math.cos(angle) * distance,
+                y: Math.sin(angle) * distance,
+                scale: 0,
+                opacity: 0,
+                duration: 1 + Math.random() * 0.8,
+                ease: 'power2.out',
+                onComplete: function () { if (p.parentNode) p.remove(); }
+              }
+            );
+          });
+        }, 0.3)
+
+        // Open the flap with 3D rotation (rotateX from 0 to 180)
+        .to(flap, {
+          rotationX: 180,
+          duration: 1.4,
+          ease: 'power2.inOut'
+        }, 0.6)
+
+        // Card slides upward out of the envelope
+        .to(card, {
+          y: -200,
           duration: 1.6,
           ease: 'power2.out'
-        }, '-=0.4')
-        .to('.intro__tap', {
-          opacity: 0.5,
+        }, 1.6)
+
+        // Envelope body fades down
+        .to('.envelope__front, .envelope__back, .envelope__side, .envelope__flap', {
+          opacity: 0,
+          y: 60,
+          duration: 1,
+          ease: 'power2.in'
+        }, 2.4)
+
+        // Card grows to fill the screen
+        .to(card, {
+          scale: 2.2,
+          y: -120,
           duration: 1.2,
-          ease: 'power1.out'
-        }, '-=0.4');
+          ease: 'power2.inOut'
+        }, 3.0)
 
-      // 4. Continuous loops
-      gsap.to('.intro__word', {
-        backgroundPosition: '300% center',
-        duration: 5,
-        ease: 'none',
-        repeat: -1,
-        delay: 2.5
-      });
+        // Gentle golden flash
+        .to('.intro__flash', {
+          opacity: 0.5,
+          duration: 1,
+          ease: 'power1.in'
+        }, 3.4)
 
-      gsap.to('.intro__seal', {
-        scale: 1.03,
-        duration: 3,
-        ease: 'sine.inOut',
-        repeat: -1,
-        yoyo: true,
-        delay: 3
-      });
-
-      gsap.to('.intro__tap', {
-        opacity: 0.8,
-        duration: 2,
-        ease: 'sine.inOut',
-        repeat: -1,
-        yoyo: true,
-        delay: 4
-      });
-
-      // 5. Click to break the seal
-      var opened = false;
-      introSeal.addEventListener('click', function () {
-        if (opened) return;
-        opened = true;
-
-        gsap.killTweensOf('.intro__seal');
-        gsap.killTweensOf('.intro__tap');
-        gsap.killTweensOf('.intro__word');
-
-        // Create golden particle burst
-        var particles = [];
-        for (var i = 0; i < 55; i++) {
-          var p = document.createElement('div');
-          p.className = 'intro__particle';
-          var size = 2 + Math.random() * 5;
-          p.style.width = size + 'px';
-          p.style.height = size + 'px';
-          var alpha = (0.6 + Math.random() * 0.4).toFixed(2);
-          p.style.background = 'rgba(191,168,128,' + alpha + ')';
-          p.style.boxShadow = '0 0 ' + (4 + Math.random() * 10).toFixed(0) + 'px rgba(191,168,128,0.6)';
-          intro.appendChild(p);
-          particles.push(p);
-        }
-
-        var openTl = gsap.timeline();
-
-        openTl
-          // Subtle seal vibration
-          .to('.intro__seal', {
-            scale: 1.06,
-            duration: 0.06,
-            ease: 'power2.inOut',
-            yoyo: true,
-            repeat: 3
-          })
-          // Text fades up with blur
-          .to('.intro__text', {
-            y: -50,
-            opacity: 0,
-            filter: 'blur(12px)',
-            duration: 0.9,
-            ease: 'power2.in'
-          }, 0.15)
-          .to('.intro__tap', {
-            opacity: 0,
-            duration: 0.3
-          }, 0.15)
-          // Seal breaks: expand, blur, dissolve
-          .to('.intro__seal', {
-            scale: 2.8,
-            rotation: 30,
-            opacity: 0,
-            filter: 'blur(6px)',
-            duration: 1,
-            ease: 'power3.out'
-          }, 0.24)
-          // Particles burst outward
-          .add(function () {
-            particles.forEach(function (p) {
-              var angle = Math.random() * Math.PI * 2;
-              var distance = 80 + Math.random() * 350;
-              gsap.fromTo(p,
-                { x: 0, y: 0, scale: 1, opacity: 1 },
-                {
-                  x: Math.cos(angle) * distance,
-                  y: Math.sin(angle) * distance,
-                  scale: 0,
-                  opacity: 0,
-                  duration: 1.2 + Math.random() * 1,
-                  ease: 'power2.out',
-                  onComplete: function () { if (p.parentNode) p.remove(); }
-                }
-              );
-            });
-          }, 0.24)
-          // Soft golden glow expands
-          .to('.intro__rays', {
-            opacity: 0.6,
-            scale: 1.5,
-            duration: 2.5,
-            ease: 'power1.out'
-          }, 0.3)
-          // Seal wrapper fades
-          .to('.intro__seal-wrapper', {
-            scale: 1.3,
-            opacity: 0,
-            filter: 'blur(8px)',
-            duration: 0.8,
-            ease: 'power2.in'
-          }, 0.5)
-          // Gentle golden flash
-          .to('.intro__flash', {
-            opacity: 0.6,
-            scale: 3.5,
-            duration: 1.8,
-            ease: 'power1.in'
-          }, 1.2)
-          // Everything fades out smoothly
-          .to(intro, {
-            opacity: 0,
-            duration: 1.5,
-            ease: 'power1.inOut',
-            onComplete: function () {
-              intro.remove();
-            }
-          }, 2);
-      });
-    }
+        // Everything fades out
+        .to(intro, {
+          opacity: 0,
+          duration: 1.2,
+          ease: 'power1.inOut',
+          onComplete: function () {
+            intro.remove();
+          }
+        }, 3.8);
+    });
   }
 
   // ============================
