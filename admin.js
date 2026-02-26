@@ -10,6 +10,7 @@
 
   var guests = [];
   var password = '';
+  var currentDetailGuest = null;
 
   // ============================
   // DOM ELEMENTS
@@ -93,6 +94,16 @@
       .then(function (r) { return r.json(); });
   }
 
+  function adminAction(sub, extraParams) {
+    var params = { action: 'admin', password: password, sub: sub };
+    var extra = extraParams || {};
+    Object.keys(extra).forEach(function (k) {
+      params[k] = extra[k];
+    });
+    return fetch(APPS_SCRIPT_URL + '?' + new URLSearchParams(params))
+      .then(function (r) { return r.json(); });
+  }
+
   function loadData() {
     dashLoading.style.display = '';
     mainContent.style.display = 'none';
@@ -135,6 +146,19 @@
   document.getElementById('btn-refresh').addEventListener('click', loadData);
 
   // ============================
+  // TOAST NOTIFICATIONS
+  // ============================
+  function showToast(message, type) {
+    var toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast toast--' + (type || 'success') + ' toast--show';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(function () {
+      toast.className = 'toast';
+    }, 3500);
+  }
+
+  // ============================
   // STATS
   // ============================
   function updateStats(stats) {
@@ -170,17 +194,11 @@
     var group = filterGroup.value;
 
     return guests.filter(function (g) {
-      // Search
       if (search && !(g.nombre + ' ' + g.acompanante).toLowerCase().includes(search)) return false;
-
-      // Status
       if (status === 'confirmed' && g.confirmacion !== 'TRUE') return false;
       if (status === 'declined' && g.confirmacion !== 'FALSE') return false;
       if (status === 'pending' && g.confirmacion !== '') return false;
-
-      // Group
       if (group !== 'all' && g.grupo !== group) return false;
-
       return true;
     });
   }
@@ -208,7 +226,6 @@
     filtered.forEach(function (g) {
       var tr = document.createElement('tr');
 
-      // Status badge
       var statusBadge;
       if (g.confirmacion === 'TRUE') {
         statusBadge = '<span class="badge badge--confirmed">Confirmado</span>';
@@ -218,7 +235,6 @@
         statusBadge = '<span class="badge badge--pending">Pendiente</span>';
       }
 
-      // Allergy badge
       var allergyBadge;
       if (g.alergias === 'TRUE') {
         allergyBadge = '<span class="badge badge--allergy" title="' + escapeHtml(g.detalleAlergias) + '">Sí</span>';
@@ -238,7 +254,7 @@
         '<td>' + allergyBadge + '</td>' +
         '<td><div class="row-actions">' +
           '<a class="row-btn row-btn--wa" href="' + escapeHtml(waLink) + '" target="_blank" title="Enviar WhatsApp">WA</a>' +
-          '<button class="row-btn btn-detail" data-id="' + g.id + '" title="Ver detalle">Ver</button>' +
+          '<button class="row-btn btn-detail" data-token="' + escapeHtml(g.token) + '" title="Ver detalle">Ver</button>' +
         '</div></td>';
 
       tbody.appendChild(tr);
@@ -247,8 +263,8 @@
     // Attach detail events
     tbody.querySelectorAll('.btn-detail').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id = this.getAttribute('data-id');
-        var guest = guests.find(function (g) { return String(g.id) === id; });
+        var token = this.getAttribute('data-token');
+        var guest = guests.find(function (g) { return g.token === token; });
         if (guest) showDetail(guest);
       });
     });
@@ -368,6 +384,7 @@
   var detailModal = document.getElementById('detail-modal');
 
   function showDetail(g) {
+    currentDetailGuest = g;
     document.getElementById('detail-name').textContent = g.nombre;
 
     var url = buildInvitationUrl(g);
@@ -390,6 +407,14 @@
     var detailLink = document.getElementById('detail-link');
     detailLink.href = url;
 
+    // Show/hide reset button depending on whether guest has responded
+    var resetBtn = document.getElementById('detail-reset');
+    if (g.confirmacion === 'TRUE' || g.confirmacion === 'FALSE') {
+      resetBtn.style.display = '';
+    } else {
+      resetBtn.style.display = 'none';
+    }
+
     detailModal.style.display = '';
   }
 
@@ -408,6 +433,202 @@
 
   detailModal.addEventListener('click', function (e) {
     if (e.target === detailModal) detailModal.style.display = 'none';
+  });
+
+  // Detail modal — Edit button
+  document.getElementById('detail-edit').addEventListener('click', function () {
+    if (currentDetailGuest) {
+      detailModal.style.display = 'none';
+      openEditForm(currentDetailGuest);
+    }
+  });
+
+  // Detail modal — Reset confirmation
+  document.getElementById('detail-reset').addEventListener('click', function () {
+    if (!currentDetailGuest) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Reseteando...';
+
+    adminAction('resetConfirm', { token: currentDetailGuest.token })
+      .then(function (data) {
+        if (data.error) {
+          showToast(data.error, 'error');
+        } else {
+          showToast(data.mensaje, 'success');
+          detailModal.style.display = 'none';
+          loadData();
+        }
+        btn.disabled = false;
+        btn.textContent = 'Resetear confirmación';
+      })
+      .catch(function () {
+        showToast('Error de conexión', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Resetear confirmación';
+      });
+  });
+
+  // Detail modal — Delete button
+  document.getElementById('detail-delete').addEventListener('click', function () {
+    if (currentDetailGuest) {
+      detailModal.style.display = 'none';
+      openDeleteConfirm(currentDetailGuest);
+    }
+  });
+
+  // ============================
+  // GUEST FORM MODAL (ADD / EDIT)
+  // ============================
+  var guestFormModal = document.getElementById('guest-form-modal');
+  var guestForm = document.getElementById('guest-form');
+  var guestFormTitle = document.getElementById('guest-form-title');
+  var gfNombre = document.getElementById('gf-nombre');
+  var gfAcompanante = document.getElementById('gf-acompanante');
+  var gfGrupo = document.getElementById('gf-grupo');
+  var gfTelefono = document.getElementById('gf-telefono');
+  var gfToken = document.getElementById('gf-token');
+  var gfSubmit = document.getElementById('gf-submit');
+
+  function populateGruposList() {
+    var datalist = document.getElementById('grupos-list');
+    var groups = {};
+    guests.forEach(function (g) { if (g.grupo) groups[g.grupo] = true; });
+    datalist.innerHTML = '';
+    Object.keys(groups).sort().forEach(function (group) {
+      var opt = document.createElement('option');
+      opt.value = group;
+      datalist.appendChild(opt);
+    });
+  }
+
+  // Add guest button
+  document.getElementById('btn-add-guest').addEventListener('click', function () {
+    guestFormTitle.textContent = 'Agregar invitado';
+    gfSubmit.textContent = 'Agregar';
+    gfNombre.value = '';
+    gfAcompanante.value = '';
+    gfGrupo.value = '';
+    gfTelefono.value = '';
+    gfToken.value = '';
+    populateGruposList();
+    guestFormModal.style.display = '';
+    gfNombre.focus();
+  });
+
+  // Edit guest
+  function openEditForm(g) {
+    guestFormTitle.textContent = 'Editar invitado';
+    gfSubmit.textContent = 'Guardar cambios';
+    gfNombre.value = g.nombre || '';
+    gfAcompanante.value = g.acompanante || '';
+    gfGrupo.value = g.grupo || '';
+    gfTelefono.value = g.telefono || '';
+    gfToken.value = g.token;
+    populateGruposList();
+    guestFormModal.style.display = '';
+    gfNombre.focus();
+  }
+
+  // Form submit
+  guestForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var token = gfToken.value;
+    var isEdit = !!token;
+    var sub = isEdit ? 'editGuest' : 'addGuest';
+    var params = {
+      nombre: gfNombre.value.trim(),
+      acompanante: gfAcompanante.value.trim(),
+      grupo: gfGrupo.value.trim(),
+      telefono: gfTelefono.value.trim()
+    };
+    if (isEdit) params.token = token;
+
+    var originalText = gfSubmit.textContent;
+    gfSubmit.disabled = true;
+    gfSubmit.textContent = 'Guardando...';
+
+    adminAction(sub, params)
+      .then(function (data) {
+        if (data.error) {
+          showToast(data.error, 'error');
+        } else {
+          showToast(data.mensaje, 'success');
+          guestFormModal.style.display = 'none';
+          loadData();
+        }
+        gfSubmit.disabled = false;
+        gfSubmit.textContent = originalText;
+      })
+      .catch(function () {
+        showToast('Error de conexión', 'error');
+        gfSubmit.disabled = false;
+        gfSubmit.textContent = originalText;
+      });
+  });
+
+  // Cancel form
+  document.getElementById('gf-cancel').addEventListener('click', function () {
+    guestFormModal.style.display = 'none';
+  });
+
+  guestFormModal.addEventListener('click', function (e) {
+    if (e.target === guestFormModal) guestFormModal.style.display = 'none';
+  });
+
+  // ============================
+  // DELETE CONFIRMATION
+  // ============================
+  var confirmModal = document.getElementById('confirm-modal');
+  var confirmYes = document.getElementById('confirm-yes');
+  var pendingDeleteToken = null;
+
+  function openDeleteConfirm(g) {
+    document.getElementById('confirm-title').textContent = 'Eliminar invitado';
+    document.getElementById('confirm-desc').textContent =
+      'Se eliminará permanentemente a "' + g.nombre + '" de la lista de invitados. Esta acción no se puede deshacer.';
+    pendingDeleteToken = g.token;
+    confirmYes.textContent = 'Eliminar';
+    confirmYes.disabled = false;
+    confirmModal.style.display = '';
+  }
+
+  confirmYes.addEventListener('click', function () {
+    if (!pendingDeleteToken) return;
+    confirmYes.disabled = true;
+    confirmYes.textContent = 'Eliminando...';
+
+    adminAction('deleteGuest', { token: pendingDeleteToken })
+      .then(function (data) {
+        if (data.error) {
+          showToast(data.error, 'error');
+        } else {
+          showToast('Invitado eliminado', 'success');
+          confirmModal.style.display = 'none';
+          loadData();
+        }
+        confirmYes.disabled = false;
+        confirmYes.textContent = 'Eliminar';
+        pendingDeleteToken = null;
+      })
+      .catch(function () {
+        showToast('Error de conexión', 'error');
+        confirmYes.disabled = false;
+        confirmYes.textContent = 'Eliminar';
+        pendingDeleteToken = null;
+      });
+  });
+
+  document.getElementById('confirm-no').addEventListener('click', function () {
+    confirmModal.style.display = 'none';
+    pendingDeleteToken = null;
+  });
+
+  confirmModal.addEventListener('click', function (e) {
+    if (e.target === confirmModal) {
+      confirmModal.style.display = 'none';
+      pendingDeleteToken = null;
+    }
   });
 
   // ============================
