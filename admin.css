@@ -227,9 +227,15 @@ body {
    ======================================== */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 14px;
   margin-bottom: 24px;
+}
+
+@media (min-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(7, 1fr);
+  }
 }
 
 .stat-card {
