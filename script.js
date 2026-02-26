@@ -235,6 +235,55 @@
     if (titleEl && guestInfo.invitado) {
       titleEl.innerHTML = guestInfo.invitado.split(' ')[0] + ',<br>confirma tu<br>asistencia';
     }
+
+    // Si ya confirmó, mostrar estado en vez del formulario
+    if (guestInfo.confirmacion === 'TRUE' || guestInfo.confirmacion === 'FALSE') {
+      var formEl = document.getElementById('form-confirmacion');
+      var statusMsg = guestInfo.confirmacion === 'TRUE'
+        ? 'Ya confirmaste tu asistencia'
+        : 'Registramos que no podrás asistir';
+      formEl.innerHTML =
+        '<div style="text-align:center;padding:24px 0;">' +
+          '<p style="font-size:20px;color:#BFA880;margin-bottom:12px;">' + statusMsg + '</p>' +
+          '<p style="font-size:14px;color:#999;">Si deseas cambiar tu respuesta, presiona el botón de abajo.</p>' +
+          '<button type="button" class="btn btn--link" id="btn-change-response" style="margin-top:16px;font-size:14px;">Cambiar respuesta</button>' +
+        '</div>';
+      document.getElementById('btn-change-response').addEventListener('click', function () {
+        formEl.innerHTML = originalFormHTML;
+        rebindFormEvents();
+      });
+    }
+  }
+
+  // Guardar HTML original del form para poder restaurarlo
+  var originalFormHTML = document.getElementById('form-confirmacion').innerHTML;
+
+  function rebindFormEvents() {
+    var formEl = document.getElementById('form-confirmacion');
+    var si = document.getElementById('alergia-si');
+    var no = document.getElementById('alergia-no');
+    var gc = document.getElementById('group-cual');
+    var ad = document.getElementById('alergia-detalle');
+    var submitBtn = formEl.querySelector('.btn--submit');
+
+    gc.style.display = 'none';
+    if (submitBtn) submitBtn.disabled = true;
+
+    si.addEventListener('change', function () {
+      gc.style.display = '';
+      ad.disabled = false;
+      checkFormComplete(formEl, submitBtn);
+    });
+    no.addEventListener('change', function () {
+      gc.style.display = 'none';
+      ad.disabled = true;
+      ad.value = '';
+      checkFormComplete(formEl, submitBtn);
+    });
+
+    formEl.querySelectorAll('input[type="radio"]').forEach(function (r) {
+      r.addEventListener('change', function () { checkFormComplete(formEl, submitBtn); });
+    });
   }
 
   // Iniciar: si hay token, buscar info del invitado primero
@@ -300,7 +349,14 @@
   // ============================
   // FULLSCREEN SCREENS
   // ============================
-  document.getElementById('btn-confirmar').addEventListener('click', function () {
+
+  // Ocultar botón de confirmar si no hay token (modo preview)
+  var btnConfirmar = document.getElementById('btn-confirmar');
+  if (!guestToken) {
+    btnConfirmar.style.display = 'none';
+  }
+
+  btnConfirmar.addEventListener('click', function () {
     var screen = document.getElementById('screen-confirmar');
     screen.classList.add('is-open');
     screen.setAttribute('aria-hidden', 'false');
@@ -346,17 +402,33 @@
   var alergiaNo = document.getElementById('alergia-no');
   var groupCual = document.getElementById('group-cual');
   var alergiaDetalle = document.getElementById('alergia-detalle');
+  var submitBtn = form.querySelector('.btn--submit');
 
-  // Ocultar campo "¿Cuál?" por defecto y según selección
+  function checkFormComplete(f, btn) {
+    if (!f || !btn) return;
+    var asistencia = f.querySelector('input[name="asistencia"]:checked');
+    var alergia = f.querySelector('input[name="alergia"]:checked');
+    btn.disabled = !(asistencia && alergia);
+  }
+
+  // Ocultar campo "¿Cuál?" por defecto, submit deshabilitado
   groupCual.style.display = 'none';
+  if (submitBtn) submitBtn.disabled = true;
+
   alergiaSi.addEventListener('change', function () {
     groupCual.style.display = '';
     alergiaDetalle.disabled = false;
+    checkFormComplete(form, submitBtn);
   });
   alergiaNo.addEventListener('change', function () {
     groupCual.style.display = 'none';
     alergiaDetalle.disabled = true;
     alergiaDetalle.value = '';
+    checkFormComplete(form, submitBtn);
+  });
+
+  form.querySelectorAll('input[type="radio"]').forEach(function (r) {
+    r.addEventListener('change', function () { checkFormComplete(form, submitBtn); });
   });
 
   var loadingMessages = [
@@ -510,48 +582,6 @@
   fadeTargets.forEach(function (el) {
     observer.observe(el);
   });
-
-  // ============================
-  // QR CODE (Simple SVG placeholder)
-  // ============================
-  var qrContainer = document.getElementById('qr-code');
-  if (qrContainer) {
-    var size = 120;
-    var cellSize = 6;
-    var cols = Math.floor(size / cellSize);
-    var svg = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg">';
-    svg += '<rect width="' + size + '" height="' + size + '" fill="white"/>';
-
-    var seed = 42;
-    function pseudoRandom() {
-      seed = (seed * 16807 + 0) % 2147483647;
-      return seed / 2147483647;
-    }
-
-    function drawFinderPattern(x, y) {
-      svg += '<rect x="' + x + '" y="' + y + '" width="' + (cellSize * 7) + '" height="' + (cellSize * 7) + '" fill="#333"/>';
-      svg += '<rect x="' + (x + cellSize) + '" y="' + (y + cellSize) + '" width="' + (cellSize * 5) + '" height="' + (cellSize * 5) + '" fill="white"/>';
-      svg += '<rect x="' + (x + cellSize * 2) + '" y="' + (y + cellSize * 2) + '" width="' + (cellSize * 3) + '" height="' + (cellSize * 3) + '" fill="#333"/>';
-    }
-
-    drawFinderPattern(0, 0);
-    drawFinderPattern(size - cellSize * 7, 0);
-    drawFinderPattern(0, size - cellSize * 7);
-
-    for (var row = 0; row < cols; row++) {
-      for (var col = 0; col < cols; col++) {
-        if (row < 8 && col < 8) continue;
-        if (row < 8 && col >= cols - 8) continue;
-        if (row >= cols - 8 && col < 8) continue;
-        if (pseudoRandom() > 0.55) {
-          svg += '<rect x="' + (col * cellSize) + '" y="' + (row * cellSize) + '" width="' + cellSize + '" height="' + cellSize + '" fill="#333"/>';
-        }
-      }
-    }
-
-    svg += '</svg>';
-    qrContainer.innerHTML = svg;
-  }
 
   // ============================
   // LEAFLET MAP

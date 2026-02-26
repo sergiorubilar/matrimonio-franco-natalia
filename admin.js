@@ -124,6 +124,11 @@
     renderTable();
     dashLoading.style.display = 'none';
     mainContent.style.display = '';
+
+    // Timestamp
+    var now = new Date();
+    document.getElementById('last-updated').textContent =
+      'Actualizado: ' + now.toLocaleDateString('es-CL') + ' ' + now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
   }
 
   // Refresh
@@ -286,27 +291,47 @@
   var waCancelBtn = document.getElementById('wa-cancel');
   var waSendAborted = false;
 
-  document.getElementById('btn-send-all').addEventListener('click', function () {
-    var pendingGuests = guests.filter(function (g) {
-      return g.telefono && g.token;
-    });
+  var waTarget = document.getElementById('wa-target');
+  var waPreview = document.getElementById('wa-preview');
+  var waFilter = document.getElementById('wa-filter');
 
-    waModalDesc.textContent = 'Se abrirán ' + pendingGuests.length + ' ventanas de WhatsApp, una cada 3 segundos. Solo debes presionar "Enviar" en cada una.';
+  function getWaSendList() {
+    var target = waTarget.value;
+    return guests.filter(function (g) {
+      if (!g.telefono || !g.token) return false;
+      if (target === 'pending' && g.confirmacion !== '') return false;
+      return true;
+    });
+  }
+
+  function updateWaPreview() {
+    var list = getWaSendList();
+    waModalDesc.textContent = 'Se abrirán ' + list.length + ' ventanas de WhatsApp, una cada 3 segundos. Solo debes presionar "Enviar" en cada una.';
+    waPreview.innerHTML = list.map(function (g, i) {
+      return '<div style="padding:4px 0;border-bottom:1px solid #F2EDE5;">' + (i + 1) + '. ' + escapeHtml(g.nombre) + (g.acompanante ? ' (+' + escapeHtml(g.acompanante) + ')' : '') + '</div>';
+    }).join('');
+  }
+
+  document.getElementById('btn-send-all').addEventListener('click', function () {
     waProgress.style.display = 'none';
     waBarFill.style.width = '0%';
     waStartBtn.style.display = '';
+    waFilter.style.display = '';
     waCancelBtn.textContent = 'Cancelar';
-    waModal.style.display = '';
     waSendAborted = false;
+    updateWaPreview();
+    waModal.style.display = '';
   });
+
+  waTarget.addEventListener('change', updateWaPreview);
 
   waStartBtn.addEventListener('click', function () {
     waStartBtn.style.display = 'none';
+    waFilter.style.display = 'none';
+    waPreview.style.display = 'none';
     waProgress.style.display = '';
 
-    var pendingGuests = guests.filter(function (g) {
-      return g.telefono && g.token;
-    });
+    var pendingGuests = getWaSendList();
 
     var i = 0;
     function sendNext() {
@@ -368,12 +393,47 @@
     detailModal.style.display = '';
   }
 
+  document.getElementById('detail-copy').addEventListener('click', function () {
+    var link = document.getElementById('detail-link').href;
+    navigator.clipboard.writeText(link).then(function () {
+      var btn = document.getElementById('detail-copy');
+      btn.textContent = 'Copiado!';
+      setTimeout(function () { btn.textContent = 'Copiar link'; }, 2000);
+    });
+  });
+
   document.getElementById('detail-close').addEventListener('click', function () {
     detailModal.style.display = 'none';
   });
 
   detailModal.addEventListener('click', function (e) {
     if (e.target === detailModal) detailModal.style.display = 'none';
+  });
+
+  // ============================
+  // CSV EXPORT
+  // ============================
+  document.getElementById('btn-export-csv').addEventListener('click', function () {
+    if (!guests.length) return;
+    var headers = ['Nombre', 'Acompañante', 'Grupo', 'Teléfono', 'Confirmación', 'Alergias', 'Detalle alergias', 'Link invitación'];
+    var rows = guests.map(function (g) {
+      var status = g.confirmacion === 'TRUE' ? 'Confirmado' : g.confirmacion === 'FALSE' ? 'No asiste' : 'Pendiente';
+      var alergia = g.alergias === 'TRUE' ? 'Sí' : g.alergias === 'FALSE' ? 'No' : '';
+      return [g.nombre, g.acompanante, g.grupo, g.telefono, status, alergia, g.detalleAlergias, buildInvitationUrl(g)];
+    });
+
+    var csv = '\uFEFF' + headers.join(',') + '\n' + rows.map(function (r) {
+      return r.map(function (cell) {
+        return '"' + String(cell || '').replace(/"/g, '""') + '"';
+      }).join(',');
+    }).join('\n');
+
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'invitados-natalia-franco.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
   });
 
   // ============================
