@@ -363,19 +363,19 @@
     if (guestToken && isConfigured()) {
       showToast('Enviando confirmación...');
 
-      fetch(APPS_SCRIPT_URL + '?' + new URLSearchParams({
+      var confirmUrl = APPS_SCRIPT_URL + '?' + new URLSearchParams({
         action: 'confirmar',
         token: guestToken,
         asistencia: data.asistencia || '',
         alergia: data.alergia || '',
         detalle: data.alergia_detalle
-      }), { redirect: 'follow', mode: 'no-cors' })
-        .then(function () {
-          showToast('¡Gracias por confirmar!');
-        })
-        .catch(function () {
-          showToast('Error de conexión. Intenta de nuevo.');
-        });
+      }).toString();
+
+      var img = new Image();
+      img.onload = img.onerror = function () {
+        showToast('¡Gracias por confirmar!');
+      };
+      img.src = confirmUrl;
     } else {
       console.log('Confirmación enviada:', data);
       showToast('¡Gracias por confirmar!');
