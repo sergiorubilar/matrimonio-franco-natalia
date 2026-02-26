@@ -9,7 +9,7 @@
   // CONFIGURACIÓN
   // ============================
   // Pega aquí la URL de tu Google Apps Script desplegado
-  var APPS_SCRIPT_URL = 'PEGAR_URL_DEL_APPS_SCRIPT_AQUI';
+  var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYSHCf-zHTPKuvnms_6e_miHZzn3lAAZIp1wtHepb0kUAeImIzTS-9ZOlUnVqOLmXr/exec';
 
   // ============================
   // TOKEN DEL INVITADO
