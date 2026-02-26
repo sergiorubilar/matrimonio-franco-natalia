@@ -30,9 +30,6 @@
     var introText = document.getElementById('intro-text');
     var introSeal = document.getElementById('intro-seal');
 
-    // Asegurar visibilidad (pudo estar oculto durante fetch)
-    if (introText) introText.style.opacity = '';
-
     if (intro && introText && introSeal && typeof gsap !== 'undefined') {
 
       // 1. Split text into word spans
@@ -68,41 +65,52 @@
       }
 
       // 3. GSAP — Entrance timeline
-      var entranceTl = gsap.timeline({ delay: 0.4 });
+      // Set initial hidden state immediately (prevents flash)
+      gsap.set('.intro__text', { opacity: 0 });
+      gsap.set('.intro__seal-wrapper', { opacity: 0 });
+
+      var entranceTl = gsap.timeline({ delay: 0.6 });
 
       entranceTl
-        .from('.intro__word', {
-          y: 30,
-          opacity: 0,
-          stagger: 0.18,
-          duration: 0.8,
-          ease: 'power3.out'
+        .fromTo('.intro__word', {
+          y: 25,
+          opacity: 0
+        }, {
+          y: 0,
+          opacity: 1,
+          stagger: 0.15,
+          duration: 1,
+          ease: 'power2.out'
         })
-        .from('.intro__seal-wrapper', {
-          y: 60,
+        .fromTo('.intro__seal-wrapper', {
+          y: 40,
           opacity: 0,
-          scale: 0.5,
-          duration: 1.2,
-          ease: 'back.out(1.7)'
-        }, '-=0.3')
+          scale: 0.7
+        }, {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 1.4,
+          ease: 'power2.out'
+        }, '-=0.4')
         .to('.intro__tap', {
           opacity: 0.5,
-          duration: 0.8,
+          duration: 1,
           ease: 'power1.out'
-        }, '+=0.4');
+        }, '+=0.3');
 
       // 4. Continuous loops
       gsap.to('.intro__word', {
         backgroundPosition: '300% center',
-        duration: 4,
+        duration: 5,
         ease: 'none',
         repeat: -1,
-        delay: 2
+        delay: 2.5
       });
 
       gsap.to('.intro__seal', {
-        scale: 1.04,
-        duration: 2.5,
+        scale: 1.03,
+        duration: 3,
         ease: 'sine.inOut',
         repeat: -1,
         yoyo: true,
@@ -110,8 +118,8 @@
       });
 
       gsap.to('.intro__tap', {
-        opacity: 0.9,
-        duration: 1.5,
+        opacity: 0.8,
+        duration: 2,
         ease: 'sine.inOut',
         repeat: -1,
         yoyo: true,
@@ -131,81 +139,89 @@
         var openTl = gsap.timeline();
 
         openTl
+          // Subtle shake before opening
           .to('.intro__seal', {
-            scale: 1.08,
-            duration: 0.1,
+            scale: 1.06,
+            duration: 0.08,
             ease: 'power2.in',
             yoyo: true,
-            repeat: 5
+            repeat: 3
           })
+          // Seal breaks open
           .to('.intro__seal', {
-            scale: 3,
-            rotation: 45,
+            scale: 2.5,
+            rotation: 30,
             opacity: 0,
-            duration: 0.6,
-            ease: 'power4.out'
+            duration: 0.8,
+            ease: 'power3.out'
           })
+          // Soft shockwave
           .to('.intro__shockwave', {
             width: '200vmax',
             height: '200vmax',
-            opacity: 0.7,
-            borderWidth: 1,
-            duration: 1.2,
-            ease: 'power2.out'
-          }, '-=0.5')
-          .to('.intro__shockwave', {
-            opacity: 0,
-            duration: 0.4
-          }, '-=0.4')
-          .to('.intro__shockwave--2', {
-            width: '200vmax',
-            height: '200vmax',
-            opacity: 0.5,
-            borderWidth: 1.5,
+            opacity: 0.4,
+            borderWidth: 0.5,
             duration: 1.5,
             ease: 'power2.out'
-          }, '-=1.3')
+          }, '-=0.6')
+          .to('.intro__shockwave', {
+            opacity: 0,
+            duration: 0.8
+          }, '-=0.5')
+          .to('.intro__shockwave--2', {
+            width: '200vmax',
+            height: '200vmax',
+            opacity: 0.25,
+            borderWidth: 1,
+            duration: 1.8,
+            ease: 'power2.out'
+          }, '-=1.6')
           .to('.intro__shockwave--2', {
             opacity: 0,
-            duration: 0.5
-          }, '-=0.5')
+            duration: 0.8
+          }, '-=0.6')
+          // Text fades out
           .to('.intro__text', {
-            y: -50,
+            y: -40,
             opacity: 0,
-            duration: 0.7,
+            duration: 0.8,
             ease: 'power2.in'
-          }, '-=1.8')
+          }, '-=2')
           .to('.intro__tap', {
             opacity: 0,
-            duration: 0.3
+            duration: 0.4
           }, '<')
+          // Soft golden glow (rays)
           .to('.intro__rays', {
-            opacity: 1,
-            rotation: 20,
-            scale: 1.5,
-            duration: 2,
+            opacity: 0.6,
+            rotation: 15,
+            scale: 1.3,
+            duration: 2.5,
             ease: 'power1.out'
-          }, '-=1.5')
+          }, '-=1.8')
+          // Seal wrapper fades
           .to('.intro__seal-wrapper', {
-            scale: 1.5,
+            scale: 1.3,
             opacity: 0,
-            duration: 0.6,
+            duration: 0.8,
             ease: 'power2.in'
-          }, '-=1')
+          }, '-=1.2')
+          // Gentle flash
           .to('.intro__flash', {
-            opacity: 1,
-            scale: 5,
-            duration: 1.5,
-            ease: 'power2.in'
-          }, '-=0.8')
+            opacity: 0.8,
+            scale: 4,
+            duration: 2,
+            ease: 'power1.in'
+          }, '-=1')
+          // Everything fades out
           .to(intro, {
             opacity: 0,
-            duration: 1,
+            duration: 1.2,
             ease: 'power1.inOut',
             onComplete: function () {
               intro.remove();
             }
-          }, '-=0.4');
+          }, '-=0.5');
       });
     }
   }
@@ -224,9 +240,9 @@
 
       if (companion && companion.toLowerCase() !== 'pareja' && companion.trim() !== '') {
         var companionFirst = companion.split(' ')[0];
-        introTextEl.innerHTML = 'Esta es una invitación<br>exclusiva para ' + firstName + ' y ' + companionFirst;
+        introTextEl.innerHTML = 'Esta es una invitación<br>exclusiva para ustedes<br>' + firstName + ' y ' + companionFirst;
       } else {
-        introTextEl.innerHTML = 'Esta es una invitación<br>exclusiva para ti, ' + firstName;
+        introTextEl.innerHTML = 'Esta es una invitación<br>exclusiva para ti ' + firstName;
       }
     }
 
@@ -288,10 +304,6 @@
 
   // Iniciar: si hay token, buscar info del invitado primero
   if (guestToken && isConfigured()) {
-    // Ocultar texto del intro mientras cargamos datos
-    var introTextEl = document.getElementById('intro-text');
-    if (introTextEl) introTextEl.style.opacity = '0';
-
     Promise.race([
       fetch(APPS_SCRIPT_URL + '?' + new URLSearchParams({
         action: 'info',

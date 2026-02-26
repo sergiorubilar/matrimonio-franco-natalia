@@ -1335,30 +1335,28 @@ img {
   opacity: 0;
 }
 
-/* --- Golden rays (conic god-rays) --- */
+/* --- Golden rays (soft god-rays) --- */
 .intro__rays {
   position: absolute;
   inset: -50%;
   pointer-events: none;
   opacity: 0;
+  filter: blur(20px);
   background:
-    radial-gradient(ellipse at center, rgba(191,168,128,0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at center, rgba(191,168,128,0.25) 0%, transparent 55%),
     conic-gradient(from 0deg at 50% 50%,
-      transparent 0deg, rgba(191,168,128,0.1) 8deg, transparent 16deg,
-      transparent 24deg, rgba(191,168,128,0.07) 32deg, transparent 40deg,
-      transparent 48deg, rgba(191,168,128,0.1) 56deg, transparent 64deg,
-      transparent 72deg, rgba(191,168,128,0.07) 80deg, transparent 88deg,
-      transparent 96deg, rgba(191,168,128,0.1) 104deg, transparent 112deg,
-      transparent 120deg, rgba(191,168,128,0.07) 128deg, transparent 136deg,
-      transparent 144deg, rgba(191,168,128,0.1) 152deg, transparent 160deg,
-      transparent 168deg, rgba(191,168,128,0.07) 176deg, transparent 184deg,
-      transparent 192deg, rgba(191,168,128,0.1) 200deg, transparent 208deg,
-      transparent 216deg, rgba(191,168,128,0.07) 224deg, transparent 232deg,
-      transparent 240deg, rgba(191,168,128,0.1) 248deg, transparent 256deg,
-      transparent 264deg, rgba(191,168,128,0.07) 272deg, transparent 280deg,
-      transparent 288deg, rgba(191,168,128,0.1) 296deg, transparent 304deg,
-      transparent 312deg, rgba(191,168,128,0.07) 320deg, transparent 328deg,
-      transparent 336deg, rgba(191,168,128,0.1) 344deg, transparent 360deg
+      transparent 0deg, rgba(191,168,128,0.06) 4deg, rgba(191,168,128,0.04) 12deg, transparent 20deg,
+      transparent 30deg, rgba(191,168,128,0.05) 34deg, rgba(191,168,128,0.03) 42deg, transparent 50deg,
+      transparent 60deg, rgba(191,168,128,0.06) 64deg, rgba(191,168,128,0.04) 72deg, transparent 80deg,
+      transparent 90deg, rgba(191,168,128,0.05) 94deg, rgba(191,168,128,0.03) 102deg, transparent 110deg,
+      transparent 120deg, rgba(191,168,128,0.06) 124deg, rgba(191,168,128,0.04) 132deg, transparent 140deg,
+      transparent 150deg, rgba(191,168,128,0.05) 154deg, rgba(191,168,128,0.03) 162deg, transparent 170deg,
+      transparent 180deg, rgba(191,168,128,0.06) 184deg, rgba(191,168,128,0.04) 192deg, transparent 200deg,
+      transparent 210deg, rgba(191,168,128,0.05) 214deg, rgba(191,168,128,0.03) 222deg, transparent 230deg,
+      transparent 240deg, rgba(191,168,128,0.06) 244deg, rgba(191,168,128,0.04) 252deg, transparent 260deg,
+      transparent 270deg, rgba(191,168,128,0.05) 274deg, rgba(191,168,128,0.03) 282deg, transparent 290deg,
+      transparent 300deg, rgba(191,168,128,0.06) 304deg, rgba(191,168,128,0.04) 312deg, transparent 320deg,
+      transparent 330deg, rgba(191,168,128,0.05) 334deg, rgba(191,168,128,0.03) 342deg, transparent 360deg
     );
   z-index: 2;
 }
