@@ -27,59 +27,39 @@
   // ============================
   function initIntro() {
     var intro = document.getElementById('intro');
-    var envelope = document.getElementById('envelope');
     var flap = document.getElementById('envelope-flap');
     var card = document.getElementById('envelope-card');
+    var seal = document.getElementById('envelope-seal');
     var tap = document.getElementById('intro-tap');
 
-    if (!intro || !envelope || !flap || !card || typeof gsap === 'undefined') return;
+    if (!intro || !flap || !card || !seal || typeof gsap === 'undefined') return;
 
-    // 1. Ambient golden dust
-    for (var d = 0; d < 20; d++) {
-      var dust = document.createElement('div');
-      dust.className = 'intro__dust';
-      dust.style.left = Math.random() * 100 + '%';
-      dust.style.animationDelay = Math.random() * 8 + 's';
-      dust.style.animationDuration = 5 + Math.random() * 7 + 's';
-      intro.appendChild(dust);
-    }
-
-    // 2. Initial state: envelope hidden, will fade in
-    gsap.set('.intro__scene', { opacity: 0, scale: 0.85, y: 40 });
+    // 1. Initial state
+    gsap.set(card, { opacity: 0, y: 50, scale: 0.9 });
     gsap.set(flap, { rotationX: 0 });
-    gsap.set(card, { y: 0 });
     gsap.set(tap, { opacity: 0 });
 
-    // 3. Entrance animation — envelope fades in elegantly
-    var entranceTl = gsap.timeline({ delay: 0.5 });
+    // 2. Entrance — tap text fades in gently
+    gsap.to(tap, {
+      opacity: 1,
+      duration: 1.8,
+      delay: 0.8,
+      ease: 'power1.out'
+    });
 
-    entranceTl
-      .to('.intro__scene', {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.8,
-        ease: 'power2.out'
-      })
-      .to(tap, {
-        opacity: 0.6,
-        duration: 1,
-        ease: 'power1.out'
-      }, '-=0.6');
-
-    // 4. Subtle seal breathing loop
-    gsap.to('.envelope__seal', {
+    // 3. Seal breathing loop
+    gsap.to(seal, {
       scale: 1.05,
       duration: 2.5,
       ease: 'sine.inOut',
       repeat: -1,
       yoyo: true,
-      delay: 2.5
+      delay: 1.2
     });
 
     // Tap text pulse
     gsap.to(tap, {
-      opacity: 0.9,
+      opacity: 0.6,
       duration: 2,
       ease: 'sine.inOut',
       repeat: -1,
@@ -87,65 +67,66 @@
       delay: 3
     });
 
-    // 5. Click to open envelope
+    // 4. Click anywhere on the envelope to open
     var opened = false;
-    envelope.addEventListener('click', function () {
+    flap.addEventListener('click', function () {
       if (opened) return;
       opened = true;
 
-      gsap.killTweensOf('.envelope__seal');
+      gsap.killTweensOf(seal);
       gsap.killTweensOf(tap);
 
-      // Particle burst from the seal
-      var sealRect = document.querySelector('.envelope__seal').getBoundingClientRect();
+      // Create particle burst from the seal position
+      var sealRect = seal.getBoundingClientRect();
       var introRect = intro.getBoundingClientRect();
       var burstX = sealRect.left + sealRect.width / 2 - introRect.left;
       var burstY = sealRect.top + sealRect.height / 2 - introRect.top;
 
       var particles = [];
-      for (var i = 0; i < 40; i++) {
+      for (var i = 0; i < 50; i++) {
         var p = document.createElement('div');
         p.className = 'intro__particle';
-        var size = 2 + Math.random() * 4;
+        var size = 2 + Math.random() * 5;
         p.style.width = size + 'px';
         p.style.height = size + 'px';
         p.style.left = burstX + 'px';
         p.style.top = burstY + 'px';
-        var alpha = (0.5 + Math.random() * 0.5).toFixed(2);
+        var alpha = (0.4 + Math.random() * 0.6).toFixed(2);
         p.style.background = 'rgba(191,168,128,' + alpha + ')';
-        p.style.boxShadow = '0 0 ' + (3 + Math.random() * 8).toFixed(0) + 'px rgba(191,168,128,0.5)';
+        p.style.boxShadow = '0 0 ' + (3 + Math.random() * 10).toFixed(0) + 'px rgba(191,168,128,0.4)';
         intro.appendChild(p);
         particles.push(p);
       }
 
-      var openTl = gsap.timeline();
+      var tl = gsap.timeline();
 
-      openTl
-        // Hide tap text
+      tl
+        // Fade out tap text immediately
         .to(tap, { opacity: 0, duration: 0.3 }, 0)
 
-        // Seal vibration before breaking
-        .to('.envelope__seal', {
-          scale: 1.08,
+        // Seal vibrates
+        .to(seal, {
+          scale: 1.1,
           duration: 0.05,
           ease: 'power2.inOut',
           yoyo: true,
-          repeat: 3
+          repeat: 4
         }, 0)
 
-        // Seal dissolves
-        .to('.envelope__seal', {
-          scale: 2,
+        // Seal dissolves with burst
+        .to(seal, {
+          scale: 2.5,
           opacity: 0,
-          duration: 0.7,
+          filter: 'blur(4px)',
+          duration: 0.8,
           ease: 'power3.out'
         }, 0.3)
 
-        // Burst particles outward from seal
+        // Golden particles burst outward
         .add(function () {
           particles.forEach(function (p) {
             var angle = Math.random() * Math.PI * 2;
-            var distance = 60 + Math.random() * 200;
+            var distance = 100 + Math.random() * 300;
             gsap.fromTo(p,
               { x: 0, y: 0, scale: 1, opacity: 1 },
               {
@@ -153,7 +134,7 @@
                 y: Math.sin(angle) * distance,
                 scale: 0,
                 opacity: 0,
-                duration: 1 + Math.random() * 0.8,
+                duration: 1.2 + Math.random() * 0.8,
                 ease: 'power2.out',
                 onComplete: function () { if (p.parentNode) p.remove(); }
               }
@@ -161,44 +142,37 @@
           });
         }, 0.3)
 
-        // Open the flap with 3D rotation (rotateX from 0 to 180)
+        // The entire screen lifts open (flap rotates from bottom up)
         .to(flap, {
           rotationX: 180,
-          duration: 1.4,
+          duration: 1.8,
           ease: 'power2.inOut'
-        }, 0.6)
+        }, 0.9)
 
-        // Card slides upward out of the envelope
+        // Card fades in and rises gently on the dark interior
         .to(card, {
-          y: -200,
-          duration: 1.6,
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1.4,
           ease: 'power2.out'
-        }, 1.6)
+        }, 1.8)
 
-        // Envelope body fades down
-        .to('.envelope__front, .envelope__back, .envelope__side, .envelope__flap', {
-          opacity: 0,
-          y: 60,
-          duration: 1,
-          ease: 'power2.in'
-        }, 2.4)
-
-        // Card grows to fill the screen
+        // Card scales up slightly for emphasis
         .to(card, {
-          scale: 2.2,
-          y: -120,
-          duration: 1.2,
+          scale: 1.1,
+          duration: 1,
           ease: 'power2.inOut'
         }, 3.0)
 
-        // Gentle golden flash
+        // Warm flash from the card
         .to('.intro__flash', {
-          opacity: 0.5,
-          duration: 1,
+          opacity: 0.8,
+          duration: 0.8,
           ease: 'power1.in'
-        }, 3.4)
+        }, 3.6)
 
-        // Everything fades out
+        // Everything fades out to reveal main page
         .to(intro, {
           opacity: 0,
           duration: 1.2,
@@ -206,7 +180,7 @@
           onComplete: function () {
             intro.remove();
           }
-        }, 3.8);
+        }, 4.0);
     });
   }
 

@@ -17,38 +17,31 @@
 </head>
 <body>
 
-  <!-- ===== INTRO ANIMATION — ENVELOPE ===== -->
+  <!-- ===== INTRO — FULLSCREEN ENVELOPE ===== -->
   <div class="intro" id="intro">
-    <div class="intro__scene">
-      <!-- Envelope body -->
-      <div class="envelope" id="envelope">
-        <!-- Back flap (triangular, behind everything) -->
-        <div class="envelope__back"></div>
-        <!-- Left side fold -->
-        <div class="envelope__side envelope__side--left"></div>
-        <!-- Right side fold -->
-        <div class="envelope__side envelope__side--right"></div>
-        <!-- Card inside the envelope -->
-        <div class="envelope__card" id="envelope-card">
-          <div class="envelope__card-inner">
-            <img src="assets/Vector.svg" alt="" class="envelope__card-leaf" aria-hidden="true">
-            <p class="envelope__card-subtitle" id="intro-text">Esta es una invitación<br>exclusiva para ti</p>
-            <p class="envelope__card-names">Natalia<br><span>&</span><br>Franco</p>
-            <div class="envelope__card-date">01 · 05 · 2026</div>
-          </div>
-        </div>
-        <!-- Front body (covers bottom of card) -->
-        <div class="envelope__front"></div>
-        <!-- Top flap (opens with 3D rotation) -->
-        <div class="envelope__flap" id="envelope-flap">
-          <div class="envelope__seal">
-            <div class="envelope__seal-monogram">
-              <span>N</span><span>&</span><span>F</span>
-            </div>
-          </div>
+    <!-- Interior: dark background with gold liner + card -->
+    <div class="envelope__interior" id="envelope-interior">
+      <div class="envelope__card" id="envelope-card">
+        <div class="envelope__card-inner">
+          <img src="assets/Vector.svg" alt="" class="envelope__card-leaf" aria-hidden="true">
+          <p class="envelope__card-subtitle" id="intro-text">Esta es una invitación<br>exclusiva para ti</p>
+          <p class="envelope__card-names">Natalia<br><span>&</span><br>Franco</p>
+          <div class="envelope__card-date">01 · 05 · 2026</div>
         </div>
       </div>
     </div>
+    <!-- Fullscreen envelope face (opens like a page) -->
+    <div class="envelope__flap" id="envelope-flap">
+      <div class="envelope__flap-front">
+        <div class="envelope__seal" id="envelope-seal">
+          <div class="envelope__seal-monogram">
+            <span>N</span><span>&</span><span>F</span>
+          </div>
+        </div>
+      </div>
+      <div class="envelope__flap-back"></div>
+    </div>
+    <!-- Overlay UI -->
     <p class="intro__tap" id="intro-tap">Toca para abrir</p>
     <div class="intro__flash"></div>
   </div>
