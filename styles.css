@@ -458,6 +458,23 @@ img {
   margin-bottom: 27px;
 }
 
+.fecha__status {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 24px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.fecha__status--confirmed {
+  color: var(--gold);
+}
+
+.fecha__status--declined {
+  color: var(--gray);
+}
+
 /* ========================================
    BUTTONS
    ======================================== */

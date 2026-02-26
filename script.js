@@ -51,7 +51,7 @@
     // --- Initial hidden states: Fecha ---
     gsap.set('.fecha__title', { opacity: 0, y: 20 });
     gsap.set('.fecha__day, .fecha__venue, .fecha__city', { opacity: 0, y: 15 });
-    gsap.set('.fecha .btn', { opacity: 0, y: 10 });
+    gsap.set('.fecha .btn, .fecha__status', { opacity: 0, y: 10 });
 
     // --- Initial hidden states: Fiesta ---
     gsap.set('.fiesta__title', { opacity: 0, y: 20 });
@@ -102,7 +102,7 @@
             .to('.fecha__day', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.1)
             .to('.fecha__venue', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.2)
             .to('.fecha__city', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.3)
-            .to('.fecha .btn', { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }, 0.4);
+            .to('.fecha .btn, .fecha__status', { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }, 0.4);
         }
       },
       {
@@ -467,23 +467,59 @@
       titleEl.innerHTML = guestInfo.invitado.split(' ')[0] + ',<br>confirma tu<br>asistencia';
     }
 
-    // Si ya confirmó, mostrar estado en vez del formulario
-    if (guestInfo.confirmacion === 'TRUE' || guestInfo.confirmacion === 'FALSE') {
-      var formEl = document.getElementById('form-confirmacion');
-      var statusMsg = guestInfo.confirmacion === 'TRUE'
-        ? 'Ya confirmaste tu asistencia'
-        : 'Registramos que no podrás asistir';
-      formEl.innerHTML =
-        '<div style="text-align:center;padding:24px 0;">' +
-          '<p style="font-size:20px;color:#BFA880;margin-bottom:12px;">' + statusMsg + '</p>' +
-          '<p style="font-size:14px;color:#999;">Si deseas cambiar tu respuesta, presiona el botón de abajo.</p>' +
-          '<button type="button" class="btn btn--link" id="btn-change-response" style="margin-top:16px;font-size:14px;">Cambiar respuesta</button>' +
-        '</div>';
-      document.getElementById('btn-change-response').addEventListener('click', function () {
-        formEl.innerHTML = originalFormHTML;
-        rebindFormEvents();
-      });
+    updateConfirmButton();
+    updateFormState();
+  }
+
+  function updateConfirmButton() {
+    var btn = document.getElementById('btn-confirmar');
+    var statusEl = document.getElementById('confirm-status');
+    if (!btn || !statusEl) return;
+
+    if (!guestInfo || !guestInfo.confirmacion) {
+      statusEl.style.display = 'none';
+      statusEl.className = 'fecha__status';
+      btn.textContent = 'Confirmar asistencia';
+      btn.className = 'btn btn--primary';
+      return;
     }
+
+    statusEl.style.display = '';
+    statusEl.className = 'fecha__status';
+
+    if (guestInfo.confirmacion === 'TRUE') {
+      statusEl.textContent = 'Asistencia confirmada';
+      statusEl.classList.add('fecha__status--confirmed');
+    } else {
+      statusEl.textContent = 'No podrás asistir';
+      statusEl.classList.add('fecha__status--declined');
+    }
+
+    btn.textContent = 'Modificar respuesta';
+    btn.className = 'btn btn--link';
+  }
+
+  function updateFormState() {
+    if (!guestInfo || !guestInfo.confirmacion) return;
+
+    var formEl = document.getElementById('form-confirmacion');
+    if (!formEl) return;
+
+    var statusMsg = guestInfo.confirmacion === 'TRUE'
+      ? 'Ya confirmaste tu asistencia'
+      : 'Registramos que no podrás asistir';
+
+    formEl.innerHTML =
+      '<div style="text-align:center;padding:24px 0;">' +
+        '<p style="font-size:20px;color:#BFA880;margin-bottom:12px;">' + statusMsg + '</p>' +
+        '<p style="font-size:14px;color:#999;">Si deseas cambiar tu respuesta, presiona el botón de abajo.</p>' +
+        '<button type="button" class="btn btn--link" id="btn-change-response" style="margin-top:16px;font-size:14px;">Cambiar respuesta</button>' +
+      '</div>';
+
+    document.getElementById('btn-change-response').addEventListener('click', function () {
+      formEl.innerHTML = originalFormHTML;
+      rebindFormEvents();
+    });
   }
 
   // Guardar HTML original del form para poder restaurarlo
@@ -730,6 +766,13 @@
       document.body.classList.remove('modal-open');
       form.reset();
       groupCual.style.display = 'none';
+
+      // Update guest state and UI
+      if (guestInfo) {
+        guestInfo.confirmacion = data.asistencia;
+      }
+      updateConfirmButton();
+      updateFormState();
     }
 
     if (guestToken && isConfigured()) {
