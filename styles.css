@@ -24,14 +24,6 @@
   font-style: normal;
   font-display: swap;
 }
-@font-face {
-  font-family: 'Wreath Medium';
-  src: url('fonts/Wreath-Medium.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* --- Reset & Base --- */
 *,
 *::before,
@@ -1184,6 +1176,10 @@ img {
 /* ========================================
    INTRO ANIMATION (GSAP + Confetti)
    ======================================== */
+
+/* Lock body scroll while intro is visible */
+html:has(.intro) { overflow: hidden; }
+
 .intro {
   position: fixed;
   inset: 0;
@@ -1230,10 +1226,10 @@ img {
 
 /* --- Text --- */
 .intro__text {
-  font-family: 'Wreath Medium', 'Waterfall', cursive;
+  font-family: 'Playfair Display', serif;
   font-weight: 400;
-  font-size: clamp(38px, 8.5vw, 62px);
-  line-height: 1.25;
+  font-size: clamp(26px, 6.5vw, 48px);
+  line-height: 1.35;
   text-align: center;
   padding: 0 24px;
   opacity: 0;
