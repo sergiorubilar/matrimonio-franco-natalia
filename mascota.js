@@ -17,136 +17,204 @@
 
   /* =============================================
      SVG — Side-view Yorkshire Terrier (articulated)
+     Matches the real Yorkie: big dark eyes, golden
+     tan face, steel-grey body, flowing fur, perky ears
      ============================================= */
-  var DOG_SVG = '<svg class="mascota__svg" viewBox="0 0 220 180" xmlns="http://www.w3.org/2000/svg">' +
+  var DOG_SVG = '<svg class="mascota__svg" viewBox="0 0 180 170" xmlns="http://www.w3.org/2000/svg">' +
 
     /* Shadow */
-    '<ellipse class="dog-shadow" cx="110" cy="168" rx="50" ry="7" fill="#D4C4A8" opacity="0.3"/>' +
+    '<ellipse class="dog-shadow" cx="90" cy="162" rx="38" ry="5" fill="#8B7355" opacity="0.2"/>' +
+
+    /* ---- TAIL (behind everything) ---- */
+    '<g class="dog-tail" style="transform-origin:48px 82px">' +
+      '<path d="M48 82 Q36 60 34 45 Q33 36 38 42 Q44 50 46 62 Q48 74 50 82" fill="#C8873E"/>' +
+      '<path d="M48 82 Q40 65 38 52 Q43 58 46 68 Q48 76 50 82Z" fill="#DBA860" opacity="0.5"/>' +
+      /* Fur wisps */
+      '<path d="M36 48 Q32 42 34 38" stroke="#B87730" stroke-width="1.5" fill="none" opacity="0.4"/>' +
+      '<path d="M40 56 Q36 50 38 46" stroke="#D4924E" stroke-width="1.2" fill="none" opacity="0.35"/>' +
+      '<path d="M35 44 Q31 40 33 36" stroke="#C8873E" stroke-width="1" fill="none" opacity="0.3"/>' +
+    '</g>' +
 
     /* ---- BACK LEGS (behind body) ---- */
-    /* Back-left leg */
-    '<g class="dog-leg dog-leg-bl" style="transform-origin:80px 118px">' +
-      '<g class="dog-leg-upper" style="transform-origin:80px 118px">' +
-        '<path d="M80 118 L76 145" stroke="#B8964E" stroke-width="10" stroke-linecap="round" fill="none"/>' +
-        '<g class="dog-leg-lower" style="transform-origin:76px 145px">' +
-          '<path d="M76 145 L78 165" stroke="#A8854A" stroke-width="8" stroke-linecap="round" fill="none"/>' +
-          '<ellipse cx="78" cy="167" rx="7" ry="4" fill="#8B7355"/>' +
+    '<g class="dog-leg dog-leg-bl" style="transform-origin:68px 112px">' +
+      '<g class="dog-leg-upper" style="transform-origin:68px 112px">' +
+        '<path d="M68 112 Q66 128 64 140" stroke="#B87730" stroke-width="12" stroke-linecap="round" fill="none"/>' +
+        /* Fur fringe */
+        '<path d="M61 118 Q57 122 59 128" stroke="#C8873E" stroke-width="2.5" fill="none" opacity="0.4"/>' +
+        '<path d="M75 120 Q78 125 76 130" stroke="#A06830" stroke-width="2" fill="none" opacity="0.3"/>' +
+        '<g class="dog-leg-lower" style="transform-origin:64px 140px">' +
+          '<path d="M64 140 Q65 150 66 158" stroke="#D4924E" stroke-width="10" stroke-linecap="round" fill="none"/>' +
+          '<ellipse cx="66" cy="161" rx="8" ry="4.5" fill="#C8873E"/>' +
+          '<path d="M60 161 Q62 158 64 161" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
+          '<path d="M64 161 Q66 158 68 161" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
+          '<path d="M68 161 Q70 158 72 161" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
         '</g>' +
       '</g>' +
     '</g>' +
 
-    /* Back-right leg */
-    '<g class="dog-leg dog-leg-br" style="transform-origin:85px 118px">' +
-      '<g class="dog-leg-upper" style="transform-origin:85px 118px">' +
-        '<path d="M85 118 L82 145" stroke="#C4A46A" stroke-width="10" stroke-linecap="round" fill="none"/>' +
-        '<g class="dog-leg-lower" style="transform-origin:82px 145px">' +
-          '<path d="M82 145 L84 165" stroke="#B8964E" stroke-width="8" stroke-linecap="round" fill="none"/>' +
-          '<ellipse cx="84" cy="167" rx="7" ry="4" fill="#8B7355"/>' +
+    '<g class="dog-leg dog-leg-br" style="transform-origin:74px 112px">' +
+      '<g class="dog-leg-upper" style="transform-origin:74px 112px">' +
+        '<path d="M74 112 Q72 128 70 140" stroke="#C8873E" stroke-width="12" stroke-linecap="round" fill="none"/>' +
+        '<g class="dog-leg-lower" style="transform-origin:70px 140px">' +
+          '<path d="M70 140 Q71 150 72 158" stroke="#DBA860" stroke-width="10" stroke-linecap="round" fill="none"/>' +
+          '<ellipse cx="72" cy="161" rx="8" ry="4.5" fill="#D4924E"/>' +
+          '<path d="M66 161 Q68 158 70 161" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
+          '<path d="M70 161 Q72 158 74 161" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
+          '<path d="M74 161 Q76 158 78 161" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
         '</g>' +
       '</g>' +
-    '</g>' +
-
-    /* ---- TAIL ---- */
-    '<g class="dog-tail" style="transform-origin:68px 95px">' +
-      '<path d="M68 95 Q55 70 50 55 Q48 48 55 52 Q62 58 65 72 Q68 85 70 95" fill="#C4A46A"/>' +
-      '<path d="M68 95 Q58 75 55 62 Q62 65 66 80 Z" fill="#D4B87A" opacity="0.5"/>' +
     '</g>' +
 
     /* ---- BODY ---- */
     '<g class="dog-body">' +
-      /* Main body shape */
-      '<ellipse cx="108" cy="108" rx="45" ry="28" fill="#D4B87A"/>' +
-      /* Fur texture - darker back */
-      '<ellipse cx="105" cy="102" rx="38" ry="18" fill="#C4A46A" opacity="0.6"/>' +
-      /* Lighter belly */
-      '<ellipse cx="112" cy="118" rx="32" ry="14" fill="#DABE7E" opacity="0.5"/>' +
-      /* Body fur detail strokes */
-      '<path d="M78 100 Q90 95 100 98" stroke="#B8964E" stroke-width="0.8" fill="none" opacity="0.3"/>' +
-      '<path d="M85 105 Q100 100 115 103" stroke="#B8964E" stroke-width="0.8" fill="none" opacity="0.3"/>' +
-      '<path d="M90 110 Q105 107 120 110" stroke="#B8964E" stroke-width="0.8" fill="none" opacity="0.3"/>' +
-    '</g>' +
+      /* Main body — warm golden tan base */
+      '<ellipse cx="92" cy="100" rx="38" ry="24" fill="#D4924E"/>' +
+      /* Darker saddle on the back (subtle steel-brown) */
+      '<ellipse cx="88" cy="94" rx="32" ry="15" fill="#8B7355" opacity="0.55"/>' +
+      '<ellipse cx="85" cy="92" rx="26" ry="10" fill="#6B5B50" opacity="0.35"/>' +
+      /* Lighter belly / underside */
+      '<ellipse cx="96" cy="112" rx="28" ry="10" fill="#DBA860" opacity="0.55"/>' +
+      '<ellipse cx="98" cy="116" rx="20" ry="7" fill="#E8C080" opacity="0.3"/>' +
 
-    /* Collar */
-    '<ellipse cx="138" cy="105" rx="8" ry="14" fill="#BFA880" opacity="0.8"/>' +
-    '<circle cx="140" cy="112" r="3" fill="#D4C4A8"/>' +
+      /* Chest fur — lighter golden, flowing */
+      '<path d="M120 90 Q128 100 127 112 Q125 120 120 124 Q117 116 118 106 Q119 96 120 90Z" fill="#DBA860"/>' +
+      '<path d="M122 92 Q128 104 127 114 Q125 108 124 100 Q123 95 122 92Z" fill="#E8C080" opacity="0.5"/>' +
+
+      /* Fur texture — flowing lines */
+      '<path d="M60 94 Q72 90 85 92" stroke="#7A6A5E" stroke-width="0.9" fill="none" opacity="0.3"/>' +
+      '<path d="M64 100 Q78 96 92 98" stroke="#8B7355" stroke-width="0.8" fill="none" opacity="0.25"/>' +
+      '<path d="M68 106 Q82 103 98 105" stroke="#7A6A5E" stroke-width="0.7" fill="none" opacity="0.2"/>' +
+      /* Side fur wisps */
+      '<path d="M66 115 Q62 122 64 128" stroke="#B87730" stroke-width="1.8" fill="none" opacity="0.3"/>' +
+      '<path d="M74 117 Q71 124 73 130" stroke="#C8873E" stroke-width="1.5" fill="none" opacity="0.25"/>' +
+      '<path d="M82 118 Q80 125 82 131" stroke="#B87730" stroke-width="1.2" fill="none" opacity="0.2"/>' +
+      '<path d="M108 116 Q106 123 108 129" stroke="#D4924E" stroke-width="1.5" fill="none" opacity="0.25"/>' +
+      '<path d="M114 114 Q112 121 114 127" stroke="#DBA860" stroke-width="1.2" fill="none" opacity="0.2"/>' +
+    '</g>' +
 
     /* ---- FRONT LEGS ---- */
-    /* Front-left leg */
-    '<g class="dog-leg dog-leg-fl" style="transform-origin:132px 120px">' +
-      '<g class="dog-leg-upper" style="transform-origin:132px 120px">' +
-        '<path d="M132 120 L128 148" stroke="#B8964E" stroke-width="10" stroke-linecap="round" fill="none"/>' +
-        '<g class="dog-leg-lower" style="transform-origin:128px 148px">' +
-          '<path d="M128 148 L130 165" stroke="#A8854A" stroke-width="8" stroke-linecap="round" fill="none"/>' +
-          '<ellipse cx="130" cy="167" rx="7" ry="4" fill="#8B7355"/>' +
+    '<g class="dog-leg dog-leg-fl" style="transform-origin:112px 114px">' +
+      '<g class="dog-leg-upper" style="transform-origin:112px 114px">' +
+        '<path d="M112 114 Q110 130 108 142" stroke="#D4924E" stroke-width="12" stroke-linecap="round" fill="none"/>' +
+        '<path d="M105 120 Q101 124 103 130" stroke="#DBA860" stroke-width="2.5" fill="none" opacity="0.35"/>' +
+        '<path d="M118 122 Q121 126 119 132" stroke="#C8873E" stroke-width="2" fill="none" opacity="0.3"/>' +
+        '<g class="dog-leg-lower" style="transform-origin:108px 142px">' +
+          '<path d="M108 142 Q109 152 110 160" stroke="#DBA860" stroke-width="10" stroke-linecap="round" fill="none"/>' +
+          '<ellipse cx="110" cy="163" rx="8" ry="4.5" fill="#D4924E"/>' +
+          '<path d="M104 163 Q106 160 108 163" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
+          '<path d="M108 163 Q110 160 112 163" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
+          '<path d="M112 163 Q114 160 116 163" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
         '</g>' +
       '</g>' +
     '</g>' +
 
-    /* Front-right leg */
-    '<g class="dog-leg dog-leg-fr" style="transform-origin:137px 120px">' +
-      '<g class="dog-leg-upper" style="transform-origin:137px 120px">' +
-        '<path d="M137 120 L134 148" stroke="#C4A46A" stroke-width="10" stroke-linecap="round" fill="none"/>' +
-        '<g class="dog-leg-lower" style="transform-origin:134px 148px">' +
-          '<path d="M134 148 L136 165" stroke="#B8964E" stroke-width="8" stroke-linecap="round" fill="none"/>' +
-          '<ellipse cx="136" cy="167" rx="7" ry="4" fill="#8B7355"/>' +
+    '<g class="dog-leg dog-leg-fr" style="transform-origin:118px 114px">' +
+      '<g class="dog-leg-upper" style="transform-origin:118px 114px">' +
+        '<path d="M118 114 Q116 130 114 142" stroke="#DBA860" stroke-width="12" stroke-linecap="round" fill="none"/>' +
+        '<g class="dog-leg-lower" style="transform-origin:114px 142px">' +
+          '<path d="M114 142 Q115 152 116 160" stroke="#E8C080" stroke-width="10" stroke-linecap="round" fill="none"/>' +
+          '<ellipse cx="116" cy="163" rx="8" ry="4.5" fill="#DBA860"/>' +
+          '<path d="M110 163 Q112 160 114 163" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
+          '<path d="M114 163 Q116 160 118 163" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
+          '<path d="M118 163 Q120 160 122 163" stroke="#8B5A2B" stroke-width="0.7" fill="none"/>' +
         '</g>' +
       '</g>' +
     '</g>' +
 
-    /* ---- HEAD ---- */
-    '<g class="dog-head" style="transform-origin:152px 88px">' +
-      /* Neck fur */
-      '<path d="M138 95 Q148 82 155 78 Q160 100 145 110Z" fill="#DABE7E"/>' +
+    /* ---- HEAD (large, proportional for cute Yorkie) ---- */
+    '<g class="dog-head" style="transform-origin:138px 68px">' +
 
-      /* Head base */
-      '<ellipse cx="158" cy="78" rx="22" ry="20" fill="#D4B87A"/>' +
+      /* Neck / chest fur connection */
+      '<path d="M122 85 Q132 72 140 65 Q145 82 135 98Z" fill="#DBA860"/>' +
+      '<path d="M124 88 Q130 80 135 74 Q137 85 132 95Z" fill="#E8C080" opacity="0.5"/>' +
 
-      /* Snout */
-      '<ellipse cx="172" cy="85" rx="14" ry="10" fill="#DABE7E"/>' +
+      /* Head base — golden tan, larger */
+      '<ellipse cx="142" cy="58" rx="28" ry="26" fill="#D4924E"/>' +
 
-      /* Top hair / tuft */
-      '<path d="M142 68 Q148 52 158 50 Q165 52 168 60 Q162 55 155 56 Q148 58 142 68Z" fill="#C4A46A"/>' +
-      '<path d="M155 50 Q162 45 168 48 Q172 55 168 60 Q165 52 160 50Z" fill="#B8964E" opacity="0.7"/>' +
+      /* Darker top of head */
+      '<ellipse cx="140" cy="50" rx="22" ry="16" fill="#C8873E" opacity="0.5"/>' +
+      '<ellipse cx="138" cy="48" rx="16" ry="10" fill="#B87730" opacity="0.3"/>' +
 
-      /* Hair bow */
-      '<g transform="translate(155,52)">' +
-        '<path d="M-5,-3 Q-8,-7 -2,-6 Q0,-8 2,-6 Q8,-7 5,-3 Q8,1 2,0 Q0,3 -2,0 Q-8,1 -5,-3Z" fill="#BFA880"/>' +
-        '<circle cx="0" cy="-1.5" r="1.8" fill="#D4C4A8"/>' +
+      /* Forehead fur texture */
+      '<path d="M128 52 Q136 48 145 50" stroke="#B87730" stroke-width="1" fill="none" opacity="0.35"/>' +
+      '<path d="M130 56 Q139 52 148 55" stroke="#C8873E" stroke-width="0.8" fill="none" opacity="0.3"/>' +
+
+      /* Cheek / muzzle area — lighter golden */
+      '<ellipse cx="152" cy="65" rx="16" ry="14" fill="#DBA860"/>' +
+      '<ellipse cx="154" cy="67" rx="12" ry="10" fill="#E8C080" opacity="0.5"/>' +
+
+      /* Snout — lightest tan */
+      '<ellipse cx="160" cy="64" rx="10" ry="8" fill="#E8C080"/>' +
+      '<ellipse cx="161" cy="66" rx="7" ry="5.5" fill="#F0D090" opacity="0.4"/>' +
+
+      /* Face fur wisps */
+      '<path d="M130 70 Q125 78 127 86" stroke="#C8873E" stroke-width="1.8" fill="none" opacity="0.4"/>' +
+      '<path d="M134 72 Q130 80 132 88" stroke="#D4924E" stroke-width="1.5" fill="none" opacity="0.35"/>' +
+      '<path d="M156 72 Q160 80 158 88" stroke="#DBA860" stroke-width="1.5" fill="none" opacity="0.3"/>' +
+      '<path d="M152 74 Q154 82 152 90" stroke="#C8873E" stroke-width="1.2" fill="none" opacity="0.25"/>' +
+
+      /* --- Top hair / tuft --- */
+      '<path d="M126 46 Q132 30 144 25 Q150 28 154 36 Q148 30 140 32 Q132 35 126 46Z" fill="#C8873E"/>' +
+      '<path d="M130 42 Q136 32 146 28 Q142 32 136 38 Q133 40 130 42Z" fill="#B87730" opacity="0.6"/>' +
+      '<path d="M144 25 Q152 20 158 28 Q160 36 156 42 Q154 32 150 28 Q147 25 144 25Z" fill="#8B5A2B" opacity="0.4"/>' +
+      '<path d="M128 42 Q124 36 126 30" stroke="#B87730" stroke-width="1.8" fill="none" opacity="0.35"/>' +
+      '<path d="M154 34 Q158 28 156 24" stroke="#8B5A2B" stroke-width="1.5" fill="none" opacity="0.3"/>' +
+
+      /* --- Ear (back) — big V-shape --- */
+      '<g class="dog-ear-back" style="transform-origin:132px 42px">' +
+        '<path d="M132 52 Q124 36 126 18 Q130 10 134 14 Q138 22 136 40 L134 52Z" fill="#8B5A2B"/>' +
+        '<path d="M133 48 Q126 34 128 20 Q131 14 133 18 Q136 28 135 44Z" fill="#7A4E25" opacity="0.5"/>' +
+        '<path d="M132 42 Q128 32 129 22 Q131 16 132 22 Q134 30 133 40Z" fill="#A06830" opacity="0.35"/>' +
+        /* Ear edge fur */
+        '<path d="M126 18 Q123 12 125 8" stroke="#6B4020" stroke-width="1.2" fill="none" opacity="0.3"/>' +
+        '<path d="M130 14 Q128 8 129 5" stroke="#7A4E25" stroke-width="1" fill="none" opacity="0.25"/>' +
       '</g>' +
 
-      /* Ear (back) */
-      '<g class="dog-ear-back" style="transform-origin:148px 62px">' +
-        '<path d="M148 72 Q140 55 145 45 Q150 42 152 50 Q153 60 150 70Z" fill="#B8964E"/>' +
-        '<path d="M148 68 Q142 56 146 48 Q150 46 151 52 Q151 60 149 66Z" fill="#A8854A" opacity="0.6"/>' +
+      /* --- Ear (front) — big V-shape --- */
+      '<g class="dog-ear-front" style="transform-origin:150px 42px">' +
+        '<path d="M150 52 Q158 34 156 16 Q152 8 148 12 Q144 20 146 40 L148 52Z" fill="#C8873E"/>' +
+        '<path d="M149 48 Q156 33 155 19 Q152 12 149 16 Q146 26 147 44Z" fill="#B87730" opacity="0.5"/>' +
+        '<path d="M150 42 Q154 30 153 20 Q152 14 150 20 Q148 28 149 40Z" fill="#DBA860" opacity="0.3"/>' +
+        '<path d="M156 16 Q159 10 157 6" stroke="#8B5A2B" stroke-width="1.2" fill="none" opacity="0.3"/>' +
+        '<path d="M152 12 Q154 6 153 3" stroke="#B87730" stroke-width="1" fill="none" opacity="0.25"/>' +
       '</g>' +
 
-      /* Ear (front) */
-      '<g class="dog-ear-front" style="transform-origin:162px 62px">' +
-        '<path d="M162 72 Q168 52 165 42 Q160 40 158 48 Q157 58 160 70Z" fill="#C4A46A"/>' +
-        '<path d="M161 68 Q166 54 164 46 Q161 44 159 50 Q159 58 160 66Z" fill="#B8964E" opacity="0.6"/>' +
-      '</g>' +
-
-      /* Eye */
+      /* --- Eyes (big, dark, expressive) --- */
       '<g class="dog-eye">' +
-        '<ellipse cx="164" cy="78" rx="5" ry="5.5" fill="#2A1B0D"/>' +
-        '<circle cx="162.5" cy="76.5" r="2" fill="#FFF" opacity="0.8"/>' +
-        '<circle cx="165.5" cy="79" r="1" fill="#FFF" opacity="0.35"/>' +
+        '<ellipse cx="148" cy="58" rx="8.5" ry="9" fill="#1A1110"/>' +
+        /* Large highlight — top left */
+        '<ellipse cx="145" cy="55.5" rx="3.2" ry="3.5" fill="#FFF" opacity="0.85"/>' +
+        /* Small highlight — bottom right */
+        '<circle cx="150.5" cy="60.5" r="1.8" fill="#FFF" opacity="0.4"/>' +
+        /* Subtle warm ring */
+        '<ellipse cx="148" cy="58" rx="8.5" ry="9" fill="none" stroke="#3A2515" stroke-width="0.8" opacity="0.4"/>' +
         /* Blink overlay */
-        '<ellipse class="dog-blink" cx="164" cy="78" rx="6" ry="0" fill="#D4B87A"/>' +
+        '<ellipse class="dog-blink" cx="148" cy="58" rx="9" ry="0" fill="#D4924E"/>' +
       '</g>' +
 
-      /* Nose */
-      '<ellipse cx="183" cy="82" rx="4" ry="3.5" fill="#2A1B0D"/>' +
-      '<ellipse cx="182.5" cy="81.5" rx="1.5" ry="1" fill="#4A3520" opacity="0.4"/>' +
+      /* --- Nose (round, black) --- */
+      '<ellipse cx="168" cy="63" rx="5" ry="4.5" fill="#1A1110"/>' +
+      '<ellipse cx="167" cy="62" rx="2" ry="1.3" fill="#3A2A1A" opacity="0.4"/>' +
+      '<circle cx="166.5" cy="61.5" r="1.2" fill="#FFF" opacity="0.15"/>' +
 
-      /* Mouth */
-      '<path class="dog-mouth" d="M178 87 Q181 90 184 87" fill="none" stroke="#8B6842" stroke-width="1" stroke-linecap="round"/>' +
+      /* --- Mouth (happy smile) --- */
+      '<path class="dog-mouth" d="M163 70 Q166 73 170 70" fill="none" stroke="#7A4E25" stroke-width="1.2" stroke-linecap="round"/>' +
+      '<path d="M161 69 Q163 70 163 70" stroke="#7A4E25" stroke-width="0.8" fill="none" opacity="0.5"/>' +
 
       /* Tongue (hidden) */
-      '<ellipse class="dog-tongue" cx="181" cy="91" rx="3" ry="4" fill="#E88B8B" opacity="0"/>' +
+      '<ellipse class="dog-tongue" cx="166" cy="74" rx="3.5" ry="5" fill="#E88B8B" opacity="0"/>' +
+      '<path class="dog-tongue-line" d="M166 71 L166 77" stroke="#D47070" stroke-width="0.5" opacity="0"/>' +
 
       /* Cheek highlight */
-      '<circle cx="170" cy="86" r="4" fill="#E8C08A" opacity="0.25"/>' +
+      '<circle cx="155" cy="68" r="5" fill="#F0D090" opacity="0.12"/>' +
+
+      /* Chin/beard fur wisps (Yorkie signature) */
+      '<path d="M156 76 Q153 84 155 92" stroke="#DBA860" stroke-width="2" fill="none" opacity="0.4"/>' +
+      '<path d="M160 76 Q158 84 160 92" stroke="#E8C080" stroke-width="1.8" fill="none" opacity="0.35"/>' +
+      '<path d="M152 74 Q148 82 150 90" stroke="#C8873E" stroke-width="1.8" fill="none" opacity="0.35"/>' +
+      '<path d="M164 74 Q163 82 164 88" stroke="#DBA860" stroke-width="1.5" fill="none" opacity="0.3"/>' +
+      '<path d="M148 72 Q144 80 146 87" stroke="#B87730" stroke-width="1.5" fill="none" opacity="0.3"/>' +
+
     '</g>' +
 
   '</svg>';
@@ -304,7 +372,7 @@
   function startBlinking() {
     function doBlink() {
       gsap.timeline()
-        .to('.dog-blink', { attr: { ry: 6.5 }, duration: 0.07, ease: 'power2.in' })
+        .to('.dog-blink', { attr: { ry: 9 }, duration: 0.07, ease: 'power2.in' })
         .to('.dog-blink', { attr: { ry: 0 }, duration: 0.09, ease: 'power2.out' })
         .add(function () {
           gsap.delayedCall(2.5 + Math.random() * 3, doBlink);
@@ -510,12 +578,12 @@
 
       // Tongue flick
       gsap.timeline()
-        .to('.dog-tongue', { opacity: 1, duration: 0.08, delay: 0.12 })
-        .to('.dog-tongue', { opacity: 0, duration: 0.25, delay: 0.4 });
+        .to('.dog-tongue, .dog-tongue-line', { opacity: 1, duration: 0.08, delay: 0.12 })
+        .to('.dog-tongue, .dog-tongue-line', { opacity: 0, duration: 0.25, delay: 0.4 });
 
       // Happy eyes squint
       gsap.timeline()
-        .to('.dog-blink', { attr: { ry: 3.5 }, duration: 0.08, delay: 0.1 })
+        .to('.dog-blink', { attr: { ry: 5 }, duration: 0.08, delay: 0.1 })
         .to('.dog-blink', { attr: { ry: 0 }, duration: 0.12, delay: 0.35 });
 
       // Excited tail

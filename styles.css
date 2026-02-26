@@ -1621,8 +1621,8 @@ body.modal-open {
 .mascota {
   position: fixed;
   z-index: 900;
-  width: 110px;
-  height: 90px;
+  width: 100px;
+  height: 95px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
