@@ -369,14 +369,9 @@
         asistencia: data.asistencia || '',
         alergia: data.alergia || '',
         detalle: data.alergia_detalle
-      }))
-        .then(function (r) { return r.json(); })
-        .then(function (result) {
-          if (result.ok) {
-            showToast('¡Gracias por confirmar!');
-          } else {
-            showToast('Error al confirmar. Intenta de nuevo.');
-          }
+      }), { redirect: 'follow', mode: 'no-cors' })
+        .then(function () {
+          showToast('¡Gracias por confirmar!');
         })
         .catch(function () {
           showToast('Error de conexión. Intenta de nuevo.');
