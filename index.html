@@ -17,32 +17,20 @@
 </head>
 <body>
 
-  <!-- ===== INTRO — FULLSCREEN ENVELOPE ===== -->
+  <!-- ===== INTRO — CINEMATIC GOLDEN BLOOM ===== -->
   <div class="intro" id="intro">
-    <!-- Interior: dark background with gold liner + card -->
-    <div class="envelope__interior" id="envelope-interior">
-      <div class="envelope__card" id="envelope-card">
-        <div class="envelope__card-inner">
-          <img src="assets/Vector.svg" alt="" class="envelope__card-leaf" aria-hidden="true">
-          <p class="envelope__card-subtitle" id="intro-text">Esta es una invitación<br>exclusiva para ti</p>
-          <p class="envelope__card-names">Natalia<br><span>&</span><br>Franco</p>
-          <div class="envelope__card-date">01 · 05 · 2026</div>
-        </div>
-      </div>
+    <canvas class="intro__canvas" id="intro-canvas"></canvas>
+    <div class="intro__bloom"></div>
+    <div class="intro__leak intro__leak--1"></div>
+    <div class="intro__leak intro__leak--2"></div>
+    <div class="intro__content">
+      <p class="intro__subtitle" id="intro-text">Esta es una invitación<br>exclusiva para ti</p>
+      <p class="intro__name" id="intro-name1">Natalia</p>
+      <p class="intro__amp">&</p>
+      <p class="intro__name" id="intro-name2">Franco</p>
+      <p class="intro__date">01 · 05 · 2026</p>
     </div>
-    <!-- Fullscreen envelope face (opens like a page) -->
-    <div class="envelope__flap" id="envelope-flap">
-      <div class="envelope__flap-front">
-        <div class="envelope__seal" id="envelope-seal">
-          <div class="envelope__seal-monogram">
-            <span>N</span><span>&</span><span>F</span>
-          </div>
-        </div>
-      </div>
-      <div class="envelope__flap-back"></div>
-    </div>
-    <!-- Overlay UI -->
-    <p class="intro__tap" id="intro-tap">Toca para abrir</p>
+    <p class="intro__tap" id="intro-tap">Toca para continuar</p>
     <div class="intro__flash"></div>
   </div>
 

@@ -1174,7 +1174,7 @@ img {
 }
 
 /* ========================================
-   INTRO — FULLSCREEN ENVELOPE
+   INTRO — CINEMATIC GOLDEN BLOOM
    ======================================== */
 
 html:has(.intro) { overflow: hidden; }
@@ -1184,311 +1184,168 @@ html:has(.intro) { overflow: hidden; }
   inset: 0;
   z-index: 9999;
   overflow: hidden;
-  perspective: 1400px;
-}
-
-/* --- Interior (behind flap): dark bg + gold liner --- */
-.envelope__interior {
-  position: absolute;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(191,168,128,0.1) 0px,
-      rgba(191,168,128,0.1) 1px,
-      transparent 1px,
-      transparent 16px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(191,168,128,0.1) 0px,
-      rgba(191,168,128,0.1) 1px,
-      transparent 1px,
-      transparent 16px
-    ),
-    radial-gradient(ellipse at 50% 40%, #1c1610 0%, #0e0c09 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-}
-
-/* --- Card (inside envelope, revealed after flap opens) --- */
-.envelope__card {
-  width: 82%;
-  max-width: 340px;
-  aspect-ratio: 5 / 7;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 4px,
-      rgba(180,160,130,0.012) 4px,
-      rgba(180,160,130,0.012) 5px
-    ),
-    linear-gradient(175deg, #FAF8F5 0%, #F5F0E8 50%, #EDE5D8 100%);
-  border-radius: 4px;
-  box-shadow:
-    0 10px 50px rgba(0,0,0,0.35),
-    0 3px 10px rgba(0,0,0,0.15);
-  position: relative;
-  opacity: 0;
-}
-
-/* Gold frame on card */
-.envelope__card::before {
-  content: '';
-  position: absolute;
-  inset: 14px;
-  border: 0.5px solid rgba(191,168,128,0.35);
-  border-radius: 2px;
-  pointer-events: none;
-}
-
-.envelope__card-inner {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-  position: relative;
-}
-
-.envelope__card-leaf {
-  position: absolute;
-  width: 140px;
-  opacity: 0.08;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.envelope__card-subtitle {
-  font-family: 'Waterfall', cursive;
-  font-weight: 400;
-  font-size: 28px;
-  line-height: 1.15;
-  text-align: center;
-  color: var(--gold);
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
-}
-
-.envelope__card-names {
-  font-family: 'Waterfall', cursive;
-  font-weight: 400;
-  font-size: 64px;
-  line-height: 0.6;
-  text-align: center;
-  color: var(--brown);
-  position: relative;
-  z-index: 1;
-}
-
-.envelope__card-names span {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 200;
-  font-size: 20px;
-  color: var(--gold);
-  display: inline-block;
-  margin: 4px 0;
-}
-
-.envelope__card-date {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 200;
-  font-size: 13px;
-  letter-spacing: 4px;
-  color: var(--gold);
-  margin-top: 24px;
-  position: relative;
-  z-index: 1;
-}
-
-/* --- Fullscreen envelope face (flap) --- */
-.envelope__flap {
-  position: absolute;
-  inset: 0;
-  transform-origin: top center;
-  transform-style: preserve-3d;
-  z-index: 10;
+  background: #050403;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Front face — realistic paper texture */
-.envelope__flap-front {
+/* --- Canvas bokeh layer --- */
+.intro__canvas {
   position: absolute;
   inset: 0;
-  backface-visibility: hidden;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(180,160,130,0.02) 3px,
-      rgba(180,160,130,0.02) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 5px,
-      rgba(180,160,130,0.012) 5px,
-      rgba(180,160,130,0.012) 6px
-    ),
-    linear-gradient(170deg, #f2e8d8 0%, #ede1cf 35%, #e8dac6 70%, #e3d4bc 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Embossed gold frame on envelope face */
-.envelope__flap-front::before {
-  content: '';
-  position: absolute;
-  inset: clamp(16px, 4vw, 32px);
-  border: 0.5px solid rgba(191,168,128,0.22);
-  pointer-events: none;
-}
-
-/* Paper depth vignette */
-.envelope__flap-front::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 40%, rgba(170,150,120,0.1) 100%);
-  pointer-events: none;
-}
-
-/* Back face — gold liner pattern (visible when flap opens) */
-.envelope__flap-back {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  transform: rotateX(180deg);
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(191,168,128,0.18) 0px,
-      rgba(191,168,128,0.18) 1px,
-      transparent 1px,
-      transparent 18px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(191,168,128,0.18) 0px,
-      rgba(191,168,128,0.18) 1px,
-      transparent 1px,
-      transparent 18px
-    ),
-    linear-gradient(180deg, #2a2015 0%, #1a150e 100%);
-}
-
-/* --- Wax Seal (on the envelope face) --- */
-.envelope__seal {
-  width: clamp(80px, 22vw, 120px);
-  height: clamp(80px, 22vw, 120px);
-  border-radius: 50% 47% 52% 48% / 48% 52% 47% 51%;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 35% 28%, rgba(255,255,255,0.18) 0%, transparent 50%),
-    radial-gradient(circle at 70% 75%, rgba(0,0,0,0.25) 0%, transparent 50%),
-    radial-gradient(ellipse at 42% 38%, #d4a574 0%, #BFA880 30%, #a08050 60%, #7a6132 100%);
-  box-shadow:
-    0 0 0 2px rgba(120,95,50,0.3),
-    0 0 0 5px rgba(191,168,128,0.05),
-    0 16px 48px rgba(0,0,0,0.25),
-    0 6px 16px rgba(0,0,0,0.15),
-    inset 0 4px 12px rgba(255,255,255,0.15),
-    inset 0 -5px 14px rgba(0,0,0,0.28);
-  z-index: 5;
-}
-
-/* Inner ring */
-.envelope__seal::before {
-  content: '';
-  position: absolute;
-  inset: 14%;
-  border-radius: 50%;
-  border: 1.5px solid rgba(245,230,208,0.2);
-  box-shadow: 0 0 6px rgba(245,230,208,0.04);
-}
-
-/* Outer ring */
-.envelope__seal::after {
-  content: '';
-  position: absolute;
-  inset: 9%;
-  border-radius: 50%;
-  border: 0.5px solid rgba(245,230,208,0.1);
-}
-
-.envelope__seal-monogram {
-  position: relative;
+  width: 100%;
+  height: 100%;
   z-index: 1;
+}
+
+/* --- Central golden bloom --- */
+.intro__bloom {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140vmax;
+  height: 140vmax;
+  transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(
+    circle,
+    rgba(191,168,128,0.12) 0%,
+    rgba(191,168,128,0.06) 20%,
+    rgba(140,120,80,0.03) 40%,
+    transparent 65%
+  );
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* --- Light leak overlays --- */
+.intro__leak {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.intro__leak--1 {
+  top: -8%;
+  right: -8%;
+  background: radial-gradient(ellipse at 70% 30%, rgba(210,180,120,0.2) 0%, transparent 70%);
+  animation: leakDrift1 10s ease-in-out infinite alternate;
+}
+
+.intro__leak--2 {
+  bottom: -5%;
+  left: -10%;
+  background: radial-gradient(ellipse at 30% 70%, rgba(191,168,128,0.15) 0%, transparent 70%);
+  animation: leakDrift2 12s ease-in-out infinite alternate;
+}
+
+@keyframes leakDrift1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-8%, 12%) scale(1.15); }
+}
+
+@keyframes leakDrift2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(6%, -8%) scale(1.1); }
+}
+
+/* --- Content layer --- */
+.intro__content {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  line-height: 1;
+  justify-content: center;
+  padding: 0 32px;
+  gap: 0;
 }
 
-.envelope__seal-monogram span:nth-child(1),
-.envelope__seal-monogram span:nth-child(3) {
-  font-family: 'Birthstone', cursive;
-  font-size: clamp(22px, 6vw, 32px);
-  color: #f5e6d0;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+/* --- Subtitle text --- */
+.intro__subtitle {
+  font-family: 'Waterfall', cursive;
+  font-weight: 400;
+  font-size: clamp(28px, 7vw, 42px);
+  line-height: 1.15;
+  text-align: center;
+  color: rgba(191,168,128,0.9);
+  margin-bottom: clamp(20px, 4dvh, 40px);
 }
 
-.envelope__seal-monogram span:nth-child(2) {
+/* --- Character spans (created by JS) --- */
+.intro__char {
+  display: inline-block;
+  opacity: 0;
+}
+
+/* --- Names with gold shimmer --- */
+.intro__name {
+  font-family: 'Waterfall', cursive;
+  font-weight: 400;
+  font-size: clamp(70px, 18vw, 130px);
+  line-height: 0.85;
+  text-align: center;
+}
+
+.intro__name .intro__char {
+  background: linear-gradient(90deg, #BFA880, #f0e0c6, #fff8ee, #e0c89c, #BFA880);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* --- Ampersand --- */
+.intro__amp {
   font-family: 'Nunito', sans-serif;
   font-weight: 200;
-  font-size: clamp(8px, 2.5vw, 13px);
-  color: rgba(245,230,208,0.5);
-  margin: -5px 0;
+  font-size: clamp(18px, 4vw, 24px);
+  color: rgba(191,168,128,0.6);
+  margin: clamp(4px, 1dvh, 12px) 0;
+  opacity: 0;
 }
 
-/* --- Tap text (floats above everything) --- */
+/* --- Date --- */
+.intro__date {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 200;
+  font-size: clamp(12px, 3vw, 15px);
+  letter-spacing: 6px;
+  color: rgba(191,168,128,0.7);
+  margin-top: clamp(16px, 3dvh, 32px);
+  opacity: 0;
+}
+
+/* --- Tap prompt --- */
 .intro__tap {
   position: absolute;
-  bottom: clamp(48px, 10dvh, 100px);
+  bottom: clamp(40px, 8dvh, 80px);
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: 10;
   text-align: center;
   font-family: 'Nunito', sans-serif;
   font-weight: 300;
-  font-size: 13px;
-  color: rgba(140, 120, 90, 0.45);
+  font-size: 12px;
+  color: rgba(191,168,128,0.35);
   letter-spacing: 3px;
   text-transform: uppercase;
   opacity: 0;
 }
 
-/* --- Flash overlay --- */
+/* --- Flash transition --- */
 .intro__flash {
   position: absolute;
-  inset: -50%;
-  background: radial-gradient(circle at center, rgba(250,248,245,0.95) 0%, rgba(250,248,245,0.4) 30%, transparent 60%);
-  z-index: 30;
+  inset: 0;
+  background: var(--cream);
+  z-index: 20;
   opacity: 0;
   pointer-events: none;
-}
-
-/* --- Burst particles --- */
-.intro__particle {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 25;
 }
 
 /* ========================================

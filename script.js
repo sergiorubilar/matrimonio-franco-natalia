@@ -27,160 +27,301 @@
   // ============================
   function initIntro() {
     var intro = document.getElementById('intro');
-    var flap = document.getElementById('envelope-flap');
-    var card = document.getElementById('envelope-card');
-    var seal = document.getElementById('envelope-seal');
+    var canvas = document.getElementById('intro-canvas');
     var tap = document.getElementById('intro-tap');
+    var bloom = intro && intro.querySelector('.intro__bloom');
+    var flash = intro && intro.querySelector('.intro__flash');
+    var subtitle = document.getElementById('intro-text');
+    var name1 = document.getElementById('intro-name1');
+    var name2 = document.getElementById('intro-name2');
+    var amp = intro && intro.querySelector('.intro__amp');
+    var dateEl = intro && intro.querySelector('.intro__date');
+    var leak1 = intro && intro.querySelector('.intro__leak--1');
+    var leak2 = intro && intro.querySelector('.intro__leak--2');
 
-    if (!intro || !flap || !card || !seal || typeof gsap === 'undefined') return;
+    if (!intro || !canvas || typeof gsap === 'undefined') return;
 
-    // 1. Initial state
-    gsap.set(card, { opacity: 0, y: 50, scale: 0.9 });
-    gsap.set(flap, { rotationX: 0 });
-    gsap.set(tap, { opacity: 0 });
+    // ============================
+    // CANVAS BOKEH PARTICLE SYSTEM
+    // ============================
+    var ctx = canvas.getContext('2d');
+    var bokehParticles = [];
+    var bokehAlpha = { value: 0 };
+    var bokehRunning = true;
 
-    // 2. Entrance — tap text fades in gently
-    gsap.to(tap, {
-      opacity: 1,
-      duration: 1.8,
-      delay: 0.8,
-      ease: 'power1.out'
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Create bokeh particles
+    for (var i = 0; i < 40; i++) {
+      bokehParticles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: 3 + Math.random() * 18,
+        alpha: 0.05 + Math.random() * 0.2,
+        drift: 0.15 + Math.random() * 0.4,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.003 + Math.random() * 0.006
+      });
+    }
+
+    function drawBokeh(time) {
+      if (!bokehRunning) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (var i = 0; i < bokehParticles.length; i++) {
+        var p = bokehParticles[i];
+        var xOff = Math.sin(time * p.speed + p.phase) * 40 * p.drift;
+        var yOff = Math.cos(time * p.speed * 0.7 + p.phase) * 25 * p.drift;
+        var cx = p.x + xOff;
+        var cy = p.y + yOff;
+
+        var grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, p.r);
+        grad.addColorStop(0, 'rgba(210,185,140,' + (p.alpha * bokehAlpha.value).toFixed(3) + ')');
+        grad.addColorStop(0.5, 'rgba(191,168,128,' + (p.alpha * 0.5 * bokehAlpha.value).toFixed(3) + ')');
+        grad.addColorStop(1, 'rgba(191,168,128,0)');
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      requestAnimationFrame(drawBokeh);
+    }
+    requestAnimationFrame(drawBokeh);
+
+    // ============================
+    // TEXT SPLITTING INTO CHARS
+    // ============================
+    function splitTextIntoChars(el) {
+      if (!el) return [];
+      var html = el.innerHTML;
+      var parts = html.split(/<br\s*\/?>/i);
+      el.innerHTML = '';
+      var chars = [];
+
+      for (var p = 0; p < parts.length; p++) {
+        if (p > 0) el.appendChild(document.createElement('br'));
+        var text = parts[p];
+        for (var c = 0; c < text.length; c++) {
+          var span = document.createElement('span');
+          span.className = 'intro__char';
+          span.textContent = text[c] === ' ' ? '\u00A0' : text[c];
+          el.appendChild(span);
+          chars.push(span);
+        }
+      }
+      return chars;
+    }
+
+    var subtitleChars = splitTextIntoChars(subtitle);
+    var name1Chars = splitTextIntoChars(name1);
+    var name2Chars = splitTextIntoChars(name2);
+
+    // ============================
+    // GSAP ENTRANCE TIMELINE
+    // ============================
+    var entranceTL = gsap.timeline({ delay: 0.3 });
+
+    entranceTL
+      // Bloom expands
+      .to(bloom, {
+        scale: 1,
+        opacity: 1,
+        duration: 3,
+        ease: 'power2.out'
+      }, 0)
+
+      // Bokeh fades in
+      .to(bokehAlpha, {
+        value: 1,
+        duration: 2.5,
+        ease: 'power1.inOut'
+      }, 0.3)
+
+      // Light leaks appear
+      .to(leak1, { opacity: 1, duration: 2, ease: 'power1.inOut' }, 0.8)
+      .to(leak2, { opacity: 1, duration: 2, ease: 'power1.inOut' }, 1.2)
+
+      // Subtitle chars reveal (blur to sharp, staggered)
+      .fromTo(subtitleChars, {
+        opacity: 0,
+        filter: 'blur(8px)',
+        y: 10
+      }, {
+        opacity: 1,
+        filter: 'blur(0px)',
+        y: 0,
+        duration: 0.6,
+        stagger: 0.025,
+        ease: 'power2.out'
+      }, 1.5)
+
+      // Name 1 chars reveal
+      .fromTo(name1Chars, {
+        opacity: 0,
+        y: 30,
+        scale: 0.8
+      }, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.7,
+        stagger: 0.04,
+        ease: 'back.out(1.7)'
+      }, 2.8)
+
+      // Ampersand
+      .to(amp, {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power1.inOut'
+      }, 3.6)
+
+      // Name 2 chars reveal
+      .fromTo(name2Chars, {
+        opacity: 0,
+        y: 30,
+        scale: 0.8
+      }, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.7,
+        stagger: 0.04,
+        ease: 'back.out(1.7)'
+      }, 3.8)
+
+      // Date with letter-spacing animation
+      .fromTo(dateEl, {
+        opacity: 0,
+        letterSpacing: '20px'
+      }, {
+        opacity: 1,
+        letterSpacing: '6px',
+        duration: 1.2,
+        ease: 'power2.out'
+      }, 4.6)
+
+      // Tap prompt
+      .to(tap, {
+        opacity: 1,
+        duration: 1.5,
+        ease: 'power1.inOut'
+      }, 5.2);
+
+    // Gold shimmer on name chars
+    var allNameChars = name1Chars.concat(name2Chars);
+    allNameChars.forEach(function (ch, i) {
+      gsap.to(ch, {
+        backgroundPosition: '-300% center',
+        duration: 3 + Math.random() * 2,
+        ease: 'none',
+        repeat: -1,
+        delay: 3.5 + i * 0.08
+      });
     });
 
-    // 3. Seal breathing loop
-    gsap.to(seal, {
-      scale: 1.05,
-      duration: 2.5,
-      ease: 'sine.inOut',
-      repeat: -1,
-      yoyo: true,
-      delay: 1.2
-    });
-
-    // Tap text pulse
+    // Tap prompt gentle pulse
     gsap.to(tap, {
-      opacity: 0.6,
+      opacity: 0.3,
       duration: 2,
       ease: 'sine.inOut',
       repeat: -1,
       yoyo: true,
-      delay: 3
+      delay: 6.5
     });
 
-    // 4. Click anywhere on the envelope to open
-    var opened = false;
-    flap.addEventListener('click', function () {
-      if (opened) return;
-      opened = true;
+    // ============================
+    // CLICK TO EXIT
+    // ============================
+    var exiting = false;
+    intro.addEventListener('click', function () {
+      if (exiting || (!entranceTL.isActive() && entranceTL.progress() < 0.6)) return;
+      exiting = true;
 
-      gsap.killTweensOf(seal);
       gsap.killTweensOf(tap);
+      allNameChars.forEach(function (ch) { gsap.killTweensOf(ch); });
 
-      // Create particle burst from the seal position
-      var sealRect = seal.getBoundingClientRect();
-      var introRect = intro.getBoundingClientRect();
-      var burstX = sealRect.left + sealRect.width / 2 - introRect.left;
-      var burstY = sealRect.top + sealRect.height / 2 - introRect.top;
+      var exitTL = gsap.timeline();
 
-      var particles = [];
-      for (var i = 0; i < 50; i++) {
-        var p = document.createElement('div');
-        p.className = 'intro__particle';
-        var size = 2 + Math.random() * 5;
-        p.style.width = size + 'px';
-        p.style.height = size + 'px';
-        p.style.left = burstX + 'px';
-        p.style.top = burstY + 'px';
-        var alpha = (0.4 + Math.random() * 0.6).toFixed(2);
-        p.style.background = 'rgba(191,168,128,' + alpha + ')';
-        p.style.boxShadow = '0 0 ' + (3 + Math.random() * 10).toFixed(0) + 'px rgba(191,168,128,0.4)';
-        intro.appendChild(p);
-        particles.push(p);
-      }
-
-      var tl = gsap.timeline();
-
-      tl
-        // Fade out tap text immediately
+      exitTL
+        // Tap text vanishes
         .to(tap, { opacity: 0, duration: 0.3 }, 0)
 
-        // Seal vibrates
-        .to(seal, {
-          scale: 1.1,
-          duration: 0.05,
-          ease: 'power2.inOut',
-          yoyo: true,
-          repeat: 4
+        // Text dissolves upward with blur
+        .to(subtitleChars, {
+          opacity: 0,
+          y: -20,
+          filter: 'blur(6px)',
+          duration: 0.5,
+          stagger: 0.01,
+          ease: 'power2.in'
         }, 0)
 
-        // Seal dissolves with burst
-        .to(seal, {
-          scale: 2.5,
+        .to(name1Chars, {
           opacity: 0,
-          filter: 'blur(4px)',
-          duration: 0.8,
-          ease: 'power3.out'
-        }, 0.3)
+          y: -25,
+          filter: 'blur(6px)',
+          duration: 0.5,
+          stagger: 0.015,
+          ease: 'power2.in'
+        }, 0.1)
 
-        // Golden particles burst outward
-        .add(function () {
-          particles.forEach(function (p) {
-            var angle = Math.random() * Math.PI * 2;
-            var distance = 100 + Math.random() * 300;
-            gsap.fromTo(p,
-              { x: 0, y: 0, scale: 1, opacity: 1 },
-              {
-                x: Math.cos(angle) * distance,
-                y: Math.sin(angle) * distance,
-                scale: 0,
-                opacity: 0,
-                duration: 1.2 + Math.random() * 0.8,
-                ease: 'power2.out',
-                onComplete: function () { if (p.parentNode) p.remove(); }
-              }
-            );
-          });
-        }, 0.3)
+        .to(amp, { opacity: 0, duration: 0.3 }, 0.1)
 
-        // The entire screen lifts open (flap rotates from bottom up)
-        .to(flap, {
-          rotationX: 180,
-          duration: 1.8,
-          ease: 'power2.inOut'
-        }, 0.9)
+        .to(name2Chars, {
+          opacity: 0,
+          y: -25,
+          filter: 'blur(6px)',
+          duration: 0.5,
+          stagger: 0.015,
+          ease: 'power2.in'
+        }, 0.15)
 
-        // Card fades in and rises gently on the dark interior
-        .to(card, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 1.4,
-          ease: 'power2.out'
-        }, 1.8)
+        .to(dateEl, {
+          opacity: 0,
+          y: -15,
+          duration: 0.4,
+          ease: 'power2.in'
+        }, 0.2)
 
-        // Card scales up slightly for emphasis
-        .to(card, {
-          scale: 1.1,
-          duration: 1,
-          ease: 'power2.inOut'
-        }, 3.0)
-
-        // Warm flash from the card
-        .to('.intro__flash', {
-          opacity: 0.8,
+        // Bokeh fades
+        .to(bokehAlpha, {
+          value: 0,
           duration: 0.8,
           ease: 'power1.in'
-        }, 3.6)
+        }, 0.3)
 
-        // Everything fades out to reveal main page
-        .to(intro, {
+        // Bloom shrinks
+        .to(bloom, {
+          scale: 1.5,
           opacity: 0,
-          duration: 1.2,
-          ease: 'power1.inOut',
-          onComplete: function () {
-            intro.remove();
-          }
-        }, 4.0);
+          duration: 1,
+          ease: 'power2.in'
+        }, 0.3)
+
+        // Light leaks fade
+        .to([leak1, leak2], { opacity: 0, duration: 0.6 }, 0.4)
+
+        // Flash to cream
+        .to(flash, {
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power2.in'
+        }, 0.8)
+
+        // Remove intro
+        .add(function () {
+          bokehRunning = false;
+          window.removeEventListener('resize', resizeCanvas);
+          intro.remove();
+        }, 1.6);
     });
   }
 
