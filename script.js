@@ -435,6 +435,7 @@
           bokehRunning = false;
           window.removeEventListener('resize', resizeCanvas);
           intro.remove();
+          document.documentElement.classList.remove('intro-active');
           if (revealHero) revealHero();
         }, 1.6);
     });

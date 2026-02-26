@@ -82,13 +82,14 @@ img {
   height: 90vh;
   min-height: 640px;
   max-height: 900px;
+  overflow-x: hidden;
   overflow-x: clip;
   overflow-y: visible;
 }
 
 .hero__photo {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: 1;
   overflow: hidden;
 }
@@ -96,7 +97,7 @@ img {
 .hero__photo::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   background: #0000008F;
   z-index: 1;
 }
@@ -110,13 +111,13 @@ img {
 
 .hero__overlay {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 140px;
+  padding-top: clamp(80px, 20vh, 140px);
   background: linear-gradient(
     180deg,
     transparent 0%,
@@ -152,8 +153,8 @@ img {
 .hero__names {
   font-family: var(--font-script-alt);
   font-weight: 400;
-  font-size: 140px;
-  line-height: 80px;
+  font-size: clamp(80px, 38vw, 140px);
+  line-height: clamp(48px, 22vw, 80px);
   letter-spacing: 0;
   text-align: center;
   color: #FFFFFF;
@@ -552,6 +553,7 @@ img {
   position: relative;
   text-align: center;
   padding: 170px 28px 230px;
+  overflow-x: hidden;
   overflow-x: clip;
   overflow-y: visible;
 }
@@ -713,7 +715,7 @@ img {
    ======================================== */
 .modal {
   position: fixed;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -730,7 +732,7 @@ img {
 
 .modal__backdrop {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   background: rgba(0, 0, 0, 0.45);
   cursor: pointer;
 }
@@ -801,7 +803,7 @@ img {
 /* Fullscreen confirmation */
 .fullscreen {
   position: fixed;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: 1000;
   background: var(--cream);
   display: flex;
@@ -809,6 +811,7 @@ img {
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
+  height: 100vh;
   height: 100dvh;
   opacity: 0;
   visibility: hidden;
@@ -825,7 +828,9 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: clamp(8px, 1.5vh, 20px);
   padding-top: clamp(8px, 1.5dvh, 20px);
+  padding-bottom: clamp(16px, 3vh, 40px);
   padding-bottom: clamp(16px, 3dvh, 40px);
   flex-shrink: 0;
 }
@@ -861,6 +866,7 @@ img {
 
 .fullscreen__content {
   width: 100%;
+  padding: clamp(16px, 4vh, 40px) 24px clamp(12px, 2vh, 24px);
   padding: clamp(16px, 4dvh, 40px) 24px clamp(12px, 2dvh, 24px);
   text-align: left;
   flex: 1;
@@ -872,6 +878,7 @@ img {
 
 .fullscreen__vector {
   display: block;
+  width: clamp(80px, 15vh, 179px);
   width: clamp(80px, 15dvh, 179px);
   margin: 0 auto;
   opacity: 0.5;
@@ -880,12 +887,15 @@ img {
 .fullscreen__title {
   font-family: var(--font-script-alt);
   font-weight: 400;
+  font-size: clamp(44px, 8vh, 80px);
   font-size: clamp(44px, 8dvh, 80px);
   line-height: 0.6;
   letter-spacing: 0;
   text-align: center;
   color: #BFA880;
+  margin-top: clamp(8px, 1.5vh, 24px);
   margin-top: clamp(8px, 1.5dvh, 24px);
+  margin-bottom: clamp(16px, 3vh, 40px);
   margin-bottom: clamp(16px, 3dvh, 40px);
 }
 
@@ -950,7 +960,9 @@ img {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  margin-bottom: clamp(12px, 2vh, 24px);
   margin-bottom: clamp(12px, 2dvh, 24px);
+  gap: clamp(8px, 1.5vh, 16px);
   gap: clamp(8px, 1.5dvh, 16px);
 }
 
@@ -1015,6 +1027,7 @@ img {
 
 .form__textarea {
   width: 100%;
+  height: clamp(48px, 8vh, 80px);
   height: clamp(48px, 8dvh, 80px);
   border: 1.5px solid var(--card-border);
   border-radius: 12px;
@@ -1041,13 +1054,14 @@ img {
    ======================================== */
 .form-loading {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: 10;
   background: var(--cream);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: clamp(24px, 4vh, 40px);
   gap: clamp(24px, 4dvh, 40px);
   opacity: 0;
   animation: formLoadingIn 0.5s ease forwards;
@@ -1074,7 +1088,7 @@ img {
 
 .form-loading__monogram {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1090,6 +1104,7 @@ img {
 
 .form-loading__message {
   font-family: var(--font-script-alt);
+  font-size: clamp(26px, 5vh, 36px);
   font-size: clamp(26px, 5dvh, 36px);
   color: var(--gold);
   text-align: center;
@@ -1157,11 +1172,11 @@ img {
    INTRO — CINEMATIC GOLDEN BLOOM
    ======================================== */
 
-html:has(.intro) { overflow: hidden; }
+html.intro-active { overflow: hidden; }
 
 .intro {
   position: fixed;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: 9999;
   overflow: hidden;
   background: #050403;
@@ -1172,7 +1187,7 @@ html:has(.intro) { overflow: hidden; }
 /* --- Canvas bokeh layer --- */
 .intro__canvas {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   width: 100%;
   height: 100%;
   z-index: 1;
@@ -1236,7 +1251,7 @@ html:has(.intro) { overflow: hidden; }
 /* --- Content layer --- */
 .intro__content {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: 5;
   display: flex;
   flex-direction: column;
@@ -1254,6 +1269,7 @@ html:has(.intro) { overflow: hidden; }
   line-height: 1.15;
   text-align: center;
   color: rgba(191,168,128,0.9);
+  margin-bottom: clamp(20px, 4vh, 40px);
   margin-bottom: clamp(20px, 4dvh, 40px);
   opacity: 0; /* hidden until JS splits into chars */
 }
@@ -1288,6 +1304,7 @@ html:has(.intro) { overflow: hidden; }
   font-weight: 200;
   font-size: clamp(18px, 4vw, 24px);
   color: rgba(191,168,128,0.6);
+  margin: clamp(4px, 1vh, 12px) 0;
   margin: clamp(4px, 1dvh, 12px) 0;
   opacity: 0;
 }
@@ -1299,6 +1316,7 @@ html:has(.intro) { overflow: hidden; }
   font-size: clamp(12px, 3vw, 15px);
   letter-spacing: 6px;
   color: rgba(191,168,128,0.7);
+  margin-top: clamp(16px, 3vh, 32px);
   margin-top: clamp(16px, 3dvh, 32px);
   opacity: 0;
 }
@@ -1306,6 +1324,7 @@ html:has(.intro) { overflow: hidden; }
 /* --- Tap prompt --- */
 .intro__tap {
   position: absolute;
+  bottom: clamp(40px, 8vh, 80px);
   bottom: clamp(40px, 8dvh, 80px);
   left: 0;
   right: 0;
@@ -1323,11 +1342,80 @@ html:has(.intro) { overflow: hidden; }
 /* --- Flash transition --- */
 .intro__flash {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   background: var(--cream);
   z-index: 20;
   opacity: 0;
   pointer-events: none;
+}
+
+/* ========================================
+   RESPONSIVE — SMALL SCREENS (≤ 374px)
+   ======================================== */
+@media (max-width: 374px) {
+  .hero__overlay {
+    padding-top: clamp(60px, 15vh, 100px);
+  }
+
+  .countdown__bubble {
+    width: 250px;
+    height: 250px;
+    padding-bottom: 24px;
+  }
+
+  .countdown__title {
+    font-size: 64px;
+  }
+
+  .countdown__number {
+    font-size: 48px;
+  }
+
+  .countdown__label {
+    font-size: 20px;
+  }
+
+  .message__text,
+  .fecha__day,
+  .fecha__venue,
+  .fecha__city {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .fecha__title,
+  .fiesta__title {
+    font-size: 64px;
+  }
+
+  .btn--primary {
+    font-size: 20px;
+    height: 52px;
+  }
+
+  .btn--submit {
+    font-size: 20px;
+    height: 52px;
+  }
+
+  .btn--link {
+    font-size: 18px;
+  }
+
+  .form__label,
+  .form__radio {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .fiesta__card-heading {
+    font-size: 20px;
+  }
+
+  .fiesta__card-text {
+    font-size: 18px;
+    line-height: 26px;
+  }
 }
 
 /* ========================================
