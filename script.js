@@ -359,6 +359,55 @@
     alergiaDetalle.value = '';
   });
 
+  var loadingMessages = [
+    'Guardando tu lugar en nuestra mesa',
+    'Preparando tu copa de bienvenida',
+    'Reservando un brindis en tu honor',
+    'Anotando tu nombre en nuestra historia'
+  ];
+
+  function showFormLoading(container) {
+    var overlay = document.createElement('div');
+    overlay.className = 'form-loading';
+    overlay.innerHTML =
+      '<div class="form-loading__spinner">' +
+        '<div class="form-loading__ring"></div>' +
+        '<div class="form-loading__monogram">N&F</div>' +
+      '</div>' +
+      '<div class="form-loading__message"></div>' +
+      '<div class="form-loading__dots">' +
+        '<span class="form-loading__dot"></span>' +
+        '<span class="form-loading__dot"></span>' +
+        '<span class="form-loading__dot"></span>' +
+      '</div>';
+    container.appendChild(overlay);
+
+    var msgEl = overlay.querySelector('.form-loading__message');
+    var idx = 0;
+    msgEl.textContent = loadingMessages[idx];
+
+    var msgInterval = setInterval(function () {
+      idx = (idx + 1) % loadingMessages.length;
+      msgEl.style.opacity = '0';
+      setTimeout(function () {
+        msgEl.textContent = loadingMessages[idx];
+        msgEl.style.opacity = '1';
+      }, 300);
+    }, 2500);
+
+    return { overlay: overlay, interval: msgInterval };
+  }
+
+  function hideFormLoading(loading, callback) {
+    clearInterval(loading.interval);
+    loading.overlay.style.opacity = '0';
+    loading.overlay.style.transition = 'opacity 0.4s ease';
+    setTimeout(function () {
+      loading.overlay.remove();
+      if (callback) callback();
+    }, 400);
+  }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -369,16 +418,19 @@
       alergia_detalle: formData.get('alergia_detalle') || ''
     };
 
-    // Cerrar modal inmediatamente
     var screen = document.getElementById('screen-confirmar');
-    screen.classList.remove('is-open');
-    screen.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('modal-open');
+    var content = screen.querySelector('.fullscreen__content');
+    var loading = showFormLoading(content);
 
-    // Enviar a Google Sheets si está configurado
+    function closeModal() {
+      screen.classList.remove('is-open');
+      screen.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+      form.reset();
+      groupCual.style.display = 'none';
+    }
+
     if (guestToken && isConfigured()) {
-      showToast('Enviando confirmación...');
-
       var confirmUrl = APPS_SCRIPT_URL + '?' + new URLSearchParams({
         action: 'confirmar',
         token: guestToken,
@@ -387,17 +439,28 @@
         detalle: data.alergia_detalle
       }).toString();
 
-      var img = new Image();
-      img.onload = img.onerror = function () {
-        showToast('¡Gracias por confirmar!');
-      };
-      img.src = confirmUrl;
-    } else {
-      console.log('Confirmación enviada:', data);
-      showToast('¡Gracias por confirmar!');
-    }
+      var minTime = new Promise(function (resolve) { setTimeout(resolve, 3000); });
 
-    form.reset();
+      var request = new Promise(function (resolve) {
+        var img = new Image();
+        img.onload = img.onerror = function () { resolve(); };
+        img.src = confirmUrl;
+      });
+
+      Promise.all([minTime, request]).then(function () {
+        hideFormLoading(loading, function () {
+          closeModal();
+          showToast('¡Gracias por confirmar!');
+        });
+      });
+    } else {
+      setTimeout(function () {
+        hideFormLoading(loading, function () {
+          closeModal();
+          showToast('¡Gracias por confirmar!');
+        });
+      }, 2500);
+    }
   });
 
   // ============================
