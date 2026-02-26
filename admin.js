@@ -6,7 +6,7 @@
   'use strict';
 
   var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYSHCf-zHTPKuvnms_6e_miHZzn3lAAZIp1wtHepb0kUAeImIzTS-9ZOlUnVqOLmXr/exec';
-  var BASE_URL = 'https://sergiorubilar.github.io/matrimonio-franco-natalia';
+  var BASE_URL = 'https://natalia-y-franco.github.io';
 
   var guests = [];
   var password = '';
