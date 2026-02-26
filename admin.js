@@ -114,7 +114,11 @@
   }
 
   function processData(data) {
-    guests = data.invitados || [];
+    guests = (data.invitados || []).map(function (g) {
+      g.confirmacion = (g.confirmacion || '').toUpperCase();
+      g.alergias = (g.alergias || '').toUpperCase();
+      return g;
+    });
     updateStats(data.stats);
     populateGroupFilter();
     renderTable();
