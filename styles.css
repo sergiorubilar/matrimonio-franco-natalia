@@ -1275,6 +1275,7 @@ html:has(.intro) { overflow: hidden; }
   text-align: center;
   color: rgba(191,168,128,0.9);
   margin-bottom: clamp(20px, 4dvh, 40px);
+  opacity: 0; /* hidden until JS splits into chars */
 }
 
 /* --- Character spans (created by JS) --- */
@@ -1290,6 +1291,7 @@ html:has(.intro) { overflow: hidden; }
   font-size: clamp(70px, 18vw, 130px);
   line-height: 0.85;
   text-align: center;
+  opacity: 0; /* hidden until JS splits into chars */
 }
 
 .intro__name .intro__char {

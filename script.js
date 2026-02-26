@@ -123,6 +123,11 @@
     var name1Chars = splitTextIntoChars(name1);
     var name2Chars = splitTextIntoChars(name2);
 
+    // Show parents now that chars control their own opacity
+    if (subtitle) subtitle.style.opacity = '1';
+    if (name1) name1.style.opacity = '1';
+    if (name2) name2.style.opacity = '1';
+
     // ============================
     // GSAP ENTRANCE TIMELINE
     // ============================
