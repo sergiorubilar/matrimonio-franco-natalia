@@ -342,14 +342,30 @@
   // FORM HANDLING
   // ============================
   var form = document.getElementById('form-confirmacion');
+  var alergiaSi = document.getElementById('alergia-si');
+  var alergiaNo = document.getElementById('alergia-no');
+  var groupCual = document.getElementById('group-cual');
+  var alergiaDetalle = document.getElementById('alergia-detalle');
+
+  // Ocultar campo "¿Cuál?" por defecto y según selección
+  groupCual.style.display = 'none';
+  alergiaSi.addEventListener('change', function () {
+    groupCual.style.display = '';
+    alergiaDetalle.disabled = false;
+  });
+  alergiaNo.addEventListener('change', function () {
+    groupCual.style.display = 'none';
+    alergiaDetalle.disabled = true;
+    alergiaDetalle.value = '';
+  });
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
     var formData = new FormData(form);
     var data = {
-      asistencia: formData.get('asistencia'),
-      alergia: formData.get('alergia'),
+      asistencia: formData.get('asistencia') === 'si' ? 'TRUE' : 'FALSE',
+      alergia: formData.get('alergia') === 'si' ? 'TRUE' : 'FALSE',
       alergia_detalle: formData.get('alergia_detalle') || ''
     };
 
@@ -366,8 +382,8 @@
       var confirmUrl = APPS_SCRIPT_URL + '?' + new URLSearchParams({
         action: 'confirmar',
         token: guestToken,
-        asistencia: data.asistencia || '',
-        alergia: data.alergia || '',
+        asistencia: data.asistencia,
+        alergia: data.alergia,
         detalle: data.alergia_detalle
       }).toString();
 
