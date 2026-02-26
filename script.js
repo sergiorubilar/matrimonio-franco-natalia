@@ -64,40 +64,40 @@
         intro.appendChild(dust);
       }
 
-      // 3. GSAP — Entrance timeline
-      // Set initial hidden state immediately (prevents flash)
-      gsap.set('.intro__text', { opacity: 0 });
-      gsap.set('.intro__seal-wrapper', { opacity: 0 });
+      // 3. GSAP — Cinematic entrance (blur-to-sharp reveal)
+      gsap.set('.intro__text', { opacity: 1 });
+      gsap.set('.intro__word', { opacity: 0, y: 30, filter: 'blur(16px)', scale: 0.96 });
 
       var entranceTl = gsap.timeline({ delay: 0.6 });
 
       entranceTl
-        .fromTo('.intro__word', {
-          y: 25,
-          opacity: 0
-        }, {
+        .to('.intro__word', {
           y: 0,
           opacity: 1,
-          stagger: 0.15,
+          filter: 'blur(0px)',
+          scale: 1,
+          stagger: 0.11,
           duration: 1,
-          ease: 'power2.out'
+          ease: 'power3.out'
         })
         .fromTo('.intro__seal-wrapper', {
-          y: 40,
           opacity: 0,
-          scale: 0.7
+          filter: 'blur(20px)',
+          scale: 0.8,
+          y: 30
         }, {
-          y: 0,
           opacity: 1,
+          filter: 'blur(0px)',
           scale: 1,
-          duration: 1.4,
+          y: 0,
+          duration: 1.6,
           ease: 'power2.out'
         }, '-=0.4')
         .to('.intro__tap', {
           opacity: 0.5,
-          duration: 1,
+          duration: 1.2,
           ease: 'power1.out'
-        }, '+=0.3');
+        }, '-=0.4');
 
       // 4. Continuous loops
       gsap.to('.intro__word', {
@@ -136,92 +136,103 @@
         gsap.killTweensOf('.intro__tap');
         gsap.killTweensOf('.intro__word');
 
+        // Create golden particle burst
+        var particles = [];
+        for (var i = 0; i < 55; i++) {
+          var p = document.createElement('div');
+          p.className = 'intro__particle';
+          var size = 2 + Math.random() * 5;
+          p.style.width = size + 'px';
+          p.style.height = size + 'px';
+          var alpha = (0.6 + Math.random() * 0.4).toFixed(2);
+          p.style.background = 'rgba(191,168,128,' + alpha + ')';
+          p.style.boxShadow = '0 0 ' + (4 + Math.random() * 10).toFixed(0) + 'px rgba(191,168,128,0.6)';
+          intro.appendChild(p);
+          particles.push(p);
+        }
+
         var openTl = gsap.timeline();
 
         openTl
-          // Subtle shake before opening
+          // Subtle seal vibration
           .to('.intro__seal', {
             scale: 1.06,
-            duration: 0.08,
-            ease: 'power2.in',
+            duration: 0.06,
+            ease: 'power2.inOut',
             yoyo: true,
             repeat: 3
           })
-          // Seal breaks open
-          .to('.intro__seal', {
-            scale: 2.5,
-            rotation: 30,
-            opacity: 0,
-            duration: 0.8,
-            ease: 'power3.out'
-          })
-          // Soft shockwave
-          .to('.intro__shockwave', {
-            width: '200vmax',
-            height: '200vmax',
-            opacity: 0.4,
-            borderWidth: 0.5,
-            duration: 1.5,
-            ease: 'power2.out'
-          }, '-=0.6')
-          .to('.intro__shockwave', {
-            opacity: 0,
-            duration: 0.8
-          }, '-=0.5')
-          .to('.intro__shockwave--2', {
-            width: '200vmax',
-            height: '200vmax',
-            opacity: 0.25,
-            borderWidth: 1,
-            duration: 1.8,
-            ease: 'power2.out'
-          }, '-=1.6')
-          .to('.intro__shockwave--2', {
-            opacity: 0,
-            duration: 0.8
-          }, '-=0.6')
-          // Text fades out
+          // Text fades up with blur
           .to('.intro__text', {
-            y: -40,
+            y: -50,
             opacity: 0,
-            duration: 0.8,
+            filter: 'blur(12px)',
+            duration: 0.9,
             ease: 'power2.in'
-          }, '-=2')
+          }, 0.15)
           .to('.intro__tap', {
             opacity: 0,
-            duration: 0.4
-          }, '<')
-          // Soft golden glow (rays)
+            duration: 0.3
+          }, 0.15)
+          // Seal breaks: expand, blur, dissolve
+          .to('.intro__seal', {
+            scale: 2.8,
+            rotation: 30,
+            opacity: 0,
+            filter: 'blur(6px)',
+            duration: 1,
+            ease: 'power3.out'
+          }, 0.24)
+          // Particles burst outward
+          .add(function () {
+            particles.forEach(function (p) {
+              var angle = Math.random() * Math.PI * 2;
+              var distance = 80 + Math.random() * 350;
+              gsap.fromTo(p,
+                { x: 0, y: 0, scale: 1, opacity: 1 },
+                {
+                  x: Math.cos(angle) * distance,
+                  y: Math.sin(angle) * distance,
+                  scale: 0,
+                  opacity: 0,
+                  duration: 1.2 + Math.random() * 1,
+                  ease: 'power2.out',
+                  onComplete: function () { if (p.parentNode) p.remove(); }
+                }
+              );
+            });
+          }, 0.24)
+          // Soft golden glow expands
           .to('.intro__rays', {
             opacity: 0.6,
-            rotation: 15,
-            scale: 1.3,
+            scale: 1.5,
             duration: 2.5,
             ease: 'power1.out'
-          }, '-=1.8')
+          }, 0.3)
           // Seal wrapper fades
           .to('.intro__seal-wrapper', {
             scale: 1.3,
             opacity: 0,
+            filter: 'blur(8px)',
             duration: 0.8,
             ease: 'power2.in'
-          }, '-=1.2')
-          // Gentle flash
+          }, 0.5)
+          // Gentle golden flash
           .to('.intro__flash', {
-            opacity: 0.8,
-            scale: 4,
-            duration: 2,
+            opacity: 0.6,
+            scale: 3.5,
+            duration: 1.8,
             ease: 'power1.in'
-          }, '-=1')
-          // Everything fades out
+          }, 1.2)
+          // Everything fades out smoothly
           .to(intro, {
             opacity: 0,
-            duration: 1.2,
+            duration: 1.5,
             ease: 'power1.inOut',
             onComplete: function () {
               intro.remove();
             }
-          }, '-=0.5');
+          }, 2);
       });
     }
   }
