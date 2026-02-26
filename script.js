@@ -357,7 +357,7 @@
     // ============================
     var exiting = false;
     intro.addEventListener('click', function () {
-      if (exiting || (!entranceTL.isActive() && entranceTL.progress() < 0.6)) return;
+      if (exiting || entranceTL.progress() < 1) return;
       exiting = true;
 
       gsap.killTweensOf(tap);
