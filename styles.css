@@ -1227,7 +1227,7 @@ html:has(.intro) { overflow: hidden; }
 /* --- Text --- */
 .intro__text {
   font-family: 'Waterfall', cursive;
-  font-weight: 400;
+  font-weight: 500;
   font-size: clamp(48px, 10vw, 80px);
   line-height: 1.1;
   text-align: center;
