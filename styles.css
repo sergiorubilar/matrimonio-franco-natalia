@@ -1350,6 +1350,111 @@ html.intro-active { overflow: hidden; }
 }
 
 /* ========================================
+   SUCCESS SCREEN
+   ======================================== */
+.success-screen {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: 2000;
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0s linear 0.5s;
+}
+
+.success-screen.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: none;
+}
+
+.success-screen__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.success-screen__leaf {
+  position: absolute;
+  width: 220px;
+  opacity: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.success-screen__check {
+  position: relative;
+  z-index: 1;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 24px;
+}
+
+.success-screen__svg {
+  width: 100%;
+  height: 100%;
+}
+
+.success-screen__circle {
+  stroke-dasharray: 157;
+  stroke-dashoffset: 157;
+}
+
+.success-screen__tick {
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+}
+
+.success-screen__title {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-script-alt);
+  font-weight: 400;
+  font-size: clamp(56px, 12vw, 80px);
+  line-height: 1;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.success-screen__message {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-body);
+  font-weight: 200;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--brown);
+  text-align: center;
+  padding: 0 32px;
+}
+
+.success-screen__tap {
+  position: absolute;
+  bottom: clamp(40px, 8vh, 80px);
+  bottom: clamp(40px, 8dvh, 80px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--gold-light);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0;
+}
+
+/* ========================================
    RESPONSIVE — SMALL SCREENS (≤ 374px)
    ======================================== */
 @media (max-width: 374px) {

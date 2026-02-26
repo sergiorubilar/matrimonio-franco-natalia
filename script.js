@@ -752,14 +752,14 @@
       Promise.all([minTime, request]).then(function () {
         hideFormLoading(loading, function () {
           closeModal();
-          showToast('¡Gracias por confirmar!');
+          showSuccessScreen(data.asistencia === 'TRUE');
         });
       });
     } else {
       setTimeout(function () {
         hideFormLoading(loading, function () {
           closeModal();
-          showToast('¡Gracias por confirmar!');
+          showSuccessScreen(data.asistencia === 'TRUE');
         });
       }, 2500);
     }
@@ -787,6 +787,71 @@
         toast.remove();
       }, 400);
     }, 3000);
+  }
+
+  // ============================
+  // SUCCESS SCREEN
+  // ============================
+  function showSuccessScreen(attending) {
+    var screen = document.getElementById('success-screen');
+    var msgEl = document.getElementById('success-message');
+
+    msgEl.textContent = attending
+      ? '¡Nos vemos el 1 de mayo!'
+      : 'Lamentamos que no puedas acompañarnos';
+
+    screen.classList.add('is-open');
+    screen.setAttribute('aria-hidden', 'false');
+
+    if (typeof gsap === 'undefined') return;
+
+    gsap.set('.success-screen__leaf', { opacity: 0, scale: 0.8 });
+    gsap.set('.success-screen__check', { opacity: 0, scale: 0.5 });
+    gsap.set('.success-screen__circle', { attr: { 'stroke-dashoffset': 157 } });
+    gsap.set('.success-screen__tick', { attr: { 'stroke-dashoffset': 50 } });
+    gsap.set('.success-screen__title', { opacity: 0, y: 20 });
+    gsap.set('.success-screen__message', { opacity: 0, y: 15 });
+    gsap.set('.success-screen__tap', { opacity: 0 });
+
+    gsap.timeline()
+      .to('.success-screen__leaf', { opacity: 0.4, scale: 1, duration: 1.2, ease: 'power2.out' }, 0)
+      .to('.success-screen__check', { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.7)' }, 0.2)
+      .to('.success-screen__circle', { attr: { 'stroke-dashoffset': 0 }, duration: 0.8, ease: 'power2.inOut' }, 0.4)
+      .to('.success-screen__tick', { attr: { 'stroke-dashoffset': 0 }, duration: 0.5, ease: 'power2.out' }, 1.0)
+      .to('.success-screen__title', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 1.2)
+      .to('.success-screen__message', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 1.5)
+      .to('.success-screen__tap', { opacity: 1, duration: 1, ease: 'power1.inOut' }, 2.0);
+
+    var autoClose = setTimeout(function () { closeSuccessScreen(); }, 6000);
+
+    function onTap() {
+      clearTimeout(autoClose);
+      screen.removeEventListener('click', onTap);
+      closeSuccessScreen();
+    }
+
+    screen.addEventListener('click', onTap);
+  }
+
+  function closeSuccessScreen() {
+    var screen = document.getElementById('success-screen');
+    if (!screen.classList.contains('is-open')) return;
+
+    if (typeof gsap !== 'undefined') {
+      gsap.to(screen, {
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.in',
+        onComplete: function () {
+          screen.classList.remove('is-open');
+          screen.setAttribute('aria-hidden', 'true');
+          gsap.set(screen, { clearProps: 'opacity' });
+        }
+      });
+    } else {
+      screen.classList.remove('is-open');
+      screen.setAttribute('aria-hidden', 'true');
+    }
   }
 
   // ============================

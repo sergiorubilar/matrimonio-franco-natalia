@@ -207,6 +207,7 @@
   function updateStats(stats) {
     document.getElementById('stat-total').textContent = stats.totalInvitados;
     document.getElementById('stat-personas').textContent = stats.totalPersonas;
+    document.getElementById('stat-personas-confirmadas').textContent = stats.personasConfirmadas || 0;
     document.getElementById('stat-confirmados').textContent = stats.confirmados;
     document.getElementById('stat-pendientes').textContent = stats.pendientes;
     document.getElementById('stat-declinados').textContent = stats.declinados;
