@@ -1,9 +1,9 @@
 /* ========================================
    MÚSICA DE FONDO — Perfect (Ed Sheeran)
    Uses YouTube IFrame API to stream audio.
-   Starts transparently when the user taps
-   the intro ("Toca para continuar"). Toggle
-   button appears after music begins.
+   Autoplay on load (desktop). If browser
+   blocks it (mobile), starts on first tap.
+   Toggle button always visible.
    ======================================== */
 
 (function () {
@@ -40,7 +40,7 @@
     player = new YT.Player('yt-music-player', {
       videoId: VIDEO_ID,
       playerVars: {
-        autoplay: 0,
+        autoplay: 1,           // attempt autoplay immediately
         controls: 0,
         loop: 1,
         playlist: VIDEO_ID,
@@ -55,12 +55,16 @@
         onReady: function () {
           ready = true;
           player.setVolume(40);
+          // Force play attempt on ready
+          player.seekTo(START_SECONDS, true);
+          player.playVideo();
         },
         onStateChange: function (e) {
           if (e.data === YT.PlayerState.PLAYING && !started) {
             started = true;
             playing = true;
-            showToggle();
+            btnToggle.classList.remove('music-toggle--muted');
+            btnToggle.setAttribute('aria-label', 'Pausar música');
           }
           if (e.data === YT.PlayerState.ENDED) {
             player.seekTo(START_SECONDS, true);
@@ -74,7 +78,6 @@
   function tryPlay() {
     if (started) return;
     if (!ready || !player) {
-      // YT not ready yet — retry once it is
       var check = setInterval(function () {
         if (ready && player) {
           clearInterval(check);
@@ -88,12 +91,12 @@
     player.playVideo();
   }
 
-  /* ---- Create the floating toggle button (hidden until music plays) ---- */
+  /* ---- Create the floating toggle button ---- */
   function createToggle() {
     btnToggle = document.createElement('button');
-    btnToggle.className = 'music-toggle';
+    btnToggle.className = 'music-toggle music-toggle--muted';
     btnToggle.id = 'music-toggle';
-    btnToggle.setAttribute('aria-label', 'Pausar música');
+    btnToggle.setAttribute('aria-label', 'Reproducir música');
     btnToggle.innerHTML =
       '<svg class="music-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M9 18V5l12-2v13"/>' +
@@ -101,8 +104,15 @@
         '<circle cx="18" cy="16" r="3"/>' +
       '</svg>' +
       '<span class="music-toggle__bar"></span>';
-    btnToggle.style.display = 'none';
     document.body.appendChild(btnToggle);
+
+    // Entrance animation
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(btnToggle,
+        { scale: 0, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)', delay: 0.8 }
+      );
+    }
 
     btnToggle.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -121,26 +131,12 @@
     });
   }
 
-  /* ---- Show toggle after music starts ---- */
-  function showToggle() {
-    if (!btnToggle) return;
-    btnToggle.style.display = 'flex';
-    if (typeof gsap !== 'undefined') {
-      gsap.fromTo(btnToggle,
-        { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)', delay: 1.5 }
-      );
-    }
-  }
-
   /* ---- Init ---- */
   function init() {
     createToggle();
     loadYTApi();
 
-    // Start music on first user interaction (intro tap or any touch/click)
-    // The user will naturally tap the intro screen, which starts the music
-    // transparently — no extra action needed.
+    // Fallback: if autoplay was blocked (mobile), start on first interaction
     function onFirstInteraction() {
       document.removeEventListener('click', onFirstInteraction);
       document.removeEventListener('touchstart', onFirstInteraction);
