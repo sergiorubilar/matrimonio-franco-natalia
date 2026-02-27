@@ -1,9 +1,9 @@
 /* ========================================
    MÚSICA DE FONDO — Perfect (Ed Sheeran)
    Uses YouTube IFrame API to stream audio.
-   Tries autoplay on load, falls back to
-   first user interaction. Skips guitar intro
-   to start at the vocals (second 12).
+   Starts transparently when the user taps
+   the intro ("Toca para continuar"). Toggle
+   button appears after music begins.
    ======================================== */
 
 (function () {
@@ -40,11 +40,11 @@
     player = new YT.Player('yt-music-player', {
       videoId: VIDEO_ID,
       playerVars: {
-        autoplay: 1,          // attempt autoplay immediately
+        autoplay: 0,
         controls: 0,
         loop: 1,
         playlist: VIDEO_ID,
-        start: START_SECONDS,  // skip guitar intro
+        start: START_SECONDS,
         modestbranding: 1,
         rel: 0,
         fs: 0,
@@ -55,17 +55,13 @@
         onReady: function () {
           ready = true;
           player.setVolume(40);
-          player.seekTo(START_SECONDS, true);
-          player.playVideo();
         },
         onStateChange: function (e) {
-          // Detect if playback actually started
           if (e.data === YT.PlayerState.PLAYING && !started) {
             started = true;
             playing = true;
             showToggle();
           }
-          // Loop: restart at the vocals, not from 0
           if (e.data === YT.PlayerState.ENDED) {
             player.seekTo(START_SECONDS, true);
             player.playVideo();
@@ -76,12 +72,23 @@
   }
 
   function tryPlay() {
-    if (started || !ready || !player) return;
+    if (started) return;
+    if (!ready || !player) {
+      // YT not ready yet — retry once it is
+      var check = setInterval(function () {
+        if (ready && player) {
+          clearInterval(check);
+          player.seekTo(START_SECONDS, true);
+          player.playVideo();
+        }
+      }, 200);
+      return;
+    }
     player.seekTo(START_SECONDS, true);
     player.playVideo();
   }
 
-  /* ---- Create the floating toggle button ---- */
+  /* ---- Create the floating toggle button (hidden until music plays) ---- */
   function createToggle() {
     btnToggle = document.createElement('button');
     btnToggle.className = 'music-toggle';
@@ -114,14 +121,14 @@
     });
   }
 
-  /* ---- Show the toggle with entrance animation ---- */
+  /* ---- Show toggle after music starts ---- */
   function showToggle() {
     if (!btnToggle) return;
     btnToggle.style.display = 'flex';
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(btnToggle,
         { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)', delay: 0.3 }
+        { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)', delay: 1.5 }
       );
     }
   }
@@ -131,7 +138,9 @@
     createToggle();
     loadYTApi();
 
-    // Fallback: if autoplay was blocked, start on any user interaction
+    // Start music on first user interaction (intro tap or any touch/click)
+    // The user will naturally tap the intro screen, which starts the music
+    // transparently — no extra action needed.
     function onFirstInteraction() {
       document.removeEventListener('click', onFirstInteraction);
       document.removeEventListener('touchstart', onFirstInteraction);
