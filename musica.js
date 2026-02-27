@@ -1,8 +1,9 @@
 /* ========================================
    MÚSICA DE FONDO — Perfect (Ed Sheeran)
    Uses YouTube IFrame API to stream audio.
-   Starts after intro click, loops forever,
-   with a floating mute/unmute toggle.
+   Tries autoplay on load, falls back to
+   first user interaction. Skips guitar intro
+   to start at the vocals (second 12).
    ======================================== */
 
 (function () {
@@ -12,10 +13,11 @@
   var btnToggle = null;
   var playing = false;
   var ready = false;
-  var pendingPlay = false;
+  var started = false;
 
   // YouTube video ID — Ed Sheeran - Perfect
   var VIDEO_ID = '2Vv-BfVoq4g';
+  var START_SECONDS = 12; // skip guitar intro, start at vocals
 
   /* ---- Load YouTube IFrame API ---- */
   function loadYTApi() {
@@ -30,7 +32,6 @@
   }
 
   function onYTReady() {
-    // Hidden container for the YouTube player
     var holder = document.createElement('div');
     holder.id = 'yt-music-player';
     holder.style.cssText = 'position:fixed;top:-200px;left:-200px;width:1px;height:1px;overflow:hidden;pointer-events:none;';
@@ -39,10 +40,11 @@
     player = new YT.Player('yt-music-player', {
       videoId: VIDEO_ID,
       playerVars: {
-        autoplay: 0,
+        autoplay: 1,          // attempt autoplay immediately
         controls: 0,
         loop: 1,
-        playlist: VIDEO_ID,  // required for loop to work
+        playlist: VIDEO_ID,
+        start: START_SECONDS,  // skip guitar intro
         modestbranding: 1,
         rel: 0,
         fs: 0,
@@ -53,12 +55,19 @@
         onReady: function () {
           ready = true;
           player.setVolume(40);
-          if (pendingPlay) startPlaying();
+          player.seekTo(START_SECONDS, true);
+          player.playVideo();
         },
         onStateChange: function (e) {
-          // If video ends somehow, restart
+          // Detect if playback actually started
+          if (e.data === YT.PlayerState.PLAYING && !started) {
+            started = true;
+            playing = true;
+            showToggle();
+          }
+          // Loop: restart at the vocals, not from 0
           if (e.data === YT.PlayerState.ENDED) {
-            player.seekTo(0);
+            player.seekTo(START_SECONDS, true);
             player.playVideo();
           }
         }
@@ -66,12 +75,10 @@
     });
   }
 
-  function startPlaying() {
-    if (!ready || !player) { pendingPlay = true; return; }
-    pendingPlay = false;
+  function tryPlay() {
+    if (started || !ready || !player) return;
+    player.seekTo(START_SECONDS, true);
     player.playVideo();
-    playing = true;
-    showToggle();
   }
 
   /* ---- Create the floating toggle button ---- */
@@ -114,30 +121,24 @@
     if (typeof gsap !== 'undefined') {
       gsap.fromTo(btnToggle,
         { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)', delay: 0.5 }
+        { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)', delay: 0.3 }
       );
     }
   }
 
-  /* ---- Hook into intro click ---- */
+  /* ---- Init ---- */
   function init() {
-    var intro = document.getElementById('intro');
-
     createToggle();
     loadYTApi();
 
-    if (intro) {
-      intro.addEventListener('click', function () {
-        if (playing) return;
-        startPlaying();
-      });
-    } else {
-      // No intro — play on first user click
-      document.addEventListener('click', function startOnce() {
-        document.removeEventListener('click', startOnce);
-        startPlaying();
-      });
+    // Fallback: if autoplay was blocked, start on any user interaction
+    function onFirstInteraction() {
+      document.removeEventListener('click', onFirstInteraction);
+      document.removeEventListener('touchstart', onFirstInteraction);
+      tryPlay();
     }
+    document.addEventListener('click', onFirstInteraction);
+    document.addEventListener('touchstart', onFirstInteraction);
   }
 
   if (document.readyState === 'loading') {
