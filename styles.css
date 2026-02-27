@@ -1717,3 +1717,64 @@ body.modal-open {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
+
+/* ========================================
+   MUSIC TOGGLE BUTTON
+   ======================================== */
+.music-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 950;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--gold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, transform 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.music-toggle:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: scale(1.08);
+}
+
+.music-toggle:active {
+  transform: scale(0.95);
+}
+
+.music-toggle__icon {
+  width: 20px;
+  height: 20px;
+  transition: opacity 0.3s ease;
+}
+
+/* Diagonal strike-through line when muted */
+.music-toggle__bar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 1px;
+  transform: translate(-50%, -50%) rotate(-45deg) scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.music-toggle--muted .music-toggle__icon {
+  opacity: 0.4;
+}
+
+.music-toggle--muted .music-toggle__bar {
+  transform: translate(-50%, -50%) rotate(-45deg) scaleX(1);
+}
