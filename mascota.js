@@ -1,8 +1,10 @@
 /* ========================================
-   MASCOTA VIRTUAL — Yorkshire Terrier
-   Scroll companion using traced SVG image
-   with container-based GSAP animations
+   MASCOTA VIRTUAL — Yorkshire Terrier 3D
+   Three.js + GLTFLoader scroll companion
    ======================================== */
+
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 (function () {
   'use strict';
@@ -10,6 +12,15 @@
   var mascotReady = false;
   var mascotEl = null;
   var currentAnchor = null;
+
+  // Three.js objects
+  var renderer, scene, camera, model, mixer, clock;
+  var animActions = {};
+  var currentAction = null;
+  var idleRotation = true;
+
+  var MODEL_PATH = 'assets/yorkshire.glb';
+  var CANVAS_SIZE = 120; // px
 
   /* =============================================
      Section anchors
@@ -46,7 +57,8 @@
     if (mascotReady) return;
     mascotReady = true;
     createDOM();
-    startScrollTracking();
+    initThreeJS();
+    loadModel();
     bindTap();
   }
 
@@ -58,12 +70,12 @@
     el.className = 'mascota';
     el.id = 'mascota';
     el.innerHTML =
+      '<div class="mascota__bubble" id="mascota-bubble">' +
+        '<span class="mascota__bubble-text" id="mascota-bubble-text"></span>' +
+      '</div>' +
+      '<div class="mascota__hearts" id="mascota-hearts"></div>' +
       '<div class="mascota__inner">' +
-        '<div class="mascota__bubble" id="mascota-bubble">' +
-          '<span class="mascota__bubble-text" id="mascota-bubble-text"></span>' +
-        '</div>' +
-        '<div class="mascota__hearts" id="mascota-hearts"></div>' +
-        '<img class="mascota__img" src="assets/yorkshire.svg" alt="Yorkito" draggable="false"/>' +
+        '<canvas class="mascota__canvas" id="mascota-canvas"></canvas>' +
       '</div>';
     document.body.appendChild(el);
     mascotEl = el;
@@ -71,23 +83,185 @@
   }
 
   /* =============================================
-     SPIN
+     Three.js Setup
+     ============================================= */
+  function initThreeJS() {
+    var canvas = document.getElementById('mascota-canvas');
+    canvas.width = CANVAS_SIZE * window.devicePixelRatio;
+    canvas.height = CANVAS_SIZE * window.devicePixelRatio;
+    canvas.style.width = CANVAS_SIZE + 'px';
+    canvas.style.height = CANVAS_SIZE + 'px';
+
+    renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'low-power'
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(CANVAS_SIZE, CANVAS_SIZE);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+
+    scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+    camera.position.set(0, 0.5, 1.4);
+    camera.lookAt(0, 0.2, 0);
+
+    // Lighting
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
+
+    var dirLight = new THREE.DirectionalLight(0xfff4e0, 1.5);
+    dirLight.position.set(2, 3, 2);
+    scene.add(dirLight);
+
+    var fillLight = new THREE.DirectionalLight(0xe0e8ff, 0.5);
+    fillLight.position.set(-2, 1, -1);
+    scene.add(fillLight);
+
+    clock = new THREE.Clock();
+  }
+
+  /* =============================================
+     Load GLB Model
+     ============================================= */
+  function loadModel() {
+    var loader = new GLTFLoader();
+    loader.load(
+      MODEL_PATH,
+      function (gltf) {
+        model = gltf.scene;
+
+        // Auto-fit model to view
+        var box = new THREE.Box3().setFromObject(model);
+        var center = box.getCenter(new THREE.Vector3());
+        var size = box.getSize(new THREE.Vector3());
+        var maxDim = Math.max(size.x, size.y, size.z);
+        var scale = 2.0 / maxDim;
+        model.scale.setScalar(scale);
+        model.position.sub(center.multiplyScalar(scale));
+        model.position.y -= size.y * scale * 0.1;
+
+        // Rotate model to face the camera
+        model.rotation.y = Math.PI * 0.85;
+
+        scene.add(model);
+
+        // Setup animations if available
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(model);
+          gltf.animations.forEach(function (clip) {
+            var action = mixer.clipAction(clip);
+            animActions[clip.name.toLowerCase()] = action;
+          });
+
+          // Try to play idle animation
+          var idleAction = animActions['idle'] || animActions['breathing idle'] ||
+                           animActions['sit'] || Object.values(animActions)[0];
+          if (idleAction) {
+            idleAction.play();
+            currentAction = idleAction;
+            idleRotation = false; // model has its own animation
+          }
+        }
+
+        // Start render loop and scroll tracking
+        animate();
+        startScrollTracking();
+
+        // Show the mascot
+        if (typeof gsap !== 'undefined') {
+          // Small delay to let first frame render
+          setTimeout(function () {
+            gsap.to(mascotEl, { opacity: 1, y: 0, duration: 0.8, ease: 'back.out(1.4)' });
+          }, 100);
+        }
+      },
+      undefined,
+      function (err) {
+        console.warn('Mascota: Could not load 3D model', err);
+        // Fallback to SVG image
+        var inner = mascotEl.querySelector('.mascota__inner');
+        var canvas = document.getElementById('mascota-canvas');
+        if (canvas) canvas.remove();
+        var img = document.createElement('img');
+        img.className = 'mascota__img';
+        img.src = 'assets/yorkshire.svg';
+        img.alt = 'Yorkito';
+        img.draggable = false;
+        inner.appendChild(img);
+        startScrollTracking();
+        if (typeof gsap !== 'undefined') {
+          gsap.to(mascotEl, { opacity: 1, y: 0, duration: 0.8, ease: 'back.out(1.4)' });
+        }
+      }
+    );
+  }
+
+  /* =============================================
+     Render Loop
+     ============================================= */
+  function animate() {
+    requestAnimationFrame(animate);
+    var delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
+    if (model && idleRotation) {
+      model.rotation.y += delta * 0.5;
+    }
+    renderer.render(scene, camera);
+  }
+
+  /* =============================================
+     Play Animation by Name
+     ============================================= */
+  function playAnim(name, options) {
+    if (!mixer || !animActions[name]) return;
+    var opts = options || {};
+    var next = animActions[name];
+    if (currentAction && currentAction !== next) {
+      next.reset();
+      if (opts.once) {
+        next.setLoop(THREE.LoopOnce, 1);
+        next.clampWhenFinished = true;
+      } else {
+        next.setLoop(THREE.LoopRepeat);
+      }
+      next.play();
+      currentAction.crossFadeTo(next, 0.25, true);
+      currentAction = next;
+
+      if (opts.once && opts.returnTo) {
+        mixer.addEventListener('finished', function onFinish(e) {
+          if (e.action === next) {
+            mixer.removeEventListener('finished', onFinish);
+            playAnim(opts.returnTo);
+          }
+        });
+      }
+    } else if (!currentAction) {
+      next.play();
+      currentAction = next;
+    }
+  }
+
+  /* =============================================
+     Spin the 3D model
      ============================================= */
   function doSpin(onDone) {
-    if (typeof gsap === 'undefined') return;
-    gsap.to('.mascota__inner', {
-      rotation: '+=360',
+    if (typeof gsap === 'undefined' || !model) return;
+    gsap.to(model.rotation, {
+      y: model.rotation.y + Math.PI * 2,
       duration: 0.6,
       ease: 'power2.inOut',
-      onComplete: function () {
-        gsap.set('.mascota__inner', { rotation: 0 });
-        if (onDone) onDone();
-      }
+      onComplete: onDone
     });
   }
 
   /* =============================================
-     HOP — used when moving between sections
+     Hop — used when moving between sections
      ============================================= */
   function doHop() {
     if (typeof gsap === 'undefined' || !mascotEl) return;
@@ -128,7 +302,7 @@
     function getTargetPos(sd) {
       if (!sd) return null;
       var rect = sd.el.getBoundingClientRect();
-      var size = 100;
+      var size = CANVAS_SIZE;
       var margin = 8;
       var y = rect.bottom - size - margin;
       y = Math.max(margin, Math.min(window.innerHeight - size - margin, y));
@@ -155,12 +329,10 @@
       if (firstReveal) {
         firstReveal = false;
         gsap.set(mascotEl, { left: target.x, top: target.y });
-        gsap.to(mascotEl, {
-          opacity: 1, y: 0, duration: 0.8, ease: 'back.out(1.4)',
-          onComplete: function () {
-            if (!phraseShown[key]) { phraseShown[key] = true; showBubble(vis.config.phrase); }
-          }
-        });
+        if (!phraseShown[key]) {
+          phraseShown[key] = true;
+          setTimeout(function () { showBubble(vis.config.phrase); }, 900);
+        }
         currentAnchor = key;
         return;
       }

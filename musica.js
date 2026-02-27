@@ -1,9 +1,11 @@
 /* ========================================
    MÚSICA DE FONDO — Perfect (Ed Sheeran)
    Uses YouTube IFrame API to stream audio.
-   Autoplay on load (desktop). If browser
-   blocks it (mobile), starts on first tap.
-   Toggle button always visible.
+
+   Strategy: start MUTED with autoplay (allowed
+   by all browsers), then unmute on first user
+   gesture (intro tap). This eliminates loading
+   delay — music plays instantly on tap.
    ======================================== */
 
 (function () {
@@ -14,6 +16,7 @@
   var playing = false;
   var ready = false;
   var started = false;
+  var mutedAutoplay = false; // true if playing muted, waiting for gesture
 
   // YouTube video ID — Ed Sheeran - Perfect
   var VIDEO_ID = '2Vv-BfVoq4g';
@@ -40,7 +43,8 @@
     player = new YT.Player('yt-music-player', {
       videoId: VIDEO_ID,
       playerVars: {
-        autoplay: 1,           // attempt autoplay immediately
+        autoplay: 1,
+        mute: 1,             // start muted — guaranteed autoplay on all browsers
         controls: 0,
         loop: 1,
         playlist: VIDEO_ID,
@@ -54,17 +58,34 @@
       events: {
         onReady: function () {
           ready = true;
-          player.setVolume(40);
-          // Force play attempt on ready
           player.seekTo(START_SECONDS, true);
           player.playVideo();
+
+          // Immediately try to unmute (works on desktop)
+          setTimeout(function () {
+            if (!started) {
+              player.unMute();
+              player.setVolume(40);
+            }
+          }, 500);
         },
         onStateChange: function (e) {
-          if (e.data === YT.PlayerState.PLAYING && !started) {
-            started = true;
-            playing = true;
-            btnToggle.classList.remove('music-toggle--muted');
-            btnToggle.setAttribute('aria-label', 'Pausar música');
+          if (e.data === YT.PlayerState.PLAYING) {
+            if (!started && player.isMuted()) {
+              // Playing muted — autoplay worked, waiting for unmute
+              mutedAutoplay = true;
+              // Try to unmute again (aggressive desktop attempt)
+              player.unMute();
+              player.setVolume(40);
+            }
+            if (!started && !player.isMuted()) {
+              // Playing with sound!
+              started = true;
+              playing = true;
+              mutedAutoplay = false;
+              btnToggle.classList.remove('music-toggle--muted');
+              btnToggle.setAttribute('aria-label', 'Pausar música');
+            }
           }
           if (e.data === YT.PlayerState.ENDED) {
             player.seekTo(START_SECONDS, true);
@@ -75,19 +96,47 @@
     });
   }
 
-  function tryPlay() {
+  /* ---- Unmute on user gesture (mobile) ---- */
+  function unmuteAndPlay() {
     if (started) return;
     if (!ready || !player) {
+      // Player not ready yet — poll until ready then unmute
       var check = setInterval(function () {
         if (ready && player) {
           clearInterval(check);
-          player.seekTo(START_SECONDS, true);
-          player.playVideo();
+          doUnmute();
         }
       }, 200);
       return;
     }
-    player.seekTo(START_SECONDS, true);
+    doUnmute();
+  }
+
+  function doUnmute() {
+    if (started) return;
+    started = true;
+    playing = true;
+    mutedAutoplay = false;
+
+    player.unMute();
+    player.setVolume(40);
+
+    // If the player stalled or isn't playing, force play
+    if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
+      player.seekTo(START_SECONDS, true);
+      player.playVideo();
+    }
+
+    btnToggle.classList.remove('music-toggle--muted');
+    btnToggle.setAttribute('aria-label', 'Pausar música');
+  }
+
+  /* ---- Also try unmuted autoplay on desktop ---- */
+  function tryUnmutedAutoplay() {
+    if (!ready || !player || started) return;
+    // Attempt to unmute — if browser allows, great; if not, stays muted
+    player.unMute();
+    player.setVolume(40);
     player.playVideo();
   }
 
@@ -117,12 +166,21 @@
     btnToggle.addEventListener('click', function (e) {
       e.stopPropagation();
       if (!player || !ready) return;
+
+      // First click while muted-autoplay → unmute
+      if (mutedAutoplay && !started) {
+        doUnmute();
+        return;
+      }
+
       if (playing) {
         player.pauseVideo();
         playing = false;
         btnToggle.classList.add('music-toggle--muted');
         btnToggle.setAttribute('aria-label', 'Reproducir música');
       } else {
+        player.unMute();
+        player.setVolume(40);
         player.playVideo();
         playing = true;
         btnToggle.classList.remove('music-toggle--muted');
@@ -136,14 +194,21 @@
     createToggle();
     loadYTApi();
 
-    // Fallback: if autoplay was blocked (mobile), start on first interaction
+    // On first user gesture: unmute the muted-autoplay stream
+    // Use capture phase to catch events even if stopPropagation is called
     function onFirstInteraction() {
-      document.removeEventListener('click', onFirstInteraction);
-      document.removeEventListener('touchstart', onFirstInteraction);
-      tryPlay();
+      document.removeEventListener('click', onFirstInteraction, true);
+      document.removeEventListener('touchstart', onFirstInteraction, true);
+      // Small delay to let YouTube process the user gesture context
+      setTimeout(unmuteAndPlay, 50);
     }
-    document.addEventListener('click', onFirstInteraction);
-    document.addEventListener('touchstart', onFirstInteraction);
+    document.addEventListener('click', onFirstInteraction, true);
+    document.addEventListener('touchstart', onFirstInteraction, true);
+
+    // On desktop, aggressively try unmuted autoplay at multiple intervals
+    [1000, 2000, 3000, 5000].forEach(function (delay) {
+      setTimeout(tryUnmutedAutoplay, delay);
+    });
   }
 
   if (document.readyState === 'loading') {
