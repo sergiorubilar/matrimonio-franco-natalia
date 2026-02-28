@@ -639,11 +639,9 @@
 
       var minTime = new Promise(function (resolve) { setTimeout(resolve, 3000); });
 
-      var request = new Promise(function (resolve) {
-        var img = new Image();
-        img.onload = img.onerror = function () { resolve(); };
-        img.src = confirmUrl;
-      });
+      var request = fetch(confirmUrl)
+        .then(function (r) { return r.json(); })
+        .catch(function () {});
 
       Promise.all([minTime, request]).then(function () {
         hideFormLoading(loading, function () {
