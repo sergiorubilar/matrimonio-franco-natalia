@@ -369,11 +369,12 @@ img {
 .message__text {
   position: relative;
   z-index: 1;
-  font-family: var(--font-body);
-  font-weight: 200;
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 400;
   font-size: 24px;
   line-height: 32px;
   letter-spacing: 0;
+  text-align: center;
   color: #363636;
 }
 
@@ -426,8 +427,8 @@ img {
 }
 
 .fecha__day {
-  font-family: var(--font-body);
-  font-weight: 300;
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 700;
   font-size: 24px;
   line-height: 32px;
   letter-spacing: 0;
@@ -437,8 +438,8 @@ img {
 }
 
 .fecha__venue {
-  font-family: var(--font-body);
-  font-weight: 200;
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 400;
   font-size: 24px;
   line-height: 32px;
   letter-spacing: 0;
@@ -448,8 +449,8 @@ img {
 }
 
 .fecha__city {
-  font-family: var(--font-body);
-  font-weight: 200;
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 400;
   font-size: 24px;
   line-height: 32px;
   letter-spacing: 0;
@@ -509,6 +510,11 @@ img {
   color: #BFA880;
 }
 
+#btn-confirmar {
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 400;
+}
+
 .btn--primary:hover,
 .btn--primary:focus-visible {
   background: var(--gold);
@@ -518,8 +524,8 @@ img {
 .btn--link {
   display: block;
   margin: 24px auto 0;
-  font-family: var(--font-body);
-  font-weight: 300;
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 400;
   font-size: 20px;
   line-height: 32px;
   letter-spacing: 0;
@@ -635,6 +641,8 @@ img {
 .fiesta__card .btn--primary {
   margin-bottom: 0;
   max-width: 212px;
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 400;
 }
 
 .fiesta__wave {
@@ -656,8 +664,8 @@ img {
 }
 
 .fiesta__card-heading {
-  font-family: var(--font-body);
-  font-weight: 500;
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 400;
   font-size: 24px;
   line-height: 32px;
   letter-spacing: 0;
@@ -679,8 +687,8 @@ img {
 }
 
 .fiesta__card-text {
-  font-family: var(--font-body);
-  font-weight: 200;
+  font-family: 'Abhaya Libre', serif;
+  font-weight: 400;
   font-size: 20px;
   line-height: 28px;
   letter-spacing: 0;
@@ -1186,32 +1194,49 @@ img {
 }
 
 /* ========================================
-   INTRO — CINEMATIC GOLDEN BLOOM
+   INTRO — BURLAP ENVELOPE
    ======================================== */
 
-html.intro-active { overflow: hidden; }
+html.intro-active,
+html.intro-active body { overflow: hidden; height: 100%; }
 
 .intro {
   position: fixed;
   top: 0; right: 0; bottom: 0; left: 0;
   z-index: 9999;
   overflow: hidden;
-  background: #050403;
+  background: #120e08;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* --- Canvas bokeh layer --- */
+/* --- Warm vignette overlay --- */
+.intro__vignette {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    transparent 0%,
+    rgba(18,14,8,0.3) 60%,
+    rgba(18,14,8,0.7) 100%
+  );
+  z-index: 16;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* --- Golden dust canvas --- */
 .intro__canvas {
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
   width: 100%;
   height: 100%;
   z-index: 1;
+  pointer-events: none;
 }
 
-/* --- Central golden bloom --- */
-.intro__bloom {
+/* --- Central glow (reveals behind envelope) --- */
+.intro__glow {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1220,9 +1245,9 @@ html.intro-active { overflow: hidden; }
   transform: translate(-50%, -50%) scale(0);
   background: radial-gradient(
     circle,
-    rgba(191,168,128,0.12) 0%,
-    rgba(191,168,128,0.06) 20%,
-    rgba(140,120,80,0.03) 40%,
+    rgba(191,168,128,0.22) 0%,
+    rgba(191,168,128,0.08) 25%,
+    rgba(140,120,80,0.03) 45%,
     transparent 65%
   );
   z-index: 2;
@@ -1230,129 +1255,105 @@ html.intro-active { overflow: hidden; }
   opacity: 0;
 }
 
-/* --- Light leak overlays --- */
-.intro__leak {
-  position: absolute;
-  width: 50%;
-  height: 50%;
-  pointer-events: none;
-  z-index: 3;
-  opacity: 0;
-  mix-blend-mode: screen;
-}
-
-.intro__leak--1 {
-  top: -8%;
-  right: -8%;
-  background: radial-gradient(ellipse at 70% 30%, rgba(210,180,120,0.2) 0%, transparent 70%);
-  animation: leakDrift1 10s ease-in-out infinite alternate;
-}
-
-.intro__leak--2 {
-  bottom: -5%;
-  left: -10%;
-  background: radial-gradient(ellipse at 30% 70%, rgba(191,168,128,0.15) 0%, transparent 70%);
-  animation: leakDrift2 12s ease-in-out infinite alternate;
-}
-
-@keyframes leakDrift1 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-8%, 12%) scale(1.15); }
-}
-
-@keyframes leakDrift2 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(6%, -8%) scale(1.1); }
-}
-
-/* --- Content layer --- */
-.intro__content {
+/* --- Envelope container --- */
+.intro__envelope {
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0 32px;
-  gap: 0;
+  z-index: 10;
+  perspective: 1800px;
 }
 
-/* --- Subtitle text --- */
-.intro__subtitle {
-  font-family: 'Waterfall', cursive;
-  font-weight: 400;
-  font-size: clamp(28px, 7vw, 42px);
-  line-height: 1.15;
-  text-align: center;
-  color: rgba(191,168,128,0.9);
-  margin-bottom: clamp(20px, 4vh, 40px);
-  margin-bottom: clamp(20px, 4dvh, 40px);
-  opacity: 0; /* hidden until JS splits into chars */
+.intro__flap {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
-/* --- Character spans (created by JS) --- */
-.intro__char {
-  display: inline-block;
-  opacity: 0;
-  overflow: visible;
-  padding: 0.15em 0;
-  margin: -0.15em 0;
+.intro__flap--left {
+  left: 0;
+  width: 65%;
+  transform-origin: 0% 50%;
+  z-index: 2;
 }
 
-/* --- Names with gold shimmer --- */
-.intro__name {
-  font-family: 'Waterfall', cursive;
-  font-weight: 400;
-  font-size: clamp(70px, 18vw, 130px);
-  line-height: 1.15;
-  text-align: center;
-  opacity: 0;
-  background: linear-gradient(90deg, #BFA880, #f0e0c6, #fff8ee, #e0c89c, #BFA880);
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.intro__flap--right {
+  right: 0;
+  width: 65%;
+  transform-origin: 100% 50%;
+  z-index: 1;
 }
 
-/* --- Ampersand --- */
-.intro__amp {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 200;
-  font-size: clamp(18px, 4vw, 24px);
-  color: rgba(191,168,128,0.6);
-  margin: clamp(4px, 1vh, 12px) 0;
-  margin: clamp(4px, 1dvh, 12px) 0;
-  opacity: 0;
+.intro__flap img {
+  width: 100%;
+  height: 100.5%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
 }
 
-/* --- Date --- */
-.intro__date {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 200;
-  font-size: clamp(12px, 3vw, 15px);
-  letter-spacing: 6px;
-  color: rgba(191,168,128,0.7);
-  margin-top: clamp(16px, 3vh, 32px);
-  margin-top: clamp(16px, 3dvh, 32px);
+.intro__flap--left img {
+  object-position: right center;
+}
+
+.intro__flap--right img {
+  object-position: left center;
+}
+
+/* --- Wax seal --- */
+.intro__seal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  width: clamp(100px, 28vw, 140px);
+}
+
+.intro__seal-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.6));
+}
+
+.intro__seal-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250%;
+  height: 250%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(191,168,128,0.4) 0%,
+    rgba(191,168,128,0.12) 35%,
+    transparent 65%
+  );
+  z-index: 1;
+  pointer-events: none;
   opacity: 0;
 }
 
 /* --- Tap prompt --- */
 .intro__tap {
   position: absolute;
-  bottom: clamp(40px, 8vh, 80px);
-  bottom: clamp(40px, 8dvh, 80px);
+  bottom: clamp(50px, 10vh, 90px);
+  bottom: clamp(50px, 10dvh, 90px);
   left: 0;
   right: 0;
-  z-index: 10;
+  z-index: 30;
   text-align: center;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 300;
-  font-size: 12px;
-  color: rgba(191,168,128,0.35);
-  letter-spacing: 3px;
-  text-transform: uppercase;
+  font-family: 'Waterfall', cursive;
+  font-weight: 400;
+  font-size: clamp(32px, 8vw, 46px);
+  color: #fff8ee;
+  letter-spacing: 1.5px;
+  text-shadow:
+    0 0 12px rgba(0,0,0,0.6),
+    0 2px 6px rgba(0,0,0,0.4);
   opacity: 0;
 }
 
@@ -1361,7 +1362,7 @@ html.intro-active { overflow: hidden; }
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
   background: var(--cream);
-  z-index: 20;
+  z-index: 40;
   opacity: 0;
   pointer-events: none;
 }
@@ -1621,24 +1622,19 @@ body.modal-open {
 .mascota {
   position: fixed;
   z-index: 900;
-  width: 120px;
-  height: 120px;
+  width: 180px;
+  height: 180px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   pointer-events: auto;
-  will-change: left, top;
+  will-change: left, top, transform;
 }
 
 .mascota__inner {
   width: 100%;
   height: 100%;
   position: relative;
-  border-radius: 50%;
-  overflow: hidden;
-  background: linear-gradient(145deg, #f5f0e8, #ede5d8);
-  border: 3px solid var(--gold);
-  box-shadow: 0 2px 8px rgba(140, 120, 80, 0.3);
 }
 
 .mascota__img {
@@ -1647,9 +1643,6 @@ body.modal-open {
   display: block;
   object-fit: cover;
   pointer-events: none;
-  border-radius: 50%;
-  border: 3px solid var(--gold);
-  box-shadow: 0 2px 8px rgba(140, 120, 80, 0.3);
 }
 
 .mascota__canvas {
@@ -1657,12 +1650,13 @@ body.modal-open {
   height: 100%;
   display: block;
   pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgba(80, 60, 30, 0.25));
 }
 
 /* --- Speech Bubble --- */
 .mascota__bubble {
   position: absolute;
-  bottom: 92%;
+  bottom: 85%;
   left: 50%;
   transform: translateX(-50%);
   background: var(--white);

@@ -10,27 +10,34 @@
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Birthstone&family=Nunito:wght@200;300;500&family=Playfair+Display:wght@400;500&family=Waterfall&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;700&family=Birthstone&family=Nunito:wght@200;300;500&family=Playfair+Display:wght@400;500&family=Waterfall&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- ===== INTRO — CINEMATIC GOLDEN BLOOM ===== -->
+  <!-- ===== INTRO — BURLAP ENVELOPE ===== -->
   <div class="intro" id="intro">
     <canvas class="intro__canvas" id="intro-canvas"></canvas>
-    <div class="intro__bloom"></div>
-    <div class="intro__leak intro__leak--1"></div>
-    <div class="intro__leak intro__leak--2"></div>
-    <div class="intro__content">
-      <p class="intro__subtitle" id="intro-text">Esta es una invitación<br>exclusiva para ti</p>
-      <p class="intro__name" id="intro-name1">Natalia</p>
-      <p class="intro__amp">&</p>
-      <p class="intro__name" id="intro-name2">Franco</p>
-      <p class="intro__date">01 · 05 · 2026</p>
+    <div class="intro__glow"></div>
+
+    <div class="intro__envelope" id="intro-envelope">
+      <div class="intro__flap intro__flap--left" id="intro-flap-left">
+        <img src="assets/fondo-textura-arpillera_izquierda.svg" alt="">
+      </div>
+      <div class="intro__flap intro__flap--right" id="intro-flap-right">
+        <img src="assets/fondo-textura-arpillera_derecha.svg" alt="">
+      </div>
     </div>
-    <p class="intro__tap" id="intro-tap">Toca para continuar</p>
+
+    <div class="intro__seal" id="intro-seal">
+      <div class="intro__seal-glow"></div>
+      <img src="assets/sello%20vela.svg" alt="" class="intro__seal-img">
+    </div>
+
+    <div class="intro__vignette"></div>
+    <p class="intro__tap" id="intro-tap">Toca el sello para abrir</p>
     <div class="intro__flash"></div>
   </div>
 

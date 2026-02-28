@@ -31,44 +31,55 @@
     if (typeof gsap === 'undefined') return;
 
     // --- Initial hidden states: Hero ---
-    gsap.set('.hero__photo', { opacity: 0 });
-    gsap.set('.hero__photo img', { scale: 1.05 });
+    gsap.set('.hero__photo', { opacity: 0, scale: 1.1 });
+    gsap.set('.hero__photo img', { scale: 1.15 });
     gsap.set('.hero__date-line', { scaleX: 0 });
-    gsap.set('.hero__date-text', { opacity: 0 });
-    gsap.set('.hero__names', { opacity: 0, y: 20 });
+    gsap.set('.hero__date-text', { opacity: 0, y: 10, filter: 'blur(4px)' });
+    gsap.set('.hero__names', { opacity: 0, y: 40, filter: 'blur(6px)' });
     gsap.set('.hero__line-bottom', { scaleX: 0 });
-    gsap.set('.hero__espiga--left', { opacity: 0, x: -30 });
-    gsap.set('.hero__espiga--right', { opacity: 0, x: 30 });
+    gsap.set('.hero__espiga--left', { opacity: 0, x: -50, rotation: -8 });
+    gsap.set('.hero__espiga--right', { opacity: 0, x: 50, rotation: 8 });
 
     // --- Initial hidden states: Countdown ---
-    gsap.set('.countdown__bubble', { opacity: 0, y: 20 });
+    gsap.set('.countdown__bubble', { opacity: 0, y: 30, scale: 0.9 });
     gsap.set('.countdown__vector', { opacity: 0 });
 
     // --- Initial hidden states: Message ---
-    gsap.set('.message__text', { opacity: 0, y: 20 });
-    gsap.set('.message__leaf', { opacity: 0, scale: 0.9 });
+    gsap.set('.message__text', { opacity: 0, y: 25, filter: 'blur(4px)' });
+    gsap.set('.message__leaf', { opacity: 0, scale: 0.8, rotation: -10 });
 
     // --- Initial hidden states: Fecha ---
-    gsap.set('.fecha__title', { opacity: 0, y: 20 });
-    gsap.set('.fecha__day, .fecha__venue, .fecha__city', { opacity: 0, y: 15 });
-    gsap.set('.fecha .btn, .fecha__status', { opacity: 0, y: 10 });
+    gsap.set('.fecha__title', { opacity: 0, y: 25 });
+    gsap.set('.fecha__day, .fecha__venue, .fecha__city', { opacity: 0, y: 20 });
+    gsap.set('.fecha .btn, .fecha__status', { opacity: 0, y: 15 });
 
     // --- Initial hidden states: Fiesta ---
-    gsap.set('.fiesta__title', { opacity: 0, y: 20 });
-    gsap.set('.fiesta__card', { opacity: 0, y: 30 });
+    gsap.set('.fiesta__title', { opacity: 0, y: 25 });
+    gsap.set('.fiesta__card', { opacity: 0, y: 40 });
     gsap.set('.fiesta__deco', { opacity: 0 });
 
-    // --- Hero reveal timeline ---
+    // --- Hero reveal timeline (spectacular after envelope) ---
     revealHero = function () {
       gsap.timeline()
-        .to('.hero__photo', { opacity: 1, duration: 1.5, ease: 'power2.out' }, 0)
-        .to('.hero__photo img', { scale: 1, duration: 2.5, ease: 'power2.out' }, 0)
-        .to('.hero__date-line', { scaleX: 1, duration: 0.8, ease: 'power2.inOut' }, 0.4)
-        .to('.hero__date-text', { opacity: 1, duration: 0.7, ease: 'power2.out' }, 0.6)
-        .to('.hero__names', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 0.7)
-        .to('.hero__line-bottom', { scaleX: 1, duration: 0.6, ease: 'power2.inOut' }, 1.2)
-        .to('.hero__espiga--left', { opacity: 1, x: 0, duration: 1.2, ease: 'power2.out' }, 0.5)
-        .to('.hero__espiga--right', { opacity: 1, x: 0, duration: 1.2, ease: 'power2.out' }, 0.7);
+        // Photo fades in with zoom-out (Ken Burns)
+        .to('.hero__photo', { opacity: 1, scale: 1, duration: 2, ease: 'power2.out' }, 0)
+        .to('.hero__photo img', { scale: 1, duration: 4, ease: 'power1.out' }, 0)
+
+        // Date lines extend
+        .to('.hero__date-line', { scaleX: 1, duration: 1, ease: 'power2.inOut' }, 0.5)
+
+        // Date text clears from blur
+        .to('.hero__date-text', { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.9, ease: 'power2.out' }, 0.7)
+
+        // Names rise up from blur
+        .to('.hero__names', { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.4, ease: 'power3.out' }, 0.8)
+
+        // Bottom line
+        .to('.hero__line-bottom', { scaleX: 1, duration: 0.8, ease: 'power2.inOut' }, 1.4)
+
+        // Espigas sweep in with rotation
+        .to('.hero__espiga--left', { opacity: 1, x: 0, rotation: 0, duration: 1.5, ease: 'power2.out' }, 0.6)
+        .to('.hero__espiga--right', { opacity: 1, x: 0, rotation: 0, duration: 1.5, ease: 'power2.out' }, 0.8);
     };
 
     // If no intro, reveal hero immediately
@@ -82,37 +93,37 @@
         el: '.countdown',
         anim: function () {
           gsap.timeline()
-            .to('.countdown__vector', { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0)
-            .to('.countdown__bubble', { opacity: 1, y: 0, duration: 1, ease: 'back.out(1.4)' }, 0.1);
+            .to('.countdown__vector', { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0)
+            .to('.countdown__bubble', { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: 'back.out(1.6)' }, 0.15);
         }
       },
       {
         el: '.message',
         anim: function () {
           gsap.timeline()
-            .to('.message__leaf', { opacity: 0.5, scale: 1, duration: 1, ease: 'power2.out' }, 0)
-            .to('.message__text', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0.15);
+            .to('.message__leaf', { opacity: 0.5, scale: 1, rotation: 0, duration: 1.2, ease: 'power2.out' }, 0)
+            .to('.message__text', { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power2.out' }, 0.2);
         }
       },
       {
         el: '.fecha',
         anim: function () {
           gsap.timeline()
-            .to('.fecha__title', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0)
-            .to('.fecha__day', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.1)
-            .to('.fecha__venue', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.2)
-            .to('.fecha__city', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.3)
-            .to('.fecha .btn, .fecha__status', { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }, 0.4);
+            .to('.fecha__title', { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' }, 0)
+            .to('.fecha__day', { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.15)
+            .to('.fecha__venue', { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.25)
+            .to('.fecha__city', { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.35)
+            .to('.fecha .btn, .fecha__status', { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out' }, 0.45);
         }
       },
       {
         el: '.fiesta',
         anim: function () {
           gsap.timeline()
-            .to('.fiesta__title', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0)
-            .to('.fiesta__card', { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: 'power2.out' }, 0.15)
-            .to('.fiesta__deco--grapes', { opacity: 0.4, duration: 1.2, ease: 'power1.inOut' }, 0.3)
-            .to('.fiesta__deco--cart', { opacity: 0.25, duration: 1.2, ease: 'power1.inOut' }, 0.5);
+            .to('.fiesta__title', { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' }, 0)
+            .to('.fiesta__card', { opacity: 1, y: 0, duration: 1, stagger: 0.25, ease: 'back.out(1.2)' }, 0.2)
+            .to('.fiesta__deco--grapes', { opacity: 0.4, duration: 1.4, ease: 'power1.inOut' }, 0.3)
+            .to('.fiesta__deco--cart', { opacity: 0.25, duration: 1.4, ease: 'power1.inOut' }, 0.5);
         }
       }
     ];
@@ -136,31 +147,29 @@
   }
 
   // ============================
-  // INTRO ANIMATION (GSAP)
+  // INTRO ANIMATION — BURLAP ENVELOPE
   // ============================
   function initIntro() {
     var intro = document.getElementById('intro');
     var canvas = document.getElementById('intro-canvas');
     var tap = document.getElementById('intro-tap');
-    var bloom = intro && intro.querySelector('.intro__bloom');
     var flash = intro && intro.querySelector('.intro__flash');
-    var subtitle = document.getElementById('intro-text');
-    var name1 = document.getElementById('intro-name1');
-    var name2 = document.getElementById('intro-name2');
-    var amp = intro && intro.querySelector('.intro__amp');
-    var dateEl = intro && intro.querySelector('.intro__date');
-    var leak1 = intro && intro.querySelector('.intro__leak--1');
-    var leak2 = intro && intro.querySelector('.intro__leak--2');
+    var seal = document.getElementById('intro-seal');
+    var sealImg = seal && seal.querySelector('.intro__seal-img');
+    var sealGlow = seal && seal.querySelector('.intro__seal-glow');
+    var flapLeft = document.getElementById('intro-flap-left');
+    var flapRight = document.getElementById('intro-flap-right');
+    var glow = intro && intro.querySelector('.intro__glow');
 
     if (!intro || !canvas || typeof gsap === 'undefined') return;
 
     // ============================
-    // CANVAS BOKEH PARTICLE SYSTEM
+    // CANVAS — GOLDEN DUST MOTES
     // ============================
     var ctx = canvas.getContext('2d');
-    var bokehParticles = [];
-    var bokehAlpha = { value: 0 };
-    var bokehRunning = true;
+    var particles = [];
+    var particleAlpha = { value: 0 };
+    var particleRunning = true;
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -169,33 +178,35 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Create bokeh particles
-    for (var i = 0; i < 40; i++) {
-      bokehParticles.push({
+    for (var i = 0; i < 55; i++) {
+      particles.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        r: 3 + Math.random() * 18,
-        alpha: 0.05 + Math.random() * 0.2,
-        drift: 0.15 + Math.random() * 0.4,
+        r: 1 + Math.random() * 3.5,
+        alpha: 0.08 + Math.random() * 0.35,
+        drift: 0.15 + Math.random() * 0.5,
         phase: Math.random() * Math.PI * 2,
-        speed: 0.003 + Math.random() * 0.006
+        speed: 0.001 + Math.random() * 0.004,
+        vy: -0.08 - Math.random() * 0.25
       });
     }
 
-    function drawBokeh(time) {
-      if (!bokehRunning) return;
+    function drawParticles(time) {
+      if (!particleRunning) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      for (var i = 0; i < bokehParticles.length; i++) {
-        var p = bokehParticles[i];
-        var xOff = Math.sin(time * p.speed + p.phase) * 40 * p.drift;
-        var yOff = Math.cos(time * p.speed * 0.7 + p.phase) * 25 * p.drift;
-        var cx = p.x + xOff;
-        var cy = p.y + yOff;
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        var xOff = Math.sin(time * p.speed + p.phase) * 35 * p.drift;
+        p.y += p.vy;
+        if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
 
+        var cx = p.x + xOff;
+        var cy = p.y;
+        var a = p.alpha * particleAlpha.value;
         var grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, p.r);
-        grad.addColorStop(0, 'rgba(210,185,140,' + (p.alpha * bokehAlpha.value).toFixed(3) + ')');
-        grad.addColorStop(0.5, 'rgba(191,168,128,' + (p.alpha * 0.5 * bokehAlpha.value).toFixed(3) + ')');
+        grad.addColorStop(0, 'rgba(220,195,150,' + a.toFixed(3) + ')');
+        grad.addColorStop(0.6, 'rgba(191,168,128,' + (a * 0.4).toFixed(3) + ')');
         grad.addColorStop(1, 'rgba(191,168,128,0)');
 
         ctx.beginPath();
@@ -204,240 +215,108 @@
         ctx.fill();
       }
 
-      requestAnimationFrame(drawBokeh);
+      requestAnimationFrame(drawParticles);
     }
-    requestAnimationFrame(drawBokeh);
+    requestAnimationFrame(drawParticles);
 
     // ============================
-    // TEXT SPLITTING INTO CHARS
+    // PHASE 1: CINEMATIC ENTRANCE
     // ============================
-    function splitTextIntoChars(el) {
-      if (!el) return [];
-      var html = el.innerHTML;
-      var parts = html.split(/<br\s*\/?>/i);
-      el.innerHTML = '';
-      var chars = [];
+    var envelope = document.getElementById('intro-envelope');
+    var vignette = intro.querySelector('.intro__vignette');
 
-      for (var p = 0; p < parts.length; p++) {
-        if (p > 0) el.appendChild(document.createElement('br'));
-        var text = parts[p];
-        for (var c = 0; c < text.length; c++) {
-          var span = document.createElement('span');
-          span.className = 'intro__char';
-          span.textContent = text[c] === ' ' ? '\u00A0' : text[c];
-          el.appendChild(span);
-          chars.push(span);
-        }
-      }
-      return chars;
-    }
+    // Initial states — everything hidden
+    gsap.set(envelope, { opacity: 0 });
+    gsap.set(seal, { opacity: 0, y: 10 });
+    gsap.set(sealGlow, { opacity: 0, scale: 0.6 });
+    gsap.set(tap, { opacity: 0, y: 8 });
+    if (vignette) gsap.set(vignette, { opacity: 0 });
 
-    var subtitleChars = splitTextIntoChars(subtitle);
-
-    // Show subtitle parent (chars control their own opacity)
-    if (subtitle) subtitle.style.opacity = '1';
-    // Names animate as whole words (cursive font swashes clip with per-char splitting)
-
-    // ============================
-    // GSAP ENTRANCE TIMELINE
-    // ============================
-    var entranceTL = gsap.timeline({ delay: 0.3 });
+    var entranceDone = false;
+    var entranceTL = gsap.timeline({
+      delay: 0.6,
+      onComplete: function () { entranceDone = true; }
+    });
 
     entranceTL
-      // Bloom expands
-      .to(bloom, {
-        scale: 1,
-        opacity: 1,
-        duration: 3,
-        ease: 'power2.out'
-      }, 0)
+      // Dust + envelope appear together
+      .to(particleAlpha, { value: 1, duration: 1.5, ease: 'power1.inOut' }, 0)
+      .to(envelope, { opacity: 1, duration: 1.5, ease: 'power1.inOut' }, 0)
+      .to(vignette, { opacity: 1, duration: 1.2, ease: 'power1.inOut' }, 0.3)
 
-      // Bokeh fades in
-      .to(bokehAlpha, {
-        value: 1,
-        duration: 2.5,
-        ease: 'power1.inOut'
-      }, 0.3)
+      // Seal fades in
+      .to(seal, { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }, 1.0)
+      .to(sealGlow, { opacity: 0.7, scale: 1, duration: 1, ease: 'power1.inOut' }, 1.2)
 
-      // Light leaks appear
-      .to(leak1, { opacity: 1, duration: 2, ease: 'power1.inOut' }, 0.8)
-      .to(leak2, { opacity: 1, duration: 2, ease: 'power1.inOut' }, 1.2)
+      // Text appears
+      .to(tap, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.8);
 
-      // Subtitle chars reveal (blur to sharp, staggered)
-      .fromTo(subtitleChars, {
-        opacity: 0,
-        filter: 'blur(8px)',
-        y: 10
-      }, {
-        opacity: 1,
-        filter: 'blur(0px)',
-        y: 0,
-        duration: 0.6,
-        stagger: 0.025,
-        ease: 'power2.out'
-      }, 1.5)
-
-      // Name 1 reveal (whole word — preserves cursive swashes)
-      .fromTo(name1, {
-        opacity: 0,
-        y: 25,
-        filter: 'blur(6px)'
-      }, {
-        opacity: 1,
-        y: 0,
-        filter: 'blur(0px)',
-        duration: 1.2,
-        ease: 'power3.out'
-      }, 2.8)
-
-      // Ampersand
-      .to(amp, {
-        opacity: 1,
-        duration: 0.8,
-        ease: 'power1.inOut'
-      }, 3.6)
-
-      // Name 2 reveal (whole word)
-      .fromTo(name2, {
-        opacity: 0,
-        y: 25,
-        filter: 'blur(6px)'
-      }, {
-        opacity: 1,
-        y: 0,
-        filter: 'blur(0px)',
-        duration: 1.2,
-        ease: 'power3.out'
-      }, 3.8)
-
-      // Date reveal
-      .fromTo(dateEl, {
-        opacity: 0,
-        y: 10,
-        filter: 'blur(4px)'
-      }, {
-        opacity: 1,
-        y: 0,
-        filter: 'blur(0px)',
-        duration: 1,
-        ease: 'power2.out'
-      }, 4.6)
-
-      // Tap prompt
-      .to(tap, {
-        opacity: 1,
-        duration: 1.5,
-        ease: 'power1.inOut'
-      }, 5.2);
-
-    // Gold shimmer on names (whole elements)
-    [name1, name2].forEach(function (el, i) {
-      if (!el) return;
-      gsap.to(el, {
-        backgroundPosition: '-300% center',
-        duration: 4,
-        ease: 'none',
-        repeat: -1,
-        delay: 3.5 + i * 0.5
-      });
+    // Seal glow breathes
+    var sealPulse = gsap.to(sealGlow, {
+      scale: 1.25, opacity: 0.35, duration: 2.5,
+      ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 2.8
     });
 
-    // Tap prompt gentle pulse
-    gsap.to(tap, {
-      opacity: 0.3,
-      duration: 2,
-      ease: 'sine.inOut',
-      repeat: -1,
-      yoyo: true,
-      delay: 6.5
+    // Seal subtle float
+    var sealFloat = gsap.to(seal, {
+      y: -3, duration: 3, ease: 'sine.inOut',
+      repeat: -1, yoyo: true, delay: 2.5
+    });
+
+    // Tap text breathe
+    var tapPulse = gsap.to(tap, {
+      opacity: 0.4, duration: 2.5, ease: 'sine.inOut',
+      repeat: -1, yoyo: true, delay: 3.5
     });
 
     // ============================
-    // CLICK TO EXIT
+    // CLICK — CINEMATIC OPEN & TRANSITION
     // ============================
-    var exiting = false;
+    var phase = 0;
+
     intro.addEventListener('click', function () {
-      if (exiting || entranceTL.progress() < 1) return;
-      exiting = true;
+      if (phase !== 0 || !entranceDone) return;
+      phase = 1;
 
+      // Kill all looping tweens cleanly
+      sealPulse.kill();
+      sealFloat.kill();
+      tapPulse.kill();
       gsap.killTweensOf(tap);
-      gsap.killTweensOf(name1);
-      gsap.killTweensOf(name2);
+      gsap.killTweensOf(seal);
+      gsap.killTweensOf(sealGlow);
 
-      var exitTL = gsap.timeline();
+      var openTL = gsap.timeline();
 
-      exitTL
-        // Tap text vanishes
+      openTL
+        // Tap + seal fade together
         .to(tap, { opacity: 0, duration: 0.3 }, 0)
+        .to(sealGlow, { scale: 2, opacity: 0, duration: 1, ease: 'power1.out' }, 0)
+        .to(seal, { opacity: 0, y: -6, duration: 0.8, ease: 'power2.inOut' }, 0.1)
 
-        // Text dissolves upward with blur
-        .to(subtitleChars, {
-          opacity: 0,
-          y: -20,
-          filter: 'blur(6px)',
-          duration: 0.5,
-          stagger: 0.01,
-          ease: 'power2.in'
-        }, 0)
+        // Flaps part + golden glow emerges
+        .to(vignette, { opacity: 0.3, duration: 0.8, ease: 'power1.inOut' }, 0.6)
+        .to(glow, { scale: 1, opacity: 0.6, duration: 1.4, ease: 'power1.out' }, 0.7)
+        .to(flapLeft, { x: '-105%', duration: 1.6, ease: 'power2.inOut' }, 0.7)
+        .to(flapRight, { x: '105%', duration: 1.6, ease: 'power2.inOut' }, 0.75)
 
-        .to(name1, {
-          opacity: 0,
-          y: -25,
-          filter: 'blur(6px)',
-          duration: 0.5,
-          ease: 'power2.in'
-        }, 0.1)
+        // Particles swell then dissolve
+        .to(particleAlpha, { value: 1.3, duration: 0.6, ease: 'power1.in' }, 1.0)
+        .to(particleAlpha, { value: 0, duration: 0.7, ease: 'power1.in' }, 1.6)
+        .to(vignette, { opacity: 0, duration: 0.5 }, 1.6)
+        .to(glow, { scale: 2, opacity: 0, duration: 0.8, ease: 'power1.in' }, 1.8)
 
-        .to(amp, { opacity: 0, duration: 0.3 }, 0.1)
+        // Fade to cream
+        .to(flash, { opacity: 1, duration: 0.8, ease: 'power1.inOut' }, 2.0)
 
-        .to(name2, {
-          opacity: 0,
-          y: -25,
-          filter: 'blur(6px)',
-          duration: 0.5,
-          ease: 'power2.in'
-        }, 0.15)
-
-        .to(dateEl, {
-          opacity: 0,
-          y: -15,
-          duration: 0.4,
-          ease: 'power2.in'
-        }, 0.2)
-
-        // Bokeh fades
-        .to(bokehAlpha, {
-          value: 0,
-          duration: 0.8,
-          ease: 'power1.in'
-        }, 0.3)
-
-        // Bloom shrinks
-        .to(bloom, {
-          scale: 1.5,
-          opacity: 0,
-          duration: 1,
-          ease: 'power2.in'
-        }, 0.3)
-
-        // Light leaks fade
-        .to([leak1, leak2], { opacity: 0, duration: 0.6 }, 0.4)
-
-        // Flash to cream
-        .to(flash, {
-          opacity: 1,
-          duration: 0.8,
-          ease: 'power2.in'
-        }, 0.8)
-
-        // Remove intro and reveal page
+        // Remove intro and reveal the page
         .add(function () {
-          bokehRunning = false;
+          particleRunning = false;
           window.removeEventListener('resize', resizeCanvas);
           intro.remove();
           document.documentElement.classList.remove('intro-active');
           if (revealHero) revealHero();
-        }, 1.6);
+        }, 2.8);
     });
   }
 
@@ -446,20 +325,6 @@
   // ============================
   function personalizeContent() {
     if (!guestInfo) return;
-
-    // Personalizar texto del intro
-    var introTextEl = document.getElementById('intro-text');
-    if (introTextEl && guestInfo.invitado) {
-      var firstName = guestInfo.invitado.split(' ')[0];
-      var companion = guestInfo.acompanante || '';
-
-      if (companion && companion.toLowerCase() !== 'pareja' && companion.trim() !== '') {
-        var companionFirst = companion.split(' ')[0];
-        introTextEl.innerHTML = 'Esta es una invitación<br>exclusiva para ustedes<br>' + firstName + ' y ' + companionFirst;
-      } else {
-        introTextEl.innerHTML = 'Esta es una invitación<br>exclusiva para ti ' + firstName;
-      }
-    }
 
     // Personalizar título del formulario
     var titleEl = document.querySelector('#screen-confirmar .fullscreen__title');

@@ -1,6 +1,7 @@
 /* ========================================
-   MASCOTA VIRTUAL — Yorkshire Terrier 3D
+   MASCOTA VIRTUAL — Animated 3D Fox
    Three.js + GLTFLoader scroll companion
+   Animations: Survey (idle), Walk, Run
    ======================================== */
 
 import * as THREE from 'three';
@@ -17,21 +18,39 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
   var renderer, scene, camera, model, mixer, clock;
   var animActions = {};
   var currentAction = null;
-  var idleRotation = true;
+  var currentAnimName = '';
 
-  var MODEL_PATH = 'assets/yorkshire.glb';
-  var CANVAS_SIZE = 120; // px
+  var MODEL_PATH = 'assets/mascota.glb';
+  var CANVAS_SIZE = 180;
+
+  // Animation name mapping (Fox model clip names)
+  var ANIM_NAMES = {
+    idle:     'Survey',
+    walk:     'Walk',
+    run:      'Run'
+  };
 
   /* =============================================
      Section anchors
      ============================================= */
   var sections = [
-    { selector: '.hero',      side: 'right', phrase: '¡Bienvenido!' },
-    { selector: '.countdown', side: 'right', phrase: '¡Ya falta poco!' },
-    { selector: '.message',   side: 'left',  phrase: '¡Qué emoción!' },
-    { selector: '.fecha',     side: 'right', phrase: '¡No faltes!' },
-    { selector: '.fiesta',    side: 'left',  phrase: '¡A bailar!' }
+    { selector: '.hero',      phrase: '¡Bienvenido!' },
+    { selector: '.countdown', phrase: '¡Ya falta poco!' },
+    { selector: '.message',   phrase: '¡Qué emoción!' },
+    { selector: '.fecha',     phrase: '¡No faltes!' },
+    { selector: '.fiesta',    phrase: '¡A bailar!' }
   ];
+
+  /* =============================================
+     Waypoints — where the fox rests per section
+     ============================================= */
+  var waypoints = {
+    '.hero':      { xAlign: 'right', xMargin: 12, yAnchor: 'bottom', yOffset: -20,  facing: 'left'  },
+    '.countdown': { xAlign: 'right', xMargin: 8,  yAnchor: 'bottom', yOffset: -10,  facing: 'left'  },
+    '.message':   { xAlign: 'left',  xMargin: 8,  yAnchor: 'bottom', yOffset: -10,  facing: 'right' },
+    '.fecha':     { xAlign: 'right', xMargin: 4,  yAnchor: 'bottom', yOffset: -60,  facing: 'left'  },
+    '.fiesta':    { xAlign: 'left',  xMargin: 8,  yAnchor: 'top',    yOffset: 180,  facing: 'right' }
+  };
 
   /* =============================================
      Wait for intro
@@ -60,6 +79,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     initThreeJS();
     loadModel();
     bindTap();
+    bindReactiveInteractions();
+    bindModalVisibility();
   }
 
   /* =============================================
@@ -106,12 +127,10 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-    camera.position.set(0, 0.5, 1.4);
-    camera.lookAt(0, 0.2, 0);
+    camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
 
     // Lighting
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    var ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
     scene.add(ambientLight);
 
     var dirLight = new THREE.DirectionalLight(0xfff4e0, 1.5);
@@ -134,38 +153,43 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       MODEL_PATH,
       function (gltf) {
         model = gltf.scene;
+        scene.add(model);
 
-        // Auto-fit model to view
+        // Compute bounding box and auto-frame the model
         var box = new THREE.Box3().setFromObject(model);
         var center = box.getCenter(new THREE.Vector3());
         var size = box.getSize(new THREE.Vector3());
         var maxDim = Math.max(size.x, size.y, size.z);
+
+        // Scale to fit nicely in view
         var scale = 2.0 / maxDim;
         model.scale.setScalar(scale);
-        model.position.sub(center.multiplyScalar(scale));
-        model.position.y -= size.y * scale * 0.1;
 
-        // Rotate model to face the camera
-        model.rotation.y = Math.PI * 0.85;
+        // Recompute after scaling
+        box.setFromObject(model);
+        center = box.getCenter(new THREE.Vector3());
+        size = box.getSize(new THREE.Vector3());
 
-        scene.add(model);
+        // Position camera to frame the model (wider view for free-roaming)
+        var dist = Math.max(size.x, size.y, size.z) * 2.6;
+        camera.position.set(center.x + dist * 0.3, center.y + size.y * 0.15, center.z + dist);
+        camera.lookAt(center.x, center.y - size.y * 0.05, center.z);
 
-        // Setup animations if available
+        // Disable frustum culling on skinned meshes
+        model.traverse(function(child) {
+          if (child.isMesh || child.isSkinnedMesh) {
+            child.frustumCulled = false;
+          }
+        });
+
+        // Setup animations
         if (gltf.animations && gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
           gltf.animations.forEach(function (clip) {
             var action = mixer.clipAction(clip);
             animActions[clip.name.toLowerCase()] = action;
           });
-
-          // Try to play idle animation
-          var idleAction = animActions['idle'] || animActions['breathing idle'] ||
-                           animActions['sit'] || Object.values(animActions)[0];
-          if (idleAction) {
-            idleAction.play();
-            currentAction = idleAction;
-            idleRotation = false; // model has its own animation
-          }
+          playAnim('idle');
         }
 
         // Start render loop and scroll tracking
@@ -174,7 +198,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
         // Show the mascot
         if (typeof gsap !== 'undefined') {
-          // Small delay to let first frame render
           setTimeout(function () {
             gsap.to(mascotEl, { opacity: 1, y: 0, duration: 0.8, ease: 'back.out(1.4)' });
           }, 100);
@@ -183,7 +206,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       undefined,
       function (err) {
         console.warn('Mascota: Could not load 3D model', err);
-        // Fallback to SVG image
         var inner = mascotEl.querySelector('.mascota__inner');
         var canvas = document.getElementById('mascota-canvas');
         if (canvas) canvas.remove();
@@ -208,9 +230,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     requestAnimationFrame(animate);
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
-    if (model && idleRotation) {
-      model.rotation.y += delta * 0.5;
-    }
     renderer.render(scene, camera);
   }
 
@@ -218,9 +237,14 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
      Play Animation by Name
      ============================================= */
   function playAnim(name, options) {
-    if (!mixer || !animActions[name]) return;
     var opts = options || {};
-    var next = animActions[name];
+    var clipName = ANIM_NAMES[name] || name;
+    var next = animActions[clipName.toLowerCase()];
+    if (!mixer || !next) return;
+    if (currentAnimName === name && !opts.force) return;
+
+    currentAnimName = name;
+
     if (currentAction && currentAction !== next) {
       next.reset();
       if (opts.once) {
@@ -230,7 +254,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         next.setLoop(THREE.LoopRepeat);
       }
       next.play();
-      currentAction.crossFadeTo(next, 0.25, true);
+      currentAction.crossFadeTo(next, 0.3, true);
       currentAction = next;
 
       if (opts.once && opts.returnTo) {
@@ -242,21 +266,27 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         });
       }
     } else if (!currentAction) {
+      if (opts.once) {
+        next.setLoop(THREE.LoopOnce, 1);
+        next.clampWhenFinished = true;
+      } else {
+        next.setLoop(THREE.LoopRepeat);
+      }
       next.play();
       currentAction = next;
     }
   }
 
   /* =============================================
-     Spin the 3D model
+     Flip model to face direction of movement
      ============================================= */
-  function doSpin(onDone) {
-    if (typeof gsap === 'undefined' || !model) return;
+  function faceDirection(side) {
+    if (!model || typeof gsap === 'undefined') return;
+    var targetY = (side === 'left') ? -Math.PI * 0.3 : Math.PI * 0.3;
     gsap.to(model.rotation, {
-      y: model.rotation.y + Math.PI * 2,
-      duration: 0.6,
-      ease: 'power2.inOut',
-      onComplete: onDone
+      y: targetY,
+      duration: 0.3,
+      ease: 'power2.out'
     });
   }
 
@@ -301,22 +331,39 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
     function getTargetPos(sd) {
       if (!sd) return null;
+      var wp = waypoints[sd.config.selector];
+      if (!wp) return null;
+
       var rect = sd.el.getBoundingClientRect();
       var size = CANVAS_SIZE;
-      var margin = 8;
-      var y = rect.bottom - size - margin;
-      y = Math.max(margin, Math.min(window.innerHeight - size - margin, y));
-      var x;
-      if (sd.config.side === 'right') {
-        x = Math.min(rect.right - size - margin, window.innerWidth - size - margin);
+      var x, y;
+
+      // Horizontal position
+      if (wp.xAlign === 'right') {
+        x = Math.min(rect.right - size - wp.xMargin, window.innerWidth - size - wp.xMargin);
       } else {
-        x = Math.max(rect.left + margin, margin);
+        x = Math.max(rect.left + wp.xMargin, wp.xMargin);
       }
-      return { x: x, y: y };
+
+      // Vertical position
+      if (wp.yAnchor === 'bottom') {
+        y = rect.bottom - size + wp.yOffset;
+      } else {
+        y = rect.top + wp.yOffset;
+      }
+
+      // Clamp to viewport
+      y = Math.max(8, Math.min(window.innerHeight - size - 8, y));
+      x = Math.max(4, Math.min(window.innerWidth - size - 4, x));
+
+      return { x: x, y: y, facing: wp.facing };
     }
 
     var firstReveal = true;
     var phraseShown = {};
+    var walkTimeout = null;
+    var isWalking = false;
+    var walkTween = null;
 
     function updatePosition() {
       if (!mascotEl || typeof gsap === 'undefined') return;
@@ -329,6 +376,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       if (firstReveal) {
         firstReveal = false;
         gsap.set(mascotEl, { left: target.x, top: target.y });
+        faceDirection(target.facing);
         if (!phraseShown[key]) {
           phraseShown[key] = true;
           setTimeout(function () { showBubble(vis.config.phrase); }, 900);
@@ -339,20 +387,60 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
       if (key !== currentAnchor) {
         currentAnchor = key;
-        doHop();
-        gsap.to(mascotEl, {
+
+        // Cancel any in-progress walk
+        if (walkTween) { walkTween.kill(); }
+        if (walkTimeout) clearTimeout(walkTimeout);
+
+        // Determine travel direction from current position
+        var currentLeft = parseFloat(gsap.getProperty(mascotEl, 'left')) || 0;
+        var currentTop = parseFloat(gsap.getProperty(mascotEl, 'top')) || 0;
+        var dx = target.x - currentLeft;
+        var dy = target.y - currentTop;
+
+        // Face travel direction (or resting direction if mostly vertical)
+        var travelDir;
+        if (Math.abs(dx) > 20) {
+          travelDir = (dx > 0) ? 'right' : 'left';
+        } else {
+          travelDir = target.facing;
+        }
+
+        // Duration proportional to distance (0.8s – 2.0s)
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var duration = Math.max(0.8, Math.min(2.0, dist / 300));
+
+        // Start walk animation and face travel direction
+        playAnim('walk');
+        faceDirection(travelDir);
+        isWalking = true;
+
+        // Tween position
+        walkTween = gsap.to(mascotEl, {
           left: target.x,
           top: target.y,
-          duration: 0.7,
+          duration: duration,
           ease: 'power2.inOut',
           onComplete: function () {
+            isWalking = false;
+            walkTween = null;
+
+            // On arrival: face resting direction, idle, hop
+            faceDirection(target.facing);
+            walkTimeout = setTimeout(function () {
+              playAnim('idle');
+              doHop();
+            }, 150);
+
+            // Show section phrase
             if (!phraseShown[key]) {
               phraseShown[key] = true;
-              showBubble(vis.config.phrase);
+              setTimeout(function () { showBubble(vis.config.phrase); }, 400);
             }
           }
         });
-      } else {
+      } else if (!isWalking) {
+        // Same section, gentle repositioning (e.g. on resize)
         gsap.to(mascotEl, {
           left: target.x, top: target.y,
           duration: 0.4, ease: 'power2.out', overwrite: 'auto'
@@ -409,10 +497,11 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       if (typeof gsap === 'undefined') return;
       tapCount++;
 
-      // Every 5th tap → spin!
+      // Every 5th tap → run!
       if (tapCount % 5 === 0) {
-        doSpin();
-        showBubble('¡Wiii!');
+        playAnim('run', { once: true, returnTo: 'idle', force: true });
+        showBubble('¡Guau guau!');
+        doHeartBurst();
         return;
       }
 
@@ -426,10 +515,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
           .to(inner, { scaleX: 1, scaleY: 1, duration: 0.2, ease: 'elastic.out(1,0.5)', transformOrigin: '50% 100%' });
       }
 
-      // Speech bubble
       showBubble(tapPhrases[Math.floor(Math.random() * tapPhrases.length)]);
 
-      // Hearts every 3 taps
       if (tapCount % 3 === 0) doHeartBurst();
     });
   }
@@ -452,6 +539,44 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
           .to(heart, { y: Math.sin(rad) * dist - 25, opacity: 0, duration: 0.6, ease: 'power1.in', onComplete: function () { heart.remove(); } });
       })(i);
     }
+  }
+
+  /* =============================================
+     REACTIVE INTERACTIONS
+     ============================================= */
+  function bindReactiveInteractions() {
+    var btnConfirmar = document.getElementById('btn-confirmar');
+    if (btnConfirmar) {
+      btnConfirmar.addEventListener('click', function () {
+        playAnim('run', { once: true, returnTo: 'idle', force: true });
+        showBubble('¡Sí, confirma!');
+        doHeartBurst();
+      });
+    }
+
+    var btnPlaylist = document.getElementById('btn-playlist');
+    if (btnPlaylist) {
+      btnPlaylist.addEventListener('click', function () {
+        playAnim('run', { once: true, returnTo: 'idle', force: true });
+        showBubble('¡A bailar!');
+      });
+    }
+  }
+
+  /* =============================================
+     MODAL VISIBILITY — hide mascot during modals
+     ============================================= */
+  function bindModalVisibility() {
+    var observer = new MutationObserver(function () {
+      if (!mascotEl || typeof gsap === 'undefined') return;
+      var isModalOpen = document.body.classList.contains('modal-open');
+      if (isModalOpen) {
+        gsap.to(mascotEl, { opacity: 0, duration: 0.3, ease: 'power2.in', pointerEvents: 'none' });
+      } else {
+        gsap.to(mascotEl, { opacity: 1, duration: 0.5, ease: 'power2.out', delay: 0.3, pointerEvents: 'auto' });
+      }
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 
   /* =============================================
