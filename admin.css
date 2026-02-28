@@ -226,30 +226,22 @@ body {
    STATS
    ======================================== */
 .stats {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
   margin-bottom: 24px;
 }
 
-.stats__row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.stats__row--3col {
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
-.stats__row > .stat-card:only-child {
-  max-width: 200px;
+@media (min-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .stat-card {
   background: var(--white);
   border-radius: var(--radius);
-  padding: 18px 16px;
+  padding: 20px 16px;
   text-align: center;
   box-shadow: var(--shadow);
   border-left: 4px solid var(--gold);
@@ -258,7 +250,6 @@ body {
 .stat-card--success { border-left-color: var(--green); }
 .stat-card--warning { border-left-color: var(--orange); }
 .stat-card--danger { border-left-color: var(--red); }
-.stat-card--allergy { border-left-color: #e8a87c; }
 
 .stat-card__number {
   display: block;
@@ -275,33 +266,6 @@ body {
   margin-top: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.stat-card__sub {
-  display: block;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--brown);
-  margin-top: 8px;
-  line-height: 1;
-  opacity: 0.7;
-}
-
-.stat-card__sublabel {
-  display: block;
-  font-size: 10px;
-  color: var(--gray);
-  margin-top: 3px;
-  letter-spacing: 0.3px;
-}
-
-@media (max-width: 500px) {
-  .stats__row--3col {
-    grid-template-columns: 1fr;
-  }
-  .stats__row {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 /* ========================================
@@ -794,8 +758,8 @@ body {
    RESPONSIVE
    ======================================== */
 @media (max-width: 640px) {
-  .stats__row--3col {
-    grid-template-columns: 1fr 1fr 1fr;
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .table th:nth-child(3),
