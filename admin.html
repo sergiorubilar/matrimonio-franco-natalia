@@ -50,37 +50,42 @@
 
       <!-- Stats -->
       <section class="stats" id="stats">
-        <div class="stat-card">
-          <span class="stat-card__number" id="stat-total">0</span>
-          <span class="stat-card__label">Total invitaciones</span>
+        <!-- Fila 1: Totales -->
+        <div class="stats__row">
+          <div class="stat-card">
+            <span class="stat-card__number" id="stat-total">0</span>
+            <span class="stat-card__label">Invitaciones</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__number" id="stat-personas">0</span>
+            <span class="stat-card__label">Personas</span>
+          </div>
         </div>
-        <div class="stat-card">
-          <span class="stat-card__number" id="stat-personas">0</span>
-          <span class="stat-card__label">Total personas</span>
+        <!-- Fila 2: Confirmados / Pendientes / Rechazados -->
+        <div class="stats__row stats__row--3col">
+          <div class="stat-card stat-card--success">
+            <span class="stat-card__number" id="stat-confirmados">0</span>
+            <span class="stat-card__label">Confirmadas</span>
+            <span class="stat-card__sub" id="stat-personas-confirmadas">0</span>
+            <span class="stat-card__sublabel">personas asisten</span>
+          </div>
+          <div class="stat-card stat-card--warning">
+            <span class="stat-card__number" id="stat-pendientes">0</span>
+            <span class="stat-card__label">Pendientes</span>
+          </div>
+          <div class="stat-card stat-card--danger">
+            <span class="stat-card__number" id="stat-declinados">0</span>
+            <span class="stat-card__label">Rechazadas</span>
+            <span class="stat-card__sub" id="stat-personas-declinadas">0</span>
+            <span class="stat-card__sublabel">personas no asisten</span>
+          </div>
         </div>
-        <div class="stat-card stat-card--success">
-          <span class="stat-card__number" id="stat-personas-confirmadas">0</span>
-          <span class="stat-card__label">Personas confirmadas</span>
-        </div>
-        <div class="stat-card stat-card--success">
-          <span class="stat-card__number" id="stat-confirmados">0</span>
-          <span class="stat-card__label">Invitaciones confirmadas</span>
-        </div>
-        <div class="stat-card stat-card--warning">
-          <span class="stat-card__number" id="stat-pendientes">0</span>
-          <span class="stat-card__label">Invitaciones pendientes</span>
-        </div>
-        <div class="stat-card stat-card--danger">
-          <span class="stat-card__number" id="stat-declinados">0</span>
-          <span class="stat-card__label">Invitaciones rechazadas</span>
-        </div>
-        <div class="stat-card stat-card--danger">
-          <span class="stat-card__number" id="stat-personas-declinadas">0</span>
-          <span class="stat-card__label">No asisten (personas)</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-card__number" id="stat-alergias">0</span>
-          <span class="stat-card__label">Con alergias</span>
+        <!-- Fila 3: Alergias -->
+        <div class="stats__row">
+          <div class="stat-card stat-card--allergy">
+            <span class="stat-card__number" id="stat-alergias">0</span>
+            <span class="stat-card__label">Con alergias</span>
+          </div>
         </div>
       </section>
 
