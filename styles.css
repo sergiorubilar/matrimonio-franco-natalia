@@ -1261,6 +1261,7 @@ html.intro-active body { overflow: hidden; height: 100%; }
   top: 0; right: 0; bottom: 0; left: 0;
   z-index: 10;
   perspective: 1800px;
+  opacity: 0;
 }
 
 .intro__flap {
@@ -1308,6 +1309,7 @@ html.intro-active body { overflow: hidden; height: 100%; }
   transform: translate(-50%, -50%);
   z-index: 20;
   width: clamp(100px, 28vw, 140px);
+  opacity: 0;
 }
 
 .intro__seal-img {
