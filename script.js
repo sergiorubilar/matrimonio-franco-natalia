@@ -382,12 +382,29 @@
     var formEl = document.getElementById('form-confirmacion');
     var si = document.getElementById('alergia-si');
     var no = document.getElementById('alergia-no');
+    var ga = document.getElementById('group-alergia');
     var gc = document.getElementById('group-cual');
     var ad = document.getElementById('alergia-detalle');
     var submitBtn = formEl.querySelector('.btn--submit');
 
     gc.style.display = 'none';
     if (submitBtn) submitBtn.disabled = true;
+
+    formEl.querySelectorAll('input[name="asistencia"]').forEach(function (r) {
+      r.addEventListener('change', function () {
+        if (r.value === 'no') {
+          ga.style.display = 'none';
+          gc.style.display = 'none';
+          si.checked = false;
+          no.checked = false;
+          ad.value = '';
+          ad.disabled = true;
+        } else {
+          ga.style.display = '';
+        }
+        checkFormComplete(formEl, submitBtn);
+      });
+    });
 
     si.addEventListener('change', function () {
       gc.style.display = '';
@@ -399,10 +416,6 @@
       ad.disabled = true;
       ad.value = '';
       checkFormComplete(formEl, submitBtn);
-    });
-
-    formEl.querySelectorAll('input[type="radio"]').forEach(function (r) {
-      r.addEventListener('change', function () { checkFormComplete(formEl, submitBtn); });
     });
   }
 
@@ -523,16 +536,47 @@
   var alergiaDetalle = document.getElementById('alergia-detalle');
   var submitBtn = form.querySelector('.btn--submit');
 
+  var groupAlergia = document.getElementById('group-alergia');
+
   function checkFormComplete(f, btn) {
     if (!f || !btn) return;
     var asistencia = f.querySelector('input[name="asistencia"]:checked');
+    if (!asistencia) { btn.disabled = true; return; }
+
+    // If not attending, no need for allergy info
+    if (asistencia.value === 'no') {
+      btn.disabled = false;
+      return;
+    }
+
     var alergia = f.querySelector('input[name="alergia"]:checked');
-    btn.disabled = !(asistencia && alergia);
+    btn.disabled = !alergia;
+  }
+
+  function handleAsistenciaChange(value) {
+    if (value === 'no') {
+      // Hide allergy sections
+      groupAlergia.style.display = 'none';
+      groupCual.style.display = 'none';
+      // Reset allergy selections
+      alergiaSi.checked = false;
+      alergiaNo.checked = false;
+      alergiaDetalle.value = '';
+      alergiaDetalle.disabled = true;
+    } else {
+      groupAlergia.style.display = '';
+    }
+    checkFormComplete(form, submitBtn);
   }
 
   // Ocultar campo "¿Cuál?" por defecto, submit deshabilitado
   groupCual.style.display = 'none';
   if (submitBtn) submitBtn.disabled = true;
+
+  // Listen to attendance radio changes
+  form.querySelectorAll('input[name="asistencia"]').forEach(function (r) {
+    r.addEventListener('change', function () { handleAsistenciaChange(r.value); });
+  });
 
   alergiaSi.addEventListener('change', function () {
     groupCual.style.display = '';
@@ -544,10 +588,6 @@
     alergiaDetalle.disabled = true;
     alergiaDetalle.value = '';
     checkFormComplete(form, submitBtn);
-  });
-
-  form.querySelectorAll('input[type="radio"]').forEach(function (r) {
-    r.addEventListener('change', function () { checkFormComplete(form, submitBtn); });
   });
 
   var loadingMessages = [
