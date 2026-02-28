@@ -46,6 +46,7 @@
   var searchInput = document.getElementById('search-input');
   var filterStatus = document.getElementById('filter-status');
   var filterGroup = document.getElementById('filter-group');
+  var filterAllergy = document.getElementById('filter-allergy');
   var tbody = document.getElementById('guests-tbody');
   var tableEmpty = document.getElementById('table-empty');
   var table = document.getElementById('guests-table');
@@ -237,6 +238,7 @@
     var search = searchInput.value.toLowerCase();
     var status = filterStatus.value;
     var group = filterGroup.value;
+    var allergy = filterAllergy.value;
 
     return guests.filter(function (g) {
       if (search && !(g.nombre + ' ' + g.acompanante).toLowerCase().includes(search)) return false;
@@ -244,6 +246,8 @@
       if (status === 'declined' && g.confirmacion !== 'FALSE') return false;
       if (status === 'pending' && g.confirmacion !== '') return false;
       if (group !== 'all' && g.grupo !== group) return false;
+      if (allergy === 'yes' && g.alergias !== 'TRUE') return false;
+      if (allergy === 'no' && g.alergias === 'TRUE') return false;
       return true;
     });
   }
@@ -251,6 +255,7 @@
   searchInput.addEventListener('input', renderTable);
   filterStatus.addEventListener('change', renderTable);
   filterGroup.addEventListener('change', renderTable);
+  filterAllergy.addEventListener('change', renderTable);
 
   // ============================
   // TABLE RENDERING
