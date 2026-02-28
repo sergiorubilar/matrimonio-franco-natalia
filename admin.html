@@ -50,38 +50,78 @@
 
       <!-- Stats -->
       <section class="stats" id="stats">
-        <div class="stat-card">
-          <span class="stat-card__number" id="stat-total">0</span>
-          <span class="stat-card__label">Total invitaciones</span>
+
+        <!-- Resumen general -->
+        <div class="stats__summary">
+          <div class="stats__summary-item">
+            <span class="stats__summary-number" id="stat-total">0</span>
+            <span class="stats__summary-label">invitaciones enviadas</span>
+          </div>
+          <div class="stats__summary-sep"></div>
+          <div class="stats__summary-item">
+            <span class="stats__summary-number" id="stat-personas">0</span>
+            <span class="stats__summary-label">personas invitadas</span>
+          </div>
         </div>
-        <div class="stat-card">
-          <span class="stat-card__number" id="stat-personas">0</span>
-          <span class="stat-card__label">Total personas</span>
+
+        <!-- Paneles de estado -->
+        <div class="stats__panels">
+
+          <div class="stats__panel stats__panel--confirmed">
+            <div class="stats__panel-header">
+              <span class="stats__panel-dot"></span>
+              Confirmados
+            </div>
+            <div class="stats__panel-body">
+              <div class="stats__panel-stat">
+                <span class="stats__panel-number" id="stat-confirmados">0</span>
+                <span class="stats__panel-label">invitaciones</span>
+              </div>
+              <div class="stats__panel-stat">
+                <span class="stats__panel-number" id="stat-personas-confirmadas">0</span>
+                <span class="stats__panel-label">personas asisten</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats__panel stats__panel--pending">
+            <div class="stats__panel-header">
+              <span class="stats__panel-dot"></span>
+              Pendientes
+            </div>
+            <div class="stats__panel-body">
+              <div class="stats__panel-stat">
+                <span class="stats__panel-number" id="stat-pendientes">0</span>
+                <span class="stats__panel-label">invitaciones sin respuesta</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats__panel stats__panel--declined">
+            <div class="stats__panel-header">
+              <span class="stats__panel-dot"></span>
+              Rechazados
+            </div>
+            <div class="stats__panel-body">
+              <div class="stats__panel-stat">
+                <span class="stats__panel-number" id="stat-declinados">0</span>
+                <span class="stats__panel-label">invitaciones rechazadas</span>
+              </div>
+              <div class="stats__panel-stat">
+                <span class="stats__panel-number" id="stat-personas-declinadas">0</span>
+                <span class="stats__panel-label">personas no asisten</span>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div class="stat-card stat-card--success">
-          <span class="stat-card__number" id="stat-confirmados">0</span>
-          <span class="stat-card__label">Invitaciones confirmadas</span>
+
+        <!-- Nota de alergias -->
+        <div class="stats__note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span><strong id="stat-alergias">0</strong> invitados confirmados tienen alergias alimentarias</span>
         </div>
-        <div class="stat-card stat-card--success">
-          <span class="stat-card__number" id="stat-personas-confirmadas">0</span>
-          <span class="stat-card__label">Personas confirmadas</span>
-        </div>
-        <div class="stat-card stat-card--warning">
-          <span class="stat-card__number" id="stat-pendientes">0</span>
-          <span class="stat-card__label">Invitaciones pendientes</span>
-        </div>
-        <div class="stat-card stat-card--danger">
-          <span class="stat-card__number" id="stat-declinados">0</span>
-          <span class="stat-card__label">Invitaciones rechazadas</span>
-        </div>
-        <div class="stat-card stat-card--danger">
-          <span class="stat-card__number" id="stat-personas-declinadas">0</span>
-          <span class="stat-card__label">Personas no asisten</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-card__number" id="stat-alergias">0</span>
-          <span class="stat-card__label">Con alergias</span>
-        </div>
+
       </section>
 
       <!-- Actions -->
