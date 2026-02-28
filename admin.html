@@ -224,15 +224,45 @@
     <div class="modal-box">
       <h2 class="modal-box__title" id="detail-name"></h2>
       <div class="detail-grid" id="detail-grid"></div>
-      <div class="modal-box__actions">
-        <button class="action-btn action-btn--whatsapp" id="detail-wa">Enviar WhatsApp</button>
-        <button class="action-btn action-btn--secondary" id="detail-copy">Copiar link</button>
-        <a class="action-btn action-btn--secondary" id="detail-link" href="#" target="_blank">Ver invitación</a>
-        <button class="action-btn action-btn--primary" id="detail-edit">Editar</button>
-        <button class="action-btn action-btn--danger-outline" id="detail-reset" style="display:none;">Resetear confirmación</button>
-        <button class="action-btn action-btn--danger" id="detail-delete">Eliminar</button>
-        <button class="action-btn action-btn--secondary" id="detail-close">Cerrar</button>
+      <div class="detail-actions">
+        <!-- Comunicación -->
+        <div class="detail-actions__group">
+          <span class="detail-actions__label">Comunicación</span>
+          <div class="detail-actions__row">
+            <button class="action-btn action-btn--whatsapp" id="detail-wa">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+              Enviar WhatsApp
+            </button>
+            <button class="action-btn action-btn--secondary" id="detail-copy">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copiar link
+            </button>
+            <a class="action-btn action-btn--secondary" id="detail-link" href="#" target="_blank">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Ver invitacion
+            </a>
+          </div>
+        </div>
+        <!-- Gestionar -->
+        <div class="detail-actions__group">
+          <span class="detail-actions__label">Gestionar</span>
+          <div class="detail-actions__row">
+            <button class="action-btn action-btn--primary" id="detail-edit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Editar datos
+            </button>
+            <button class="action-btn action-btn--danger-outline" id="detail-reset" style="display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+              Resetear confirmacion
+            </button>
+            <button class="action-btn action-btn--danger" id="detail-delete">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              Eliminar
+            </button>
+          </div>
+        </div>
       </div>
+      <button class="detail-close-btn" id="detail-close">Cerrar</button>
     </div>
   </div>
 

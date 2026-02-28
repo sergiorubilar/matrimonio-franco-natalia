@@ -677,6 +677,65 @@ body {
   flex-wrap: wrap;
 }
 
+/* --- Detail modal actions --- */
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.detail-actions__group {
+  border: 1px solid var(--cream-dark);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.detail-actions__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray);
+  margin-bottom: 10px;
+}
+
+.detail-actions__row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.detail-actions__row .action-btn {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
+  font-size: 13px;
+  padding: 9px 12px;
+}
+
+.detail-close-btn {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray);
+  background: none;
+  border: 1px solid var(--cream-dark);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.detail-close-btn:hover {
+  background: var(--cream);
+  border-color: var(--gold-light);
+  color: var(--brown);
+}
+
 .modal-box__progress {
   margin-bottom: 20px;
 }
@@ -884,5 +943,13 @@ body {
 
   .modal-box__actions {
     flex-direction: column;
+  }
+
+  .detail-actions__row {
+    flex-direction: column;
+  }
+
+  .detail-actions__row .action-btn {
+    width: 100%;
   }
 }
