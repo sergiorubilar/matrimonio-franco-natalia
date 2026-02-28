@@ -590,14 +590,22 @@
     checkFormComplete(form, submitBtn);
   });
 
-  var loadingMessages = [
+  var loadingMessagesYes = [
     'Guardando tu lugar en nuestra mesa',
     'Preparando tu copa de bienvenida',
     'Reservando un brindis en tu honor',
     'Anotando tu nombre en nuestra historia'
   ];
 
-  function showFormLoading(container) {
+  var loadingMessagesNo = [
+    'Registrando tu respuesta',
+    'Entendemos, te echaremos de menos',
+    'Guardando tu mensaje para los novios',
+    'Esperamos verte en otra ocasion'
+  ];
+
+  function showFormLoading(container, messages) {
+    var msgs = messages || loadingMessagesYes;
     var overlay = document.createElement('div');
     overlay.className = 'form-loading';
     overlay.innerHTML =
@@ -615,13 +623,13 @@
 
     var msgEl = overlay.querySelector('.form-loading__message');
     var idx = 0;
-    msgEl.textContent = loadingMessages[idx];
+    msgEl.textContent = msgs[idx];
 
     var msgInterval = setInterval(function () {
-      idx = (idx + 1) % loadingMessages.length;
+      idx = (idx + 1) % msgs.length;
       msgEl.style.opacity = '0';
       setTimeout(function () {
-        msgEl.textContent = loadingMessages[idx];
+        msgEl.textContent = msgs[idx];
         msgEl.style.opacity = '1';
       }, 300);
     }, 2500);
@@ -651,7 +659,7 @@
 
     var screen = document.getElementById('screen-confirmar');
     var content = screen.querySelector('.fullscreen__content');
-    var loading = showFormLoading(content);
+    var loading = showFormLoading(content, data.asistencia === 'TRUE' ? loadingMessagesYes : loadingMessagesNo);
 
     function closeModal() {
       screen.classList.remove('is-open');
