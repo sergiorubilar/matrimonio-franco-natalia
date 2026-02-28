@@ -223,14 +223,12 @@
     // PHASE 1: CINEMATIC ENTRANCE
     // ============================
     var envelope = document.getElementById('intro-envelope');
-    var vignette = intro.querySelector('.intro__vignette');
 
     // Initial states — everything hidden
     gsap.set(envelope, { opacity: 0 });
     gsap.set(seal, { opacity: 0, y: 10 });
     gsap.set(sealGlow, { opacity: 0, scale: 0.6 });
     gsap.set(tap, { opacity: 0, y: 8 });
-    if (vignette) gsap.set(vignette, { opacity: 0 });
 
     var entranceDone = false;
     var entranceTL = gsap.timeline({
@@ -242,7 +240,6 @@
       // Dust + envelope appear together
       .to(particleAlpha, { value: 1, duration: 1.5, ease: 'power1.inOut' }, 0)
       .to(envelope, { opacity: 1, duration: 1.5, ease: 'power1.inOut' }, 0)
-      .to(vignette, { opacity: 1, duration: 1.2, ease: 'power1.inOut' }, 0.3)
 
       // Seal fades in
       .to(seal, { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }, 1.0)
@@ -295,7 +292,6 @@
         .to(seal, { opacity: 0, y: -6, duration: 0.8, ease: 'power2.inOut' }, 0.1)
 
         // Flaps part + golden glow emerges
-        .to(vignette, { opacity: 0.3, duration: 0.8, ease: 'power1.inOut' }, 0.6)
         .to(glow, { scale: 1, opacity: 0.6, duration: 1.4, ease: 'power1.out' }, 0.7)
         .to(flapLeft, { x: '-105%', duration: 1.6, ease: 'power2.inOut' }, 0.7)
         .to(flapRight, { x: '105%', duration: 1.6, ease: 'power2.inOut' }, 0.75)
@@ -303,7 +299,6 @@
         // Particles swell then dissolve
         .to(particleAlpha, { value: 1.3, duration: 0.6, ease: 'power1.in' }, 1.0)
         .to(particleAlpha, { value: 0, duration: 0.7, ease: 'power1.in' }, 1.6)
-        .to(vignette, { opacity: 0, duration: 0.5 }, 1.6)
         .to(glow, { scale: 2, opacity: 0, duration: 0.8, ease: 'power1.in' }, 1.8)
 
         // Fade to cream

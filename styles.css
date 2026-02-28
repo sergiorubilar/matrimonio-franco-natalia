@@ -1210,20 +1210,6 @@ html.intro-active body { overflow: hidden; height: 100%; }
   -webkit-tap-highlight-color: transparent;
 }
 
-/* --- Warm vignette overlay --- */
-.intro__vignette {
-  position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
-  background: radial-gradient(
-    ellipse 70% 60% at 50% 50%,
-    transparent 0%,
-    rgba(18,14,8,0.3) 60%,
-    rgba(18,14,8,0.7) 100%
-  );
-  z-index: 16;
-  pointer-events: none;
-  opacity: 0;
-}
 
 /* --- Golden dust canvas --- */
 .intro__canvas {
