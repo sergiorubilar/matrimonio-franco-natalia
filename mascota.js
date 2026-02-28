@@ -13,43 +13,43 @@
   // ============================
   var phrases = [
     // Emotivas — desde el perrito
-    '¡Mis papás se casan!',
-    '¡Soy el perrito más feliz del mundo!',
-    '¡Mi familia se agranda!',
-    '¡Les presento a mis papás!',
-    '¡Estoy tan orgulloso de ellos!',
-    '¡El amor de mis papás es hermoso!',
-    '¡Ya quiero llevar los anillos!',
-    '¡Prometí no llorar... pero no prometo nada!',
+    '¡Mis papás se casan! 💍',
+    '¡Soy el perrito más feliz del mundo! 🐾',
+    '¡Mi familia se agranda! 🥹',
+    '¡Les presento a mis papás! 👫',
+    '¡Estoy tan orgulloso de ellos! 😍',
+    '¡El amor de mis papás es hermoso! 💕',
+    '¡Ya quiero llevar los anillos! 💎',
+    '¡Prometí no llorar... pero no prometo nada! 🥺',
     // Celebración
-    '¡Vivan los novios!',
-    '¡El amor está en el aire!',
-    '¡Será la mejor boda del año!',
-    '¡A celebrar este gran amor!',
-    '¡Los novios están felices!',
-    '¡Natalia y Franco, por siempre!',
+    '¡Vivan los novios! 🥂',
+    '¡El amor está en el aire! 💗',
+    '¡Será la mejor boda del año! 🎉',
+    '¡A celebrar este gran amor! ✨',
+    '¡Los novios están felices! 😊',
+    '¡Natalia y Franco, por siempre! 💞',
     // Invitación
-    '¡No te lo puedes perder!',
-    '¡Confirma tu asistencia!',
-    '¡Ven a brindar con nosotros!',
-    '¡1 de mayo, anótalo!',
-    '¡Te esperamos con todo el cariño!',
+    '¡No te lo puedes perder! 🙏',
+    '¡Confirma tu asistencia! 📩',
+    '¡Ven a brindar con nosotros! 🥂',
+    '¡1 de mayo, anótalo! 📅',
+    '¡Te esperamos con todo el cariño! 🤗',
     // Fiesta y emoción
-    '¡No puedo esperar por la fiesta!',
-    '¡Habrá música y baile!',
-    '¡Qué emoción, ya falta poco!',
-    '¡El gran día se acerca!',
-    '¡Prepara tus mejores pasos de baile!',
-    '¡Yo ya tengo mi traje listo!',
-    '¡Esta boda va a ser inolvidable!'
+    '¡No puedo esperar por la fiesta! 🎊',
+    '¡Habrá música y baile! 🎶',
+    '¡Qué emoción, ya falta poco! 😆',
+    '¡El gran día se acerca! ⏳',
+    '¡Prepara tus mejores pasos de baile! 💃',
+    '¡Yo ya tengo mi traje listo! 🤵',
+    '¡Esta boda va a ser inolvidable! 🌟'
   ];
 
   var sectionPhrases = {
-    hero: '¡Natalia y Franco, por siempre!',
-    countdown: '¡Ya falta muy poco!',
-    message: '¡Qué emoción, se viene la boda!',
-    fecha: '¡1 de mayo, anótalo!',
-    fiesta: '¡Habrá música y baile!'
+    hero: '¡Natalia y Franco, por siempre! 💞',
+    countdown: '¡Ya falta muy poco! ⏳',
+    message: '¡Qué emoción, se viene la boda! 🥹',
+    fecha: '¡1 de mayo, anótalo! 📅',
+    fiesta: '¡Habrá música y baile! 🎶'
   };
 
   var lastPhraseIndex = -1;
@@ -67,6 +67,8 @@
   var container = null;
   var bubbleTimer = null;
   var isBubbleVisible = false;
+  var bubbleShownAt = 0;
+  var MIN_BUBBLE_TIME = 2500; // minimum ms a bubble stays visible
   var autoTalkTimer = null;
   var currentSide = 'right';
   var isMoving = false;
@@ -110,34 +112,59 @@
     clearTimeout(bubbleTimer);
     bubbleText.textContent = text;
 
-    bubble.classList.remove('is-visible');
+    // Reset classes for fresh entrance
+    bubble.classList.remove('is-visible', 'is-fading');
     void bubble.offsetWidth;
     bubble.classList.add('is-visible');
     isBubbleVisible = true;
+    bubbleShownAt = Date.now();
 
     // Golden glow pulse
     container.classList.remove('mascota--speaking');
     void container.offsetWidth;
     container.classList.add('mascota--speaking');
 
+    // After 3s, start fade-out (0.6s transition), then fully hide
     bubbleTimer = setTimeout(function () {
       bubble.classList.remove('is-visible');
+      bubble.classList.add('is-fading');
       container.classList.remove('mascota--speaking');
-      isBubbleVisible = false;
+      setTimeout(function () {
+        bubble.classList.remove('is-fading');
+        isBubbleVisible = false;
+        processPendingMove();
+      }, 600);
     }, 3000);
 
     // Reset sleep timer on any activity
     resetSleepTimer();
   }
 
-  function hideBubble() {
+  function hideBubble(force) {
+    if (!force && isBubbleVisible) {
+      var elapsed = Date.now() - bubbleShownAt;
+      if (elapsed < MIN_BUBBLE_TIME) {
+        return; // Let the bubble finish naturally
+      }
+    }
     var bubble = document.getElementById('mascota-bubble');
-    if (bubble) {
-      clearTimeout(bubbleTimer);
+    if (!bubble) return;
+
+    clearTimeout(bubbleTimer);
+    if (container) container.classList.remove('mascota--speaking');
+
+    if (isBubbleVisible) {
+      // Fade out gracefully
       bubble.classList.remove('is-visible');
+      bubble.classList.add('is-fading');
+      isBubbleVisible = false;
+      setTimeout(function () {
+        bubble.classList.remove('is-fading');
+      }, 600);
+    } else {
+      bubble.classList.remove('is-visible', 'is-fading');
       isBubbleVisible = false;
     }
-    if (container) container.classList.remove('mascota--speaking');
   }
 
   // ============================
@@ -209,7 +236,7 @@
 
     // Say something after waking
     setTimeout(function () {
-      showBubble('¡Estoy despierto! ¿Qué me perdí?');
+      showBubble('¡Estoy despierto! ¿Qué me perdí? 😴');
     }, 400);
 
     resetSleepTimer();
@@ -404,11 +431,18 @@
     });
   }
 
-  function moveToSide(side, sectionKey) {
-    if (side === currentSide || isMoving || !container) return;
-    isMoving = true;
+  var pendingMove = null;
 
-    hideBubble();
+  function moveToSide(side, sectionKey) {
+    if (side === currentSide || !container) return;
+
+    // If bubble is visible, queue the move for after it finishes
+    if (isBubbleVisible || isMoving) {
+      pendingMove = { side: side, key: sectionKey };
+      return;
+    }
+
+    isMoving = true;
 
     var tl = gsap.timeline({
       onComplete: function () {
@@ -448,6 +482,14 @@
     });
   }
 
+  function processPendingMove() {
+    if (pendingMove && !isBubbleVisible && !isMoving) {
+      var move = pendingMove;
+      pendingMove = null;
+      moveToSide(move.side, move.key);
+    }
+  }
+
   // ============================
   // OCULTAR EN MODALES
   // ============================
@@ -484,7 +526,7 @@
     var btnConfirmar = document.getElementById('btn-confirmar');
     if (btnConfirmar) {
       btnConfirmar.addEventListener('click', function () {
-        showBubble('¡Genial, confirma!');
+        showBubble('¡Genial, confirma! 📩');
         heartBurst();
       });
     }
@@ -492,7 +534,7 @@
     var btnPlaylist = document.getElementById('btn-playlist');
     if (btnPlaylist) {
       btnPlaylist.addEventListener('click', function () {
-        showBubble('¡A bailar en la fiesta!');
+        showBubble('¡A bailar en la fiesta! 💃');
       });
     }
   }
@@ -524,7 +566,7 @@
 
     // First greeting
     setTimeout(function () {
-      showBubble('¡Bienvenidos a la boda!');
+      showBubble('¡Bienvenidos a la boda! 🐾');
     }, 1800);
 
     // Start systems

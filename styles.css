@@ -1688,12 +1688,18 @@ body.modal-open {
   opacity: 0;
   pointer-events: none;
   z-index: 10;
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .mascota__bubble.is-visible {
   opacity: 1;
   transform: translateY(-10px) scale(1);
+}
+
+.mascota__bubble.is-fading {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.9);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 /* Bubble on left side */
