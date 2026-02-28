@@ -98,7 +98,7 @@ img {
   content: '';
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background: #0000008F;
+  background: rgba(80, 40, 10, 0.3);
   z-index: 1;
 }
 
@@ -107,6 +107,7 @@ img {
   height: 100%;
   object-fit: cover;
   object-position: center 20%;
+  filter: sepia(0.18) saturate(1.2) brightness(1.05) contrast(1.05);
 }
 
 .hero__overlay {
@@ -1339,9 +1340,12 @@ html.intro-active body { overflow: hidden; height: 100%; }
   font-size: clamp(32px, 8vw, 46px);
   color: #fff8ee;
   letter-spacing: 1.5px;
-  text-shadow:
-    0 0 12px rgba(0,0,0,0.6),
-    0 2px 6px rgba(0,0,0,0.4);
+  text-shadow: none;
+  background: rgba(30,20,10,0.55);
+  padding: 8px 24px;
+  border-radius: 30px;
+  margin: 0 auto;
+  width: fit-content;
   opacity: 0;
 }
 
@@ -1604,25 +1608,36 @@ body.modal-open {
 }
 
 /* ========================================
-   MASCOTA VIRTUAL — Yorkshire Terrier
-   Single scroll companion
+   MASCOTA VIRTUAL — Yorkshire SVG
+   Circular elegant companion
    ======================================== */
 .mascota {
   position: fixed;
+  bottom: 20px;
+  right: 16px;
   z-index: 900;
-  width: 180px;
-  height: 180px;
+  width: 80px;
+  height: 80px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   pointer-events: auto;
-  will-change: left, top, transform;
 }
 
-.mascota__inner {
+/* --- Elegant circular frame --- */
+.mascota__circle {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
+  border: 2.5px solid var(--gold);
+  box-shadow:
+    0 0 0 3px rgba(191, 168, 128, 0.15),
+    0 4px 20px rgba(140, 120, 80, 0.22),
+    inset 0 0 8px rgba(191, 168, 128, 0.1);
+  background: var(--cream);
+  overflow: hidden;
   position: relative;
+  animation: mascotaBreathe 3s ease-in-out infinite;
 }
 
 .mascota__img {
@@ -1631,55 +1646,90 @@ body.modal-open {
   display: block;
   object-fit: cover;
   pointer-events: none;
+  border-radius: 50%;
 }
 
-.mascota__canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-  pointer-events: none;
-  filter: drop-shadow(0 4px 6px rgba(80, 60, 30, 0.25));
+/* --- Jump on tap --- */
+.mascota--jump .mascota__circle {
+  animation: mascotaJump 0.5s ease;
+}
+
+@keyframes mascotaJump {
+  0%   { transform: translateY(0) scale(1); }
+  30%  { transform: translateY(-16px) scale(1.08); }
+  50%  { transform: translateY(-20px) scale(1.05); }
+  70%  { transform: translateY(-6px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* --- Idle breathing --- */
+@keyframes mascotaBreathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
 }
 
 /* --- Speech Bubble --- */
 .mascota__bubble {
   position: absolute;
-  bottom: 85%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--white);
-  color: var(--gold);
+  bottom: 100%;
+  right: 0;
+  transform: translateY(-10px) scale(0.8);
+  background: var(--cream-dark);
+  color: var(--brown);
   font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 13px;
-  padding: 6px 14px;
-  border-radius: 16px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 18px;
+  border: 1.5px solid var(--gold-light);
+  box-shadow: 0 3px 14px rgba(140, 120, 80, 0.16);
   white-space: nowrap;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
+  max-width: 75vw;
+  opacity: 0;
   pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.mascota__bubble.is-visible {
+  opacity: 1;
+  transform: translateY(-10px) scale(1);
+}
+
+/* Bubble on left side */
+.mascota--left .mascota__bubble {
+  right: auto;
+  left: 0;
+  transform: translateY(-10px) scale(0.8);
+}
+
+.mascota--left .mascota__bubble.is-visible {
+  transform: translateY(-10px) scale(1);
 }
 
 .mascota__bubble::after {
   content: '';
   position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid var(--white);
+  bottom: -6px;
+  right: 28px;
+  transform: rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--cream-dark);
+  border-right: 1.5px solid var(--gold-light);
+  border-bottom: 1.5px solid var(--gold-light);
 }
 
-/* --- Hearts --- */
+.mascota--left .mascota__bubble::after {
+  right: auto;
+  left: 28px;
+  transform: rotate(45deg);
+}
+
+/* --- Hearts container --- */
 .mascota__hearts {
   position: absolute;
-  top: 20%;
+  top: 10%;
   left: 50%;
   width: 0;
   height: 0;
@@ -1690,15 +1740,100 @@ body.modal-open {
 .mascota__heart {
   position: absolute;
   font-size: 16px;
-  color: #E88B8B;
   pointer-events: none;
   will-change: transform, opacity;
+  animation: heartFloat 1.2s ease-out forwards;
+  animation-delay: var(--delay, 0s);
 }
 
-/* --- Float animation --- */
-@keyframes mascotaFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+@keyframes heartFloat {
+  0%   { transform: translate(0, 0) scale(0.5); opacity: 1; }
+  100% { transform: translate(var(--x, 0), -70px) scale(1.1); opacity: 0; }
+}
+
+/* --- Golden confetti --- */
+.mascota__confetti {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+  border-radius: 1px;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: confettiBurst 1s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes confettiBurst {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(var(--x, 0), -55px) rotate(var(--r, 180deg)) scale(0.4); opacity: 0; }
+}
+
+/* --- Golden glow pulse when speaking --- */
+.mascota--speaking .mascota__circle {
+  animation: glowPulse 0.6s ease-out;
+}
+
+@keyframes glowPulse {
+  0%   { box-shadow: 0 0 0 3px rgba(191,168,128,0.15), 0 4px 20px rgba(140,120,80,0.22), 0 0 0 0 rgba(191,168,128,0.5); }
+  50%  { box-shadow: 0 0 0 3px rgba(191,168,128,0.3), 0 4px 20px rgba(140,120,80,0.22), 0 0 18px 6px rgba(212,168,67,0.35); }
+  100% { box-shadow: 0 0 0 3px rgba(191,168,128,0.15), 0 4px 20px rgba(140,120,80,0.22), 0 0 0 0 rgba(191,168,128,0); }
+}
+
+/* --- Sleep mode --- */
+.mascota--sleeping .mascota__circle {
+  animation: none;
+  transform: rotate(12deg);
+  transition: transform 1s ease;
+}
+
+.mascota__zzz {
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 11;
+}
+
+.mascota--sleeping .mascota__zzz {
+  animation: zzzFloat 2.5s ease-in-out infinite;
+}
+
+@keyframes zzzFloat {
+  0%   { opacity: 0; transform: translateY(0) scale(0.7); }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-28px) scale(1); }
+}
+
+/* --- Scroll shake --- */
+.mascota--shaking .mascota__circle {
+  animation: scrollShake 0.4s ease;
+}
+
+@keyframes scrollShake {
+  0%, 100% { transform: rotate(0deg); }
+  20%  { transform: rotate(-6deg); }
+  40%  { transform: rotate(5deg); }
+  60%  { transform: rotate(-3deg); }
+  80%  { transform: rotate(2deg); }
+}
+
+/* --- Easter egg spin --- */
+.mascota--spin .mascota__circle {
+  animation: easterSpin 0.8s ease-in-out;
+}
+
+@keyframes easterSpin {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(180deg) scale(1.15); }
+  50%  { transform: rotate(360deg) scale(1.2); }
+  75%  { transform: rotate(540deg) scale(1.1); }
+  100% { transform: rotate(720deg) scale(1); }
 }
 
 /* ========================================

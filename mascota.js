@@ -1,591 +1,563 @@
 /* ========================================
-   MASCOTA VIRTUAL — Animated 3D Fox
-   Three.js + GLTFLoader scroll companion
-   Animations: Survey (idle), Walk, Run
+   MASCOTA — Yorkshire SVG interactivo
+   Marco circular elegante, auto-habla,
+   se mueve entre secciones, duerme,
+   reacciona al scroll, easter egg
    ======================================== */
-
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 (function () {
   'use strict';
 
-  var mascotReady = false;
-  var mascotEl = null;
-  var currentAnchor = null;
-
-  // Three.js objects
-  var renderer, scene, camera, model, mixer, clock;
-  var animActions = {};
-  var currentAction = null;
-  var currentAnimName = '';
-
-  var MODEL_PATH = 'assets/mascota.glb';
-  var CANVAS_SIZE = 180;
-
-  // Animation name mapping (Fox model clip names)
-  var ANIM_NAMES = {
-    idle:     'Survey',
-    walk:     'Walk',
-    run:      'Run'
-  };
-
-  /* =============================================
-     Section anchors
-     ============================================= */
-  var sections = [
-    { selector: '.hero',      phrase: '¡Bienvenido!' },
-    { selector: '.countdown', phrase: '¡Ya falta poco!' },
-    { selector: '.message',   phrase: '¡Qué emoción!' },
-    { selector: '.fecha',     phrase: '¡No faltes!' },
-    { selector: '.fiesta',    phrase: '¡A bailar!' }
+  // ============================
+  // FRASES DE BODA
+  // ============================
+  var phrases = [
+    // Emotivas — desde el perrito
+    '¡Mis papás se casan!',
+    '¡Soy el perrito más feliz del mundo!',
+    '¡Mi familia se agranda!',
+    '¡Les presento a mis papás!',
+    '¡Estoy tan orgulloso de ellos!',
+    '¡El amor de mis papás es hermoso!',
+    '¡Ya quiero llevar los anillos!',
+    '¡Prometí no llorar... pero no prometo nada!',
+    // Celebración
+    '¡Vivan los novios!',
+    '¡El amor está en el aire!',
+    '¡Será la mejor boda del año!',
+    '¡A celebrar este gran amor!',
+    '¡Los novios están felices!',
+    '¡Natalia y Franco, por siempre!',
+    // Invitación
+    '¡No te lo puedes perder!',
+    '¡Confirma tu asistencia!',
+    '¡Ven a brindar con nosotros!',
+    '¡1 de mayo, anótalo!',
+    '¡Te esperamos con todo el cariño!',
+    // Fiesta y emoción
+    '¡No puedo esperar por la fiesta!',
+    '¡Habrá música y baile!',
+    '¡Qué emoción, ya falta poco!',
+    '¡El gran día se acerca!',
+    '¡Prepara tus mejores pasos de baile!',
+    '¡Yo ya tengo mi traje listo!',
+    '¡Esta boda va a ser inolvidable!'
   ];
 
-  /* =============================================
-     Waypoints — where the fox rests per section
-     ============================================= */
-  var waypoints = {
-    '.hero':      { xAlign: 'right', xMargin: 12, yAnchor: 'bottom', yOffset: -20,  facing: 'left'  },
-    '.countdown': { xAlign: 'right', xMargin: 8,  yAnchor: 'bottom', yOffset: -10,  facing: 'left'  },
-    '.message':   { xAlign: 'left',  xMargin: 8,  yAnchor: 'bottom', yOffset: -10,  facing: 'right' },
-    '.fecha':     { xAlign: 'right', xMargin: 4,  yAnchor: 'bottom', yOffset: -60,  facing: 'left'  },
-    '.fiesta':    { xAlign: 'left',  xMargin: 8,  yAnchor: 'top',    yOffset: 180,  facing: 'right' }
+  var sectionPhrases = {
+    hero: '¡Natalia y Franco, por siempre!',
+    countdown: '¡Ya falta muy poco!',
+    message: '¡Qué emoción, se viene la boda!',
+    fecha: '¡1 de mayo, anótalo!',
+    fiesta: '¡Habrá música y baile!'
   };
 
-  /* =============================================
-     Wait for intro
-     ============================================= */
-  function waitForIntro() {
-    var intro = document.getElementById('intro');
-    if (!intro) { initMascot(); return; }
-    var observer = new MutationObserver(function (mutations) {
-      for (var i = 0; i < mutations.length; i++) {
-        for (var j = 0; j < mutations[i].removedNodes.length; j++) {
-          if (mutations[i].removedNodes[j] === intro) {
-            observer.disconnect();
-            setTimeout(initMascot, 1200);
-            return;
-          }
-        }
-      }
-    });
-    observer.observe(intro.parentNode, { childList: true });
+  var lastPhraseIndex = -1;
+  function getRandomPhrase() {
+    var idx;
+    do { idx = Math.floor(Math.random() * phrases.length); }
+    while (idx === lastPhraseIndex && phrases.length > 1);
+    lastPhraseIndex = idx;
+    return phrases[idx];
   }
 
-  function initMascot() {
-    if (mascotReady) return;
-    mascotReady = true;
-    createDOM();
-    initThreeJS();
-    loadModel();
-    bindTap();
-    bindReactiveInteractions();
-    bindModalVisibility();
-  }
+  // ============================
+  // REFERENCIAS
+  // ============================
+  var container = null;
+  var bubbleTimer = null;
+  var isBubbleVisible = false;
+  var autoTalkTimer = null;
+  var currentSide = 'right';
+  var isMoving = false;
+  var tapCount = 0;
+  var rapidTapCount = 0;
+  var rapidTapTimer = null;
+  var isSleeping = false;
+  var sleepTimer = null;
+  var SLEEP_DELAY = 30000; // 30 seconds
 
-  /* =============================================
-     Create DOM
-     ============================================= */
-  function createDOM() {
+  // ============================
+  // CREAR DOM
+  // ============================
+  function createMascotDOM() {
     var el = document.createElement('div');
     el.className = 'mascota';
     el.id = 'mascota';
+
     el.innerHTML =
       '<div class="mascota__bubble" id="mascota-bubble">' +
         '<span class="mascota__bubble-text" id="mascota-bubble-text"></span>' +
       '</div>' +
       '<div class="mascota__hearts" id="mascota-hearts"></div>' +
-      '<div class="mascota__inner">' +
-        '<canvas class="mascota__canvas" id="mascota-canvas"></canvas>' +
+      '<div class="mascota__zzz" id="mascota-zzz">Z</div>' +
+      '<div class="mascota__circle">' +
+        '<img class="mascota__img" src="assets/yorkshire.svg" alt="Yorkito" draggable="false">' +
       '</div>';
+
     document.body.appendChild(el);
-    mascotEl = el;
-    if (typeof gsap !== 'undefined') gsap.set(el, { opacity: 0, y: 40 });
+    return el;
   }
 
-  /* =============================================
-     Three.js Setup
-     ============================================= */
-  function initThreeJS() {
-    var canvas = document.getElementById('mascota-canvas');
-    canvas.width = CANVAS_SIZE * window.devicePixelRatio;
-    canvas.height = CANVAS_SIZE * window.devicePixelRatio;
-    canvas.style.width = CANVAS_SIZE + 'px';
-    canvas.style.height = CANVAS_SIZE + 'px';
+  // ============================
+  // BURBUJA DE TEXTO + GLOW
+  // ============================
+  function showBubble(text) {
+    var bubble = document.getElementById('mascota-bubble');
+    var bubbleText = document.getElementById('mascota-bubble-text');
+    if (!bubble || !bubbleText || !container) return;
 
-    renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'low-power'
-    });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(CANVAS_SIZE, CANVAS_SIZE);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    clearTimeout(bubbleTimer);
+    bubbleText.textContent = text;
 
-    scene = new THREE.Scene();
+    bubble.classList.remove('is-visible');
+    void bubble.offsetWidth;
+    bubble.classList.add('is-visible');
+    isBubbleVisible = true;
 
-    camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
+    // Golden glow pulse
+    container.classList.remove('mascota--speaking');
+    void container.offsetWidth;
+    container.classList.add('mascota--speaking');
 
-    // Lighting
-    var ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
-    scene.add(ambientLight);
+    bubbleTimer = setTimeout(function () {
+      bubble.classList.remove('is-visible');
+      container.classList.remove('mascota--speaking');
+      isBubbleVisible = false;
+    }, 3000);
 
-    var dirLight = new THREE.DirectionalLight(0xfff4e0, 1.5);
-    dirLight.position.set(2, 3, 2);
-    scene.add(dirLight);
-
-    var fillLight = new THREE.DirectionalLight(0xe0e8ff, 0.5);
-    fillLight.position.set(-2, 1, -1);
-    scene.add(fillLight);
-
-    clock = new THREE.Clock();
+    // Reset sleep timer on any activity
+    resetSleepTimer();
   }
 
-  /* =============================================
-     Load GLB Model
-     ============================================= */
-  function loadModel() {
-    var loader = new GLTFLoader();
-    loader.load(
-      MODEL_PATH,
-      function (gltf) {
-        model = gltf.scene;
-        scene.add(model);
-
-        // Compute bounding box and auto-frame the model
-        var box = new THREE.Box3().setFromObject(model);
-        var center = box.getCenter(new THREE.Vector3());
-        var size = box.getSize(new THREE.Vector3());
-        var maxDim = Math.max(size.x, size.y, size.z);
-
-        // Scale to fit nicely in view
-        var scale = 2.0 / maxDim;
-        model.scale.setScalar(scale);
-
-        // Recompute after scaling
-        box.setFromObject(model);
-        center = box.getCenter(new THREE.Vector3());
-        size = box.getSize(new THREE.Vector3());
-
-        // Position camera to frame the model (wider view for free-roaming)
-        var dist = Math.max(size.x, size.y, size.z) * 2.6;
-        camera.position.set(center.x + dist * 0.3, center.y + size.y * 0.15, center.z + dist);
-        camera.lookAt(center.x, center.y - size.y * 0.05, center.z);
-
-        // Disable frustum culling on skinned meshes
-        model.traverse(function(child) {
-          if (child.isMesh || child.isSkinnedMesh) {
-            child.frustumCulled = false;
-          }
-        });
-
-        // Setup animations
-        if (gltf.animations && gltf.animations.length > 0) {
-          mixer = new THREE.AnimationMixer(model);
-          gltf.animations.forEach(function (clip) {
-            var action = mixer.clipAction(clip);
-            animActions[clip.name.toLowerCase()] = action;
-          });
-          playAnim('idle');
-        }
-
-        // Start render loop and scroll tracking
-        animate();
-        startScrollTracking();
-
-        // Show the mascot
-        if (typeof gsap !== 'undefined') {
-          setTimeout(function () {
-            gsap.to(mascotEl, { opacity: 1, y: 0, duration: 0.8, ease: 'back.out(1.4)' });
-          }, 100);
-        }
-      },
-      undefined,
-      function (err) {
-        console.warn('Mascota: Could not load 3D model', err);
-        var inner = mascotEl.querySelector('.mascota__inner');
-        var canvas = document.getElementById('mascota-canvas');
-        if (canvas) canvas.remove();
-        var img = document.createElement('img');
-        img.className = 'mascota__img';
-        img.src = 'assets/yorkshire.svg';
-        img.alt = 'Yorkito';
-        img.draggable = false;
-        inner.appendChild(img);
-        startScrollTracking();
-        if (typeof gsap !== 'undefined') {
-          gsap.to(mascotEl, { opacity: 1, y: 0, duration: 0.8, ease: 'back.out(1.4)' });
-        }
-      }
-    );
+  function hideBubble() {
+    var bubble = document.getElementById('mascota-bubble');
+    if (bubble) {
+      clearTimeout(bubbleTimer);
+      bubble.classList.remove('is-visible');
+      isBubbleVisible = false;
+    }
+    if (container) container.classList.remove('mascota--speaking');
   }
 
-  /* =============================================
-     Render Loop
-     ============================================= */
-  function animate() {
-    requestAnimationFrame(animate);
-    var delta = clock.getDelta();
-    if (mixer) mixer.update(delta);
-    renderer.render(scene, camera);
-  }
+  // ============================
+  // CORAZONES BURST
+  // ============================
+  function heartBurst(count) {
+    var heartsContainer = document.getElementById('mascota-hearts');
+    if (!heartsContainer) return;
 
-  /* =============================================
-     Play Animation by Name
-     ============================================= */
-  function playAnim(name, options) {
-    var opts = options || {};
-    var clipName = ANIM_NAMES[name] || name;
-    var next = animActions[clipName.toLowerCase()];
-    if (!mixer || !next) return;
-    if (currentAnimName === name && !opts.force) return;
+    var n = count || 6;
+    var hearts = ['❤️', '💛', '🧡', '💕', '💖', '✨'];
+    for (var i = 0; i < n; i++) {
+      var heart = document.createElement('span');
+      heart.className = 'mascota__heart';
+      heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      heart.style.setProperty('--x', (Math.random() * 100 - 50) + 'px');
+      heart.style.setProperty('--delay', (Math.random() * 0.2) + 's');
+      heartsContainer.appendChild(heart);
 
-    currentAnimName = name;
-
-    if (currentAction && currentAction !== next) {
-      next.reset();
-      if (opts.once) {
-        next.setLoop(THREE.LoopOnce, 1);
-        next.clampWhenFinished = true;
-      } else {
-        next.setLoop(THREE.LoopRepeat);
-      }
-      next.play();
-      currentAction.crossFadeTo(next, 0.3, true);
-      currentAction = next;
-
-      if (opts.once && opts.returnTo) {
-        mixer.addEventListener('finished', function onFinish(e) {
-          if (e.action === next) {
-            mixer.removeEventListener('finished', onFinish);
-            playAnim(opts.returnTo);
-          }
-        });
-      }
-    } else if (!currentAction) {
-      if (opts.once) {
-        next.setLoop(THREE.LoopOnce, 1);
-        next.clampWhenFinished = true;
-      } else {
-        next.setLoop(THREE.LoopRepeat);
-      }
-      next.play();
-      currentAction = next;
+      (function (el) {
+        setTimeout(function () { el.remove(); }, 1400);
+      })(heart);
     }
   }
 
-  /* =============================================
-     Flip model to face direction of movement
-     ============================================= */
-  function faceDirection(side) {
-    if (!model || typeof gsap === 'undefined') return;
-    var targetY = (side === 'left') ? -Math.PI * 0.3 : Math.PI * 0.3;
-    gsap.to(model.rotation, {
-      y: targetY,
-      duration: 0.3,
-      ease: 'power2.out'
-    });
+  // ============================
+  // CONFETTI DORADO
+  // ============================
+  function goldenConfetti(count) {
+    var heartsContainer = document.getElementById('mascota-hearts');
+    if (!heartsContainer) return;
+
+    var n = count || 10;
+    for (var i = 0; i < n; i++) {
+      var conf = document.createElement('span');
+      conf.className = 'mascota__confetti';
+      conf.style.setProperty('--x', (Math.random() * 120 - 60) + 'px');
+      conf.style.setProperty('--r', (Math.random() * 360) + 'deg');
+      conf.style.setProperty('--delay', (Math.random() * 0.25) + 's');
+      heartsContainer.appendChild(conf);
+
+      (function (el) {
+        setTimeout(function () { el.remove(); }, 1200);
+      })(conf);
+    }
   }
 
-  /* =============================================
-     Hop — used when moving between sections
-     ============================================= */
-  function doHop() {
-    if (typeof gsap === 'undefined' || !mascotEl) return;
-    var inner = mascotEl.querySelector('.mascota__inner');
-    if (!inner) return;
-    gsap.timeline()
-      .to(inner, { scaleY: 0.88, scaleX: 1.1, duration: 0.08, ease: 'power2.in', transformOrigin: '50% 100%' })
-      .to(inner, { y: -12, scaleY: 1.06, scaleX: 0.95, duration: 0.15, ease: 'power2.out', transformOrigin: '50% 100%' })
-      .to(inner, { y: 0, scaleY: 0.92, scaleX: 1.06, duration: 0.12, ease: 'power2.in', transformOrigin: '50% 100%' })
-      .to(inner, { scaleY: 1, scaleX: 1, duration: 0.2, ease: 'elastic.out(1,0.6)', transformOrigin: '50% 100%' });
+  // ============================
+  // MODO DORMILÓN
+  // ============================
+  function fallAsleep() {
+    if (isSleeping || !container) return;
+    isSleeping = true;
+    hideBubble();
+    container.classList.add('mascota--sleeping');
   }
 
-  /* =============================================
-     SCROLL TRACKING
-     ============================================= */
-  function startScrollTracking() {
-    var sectionEls = [];
-    sections.forEach(function (s) {
-      var el = document.querySelector(s.selector);
-      if (el) sectionEls.push({ el: el, config: s });
-    });
+  function wakeUp(withBounce) {
+    if (!isSleeping || !container) return;
+    isSleeping = false;
+    container.classList.remove('mascota--sleeping');
 
-    function getMostVisibleSection() {
-      var best = null;
-      var bestRatio = 0;
-      var viewH = window.innerHeight;
-      for (var i = 0; i < sectionEls.length; i++) {
-        var rect = sectionEls[i].el.getBoundingClientRect();
-        var top = Math.max(0, rect.top);
-        var bottom = Math.min(viewH, rect.bottom);
-        var visible = Math.max(0, bottom - top);
-        var ratio = visible / Math.min(rect.height, viewH);
-        if (ratio > bestRatio) { bestRatio = ratio; best = sectionEls[i]; }
-      }
-      return bestRatio > 0.2 ? best : null;
+    if (withBounce && typeof gsap !== 'undefined') {
+      gsap.fromTo(container.querySelector('.mascota__circle'),
+        { scale: 0.85 },
+        { scale: 1, duration: 0.5, ease: 'back.out(2)' }
+      );
     }
 
-    function getTargetPos(sd) {
-      if (!sd) return null;
-      var wp = waypoints[sd.config.selector];
-      if (!wp) return null;
+    // Say something after waking
+    setTimeout(function () {
+      showBubble('¡Estoy despierto! ¿Qué me perdí?');
+    }, 400);
 
-      var rect = sd.el.getBoundingClientRect();
-      var size = CANVAS_SIZE;
-      var x, y;
+    resetSleepTimer();
+  }
 
-      // Horizontal position
-      if (wp.xAlign === 'right') {
-        x = Math.min(rect.right - size - wp.xMargin, window.innerWidth - size - wp.xMargin);
-      } else {
-        x = Math.max(rect.left + wp.xMargin, wp.xMargin);
-      }
+  function resetSleepTimer() {
+    clearTimeout(sleepTimer);
+    sleepTimer = setTimeout(fallAsleep, SLEEP_DELAY);
+  }
 
-      // Vertical position
-      if (wp.yAnchor === 'bottom') {
-        y = rect.bottom - size + wp.yOffset;
-      } else {
-        y = rect.top + wp.yOffset;
-      }
+  // ============================
+  // REACCIÓN AL SCROLL
+  // ============================
+  var scrollShakeTimeout = null;
+  var lastScrollY = 0;
+  var scrollSpeed = 0;
 
-      // Clamp to viewport
-      y = Math.max(8, Math.min(window.innerHeight - size - 8, y));
-      x = Math.max(4, Math.min(window.innerWidth - size - 4, x));
+  function setupScrollReaction() {
+    if (!container) return;
 
-      return { x: x, y: y, facing: wp.facing };
-    }
+    window.addEventListener('scroll', function () {
+      var currentY = window.scrollY;
+      scrollSpeed = Math.abs(currentY - lastScrollY);
+      lastScrollY = currentY;
 
-    var firstReveal = true;
-    var phraseShown = {};
-    var walkTimeout = null;
-    var isWalking = false;
-    var walkTween = null;
-
-    function updatePosition() {
-      if (!mascotEl || typeof gsap === 'undefined') return;
-      var vis = getMostVisibleSection();
-      if (!vis) return;
-      var target = getTargetPos(vis);
-      if (!target) return;
-      var key = vis.config.selector;
-
-      if (firstReveal) {
-        firstReveal = false;
-        gsap.set(mascotEl, { left: target.x, top: target.y });
-        faceDirection(target.facing);
-        if (!phraseShown[key]) {
-          phraseShown[key] = true;
-          setTimeout(function () { showBubble(vis.config.phrase); }, 900);
-        }
-        currentAnchor = key;
+      // Wake up on scroll
+      if (isSleeping) {
+        wakeUp(true);
         return;
       }
 
-      if (key !== currentAnchor) {
-        currentAnchor = key;
+      resetSleepTimer();
 
-        // Cancel any in-progress walk
-        if (walkTween) { walkTween.kill(); }
-        if (walkTimeout) clearTimeout(walkTimeout);
+      // Shake on fast scroll
+      if (scrollSpeed > 60 && !scrollShakeTimeout) {
+        container.classList.remove('mascota--shaking');
+        void container.offsetWidth;
+        container.classList.add('mascota--shaking');
 
-        // Determine travel direction from current position
-        var currentLeft = parseFloat(gsap.getProperty(mascotEl, 'left')) || 0;
-        var currentTop = parseFloat(gsap.getProperty(mascotEl, 'top')) || 0;
-        var dx = target.x - currentLeft;
-        var dy = target.y - currentTop;
-
-        // Face travel direction (or resting direction if mostly vertical)
-        var travelDir;
-        if (Math.abs(dx) > 20) {
-          travelDir = (dx > 0) ? 'right' : 'left';
-        } else {
-          travelDir = target.facing;
-        }
-
-        // Duration proportional to distance (0.8s – 2.0s)
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        var duration = Math.max(0.8, Math.min(2.0, dist / 300));
-
-        // Start walk animation and face travel direction
-        playAnim('walk');
-        faceDirection(travelDir);
-        isWalking = true;
-
-        // Tween position
-        walkTween = gsap.to(mascotEl, {
-          left: target.x,
-          top: target.y,
-          duration: duration,
-          ease: 'power2.inOut',
-          onComplete: function () {
-            isWalking = false;
-            walkTween = null;
-
-            // On arrival: face resting direction, idle, hop
-            faceDirection(target.facing);
-            walkTimeout = setTimeout(function () {
-              playAnim('idle');
-              doHop();
-            }, 150);
-
-            // Show section phrase
-            if (!phraseShown[key]) {
-              phraseShown[key] = true;
-              setTimeout(function () { showBubble(vis.config.phrase); }, 400);
-            }
-          }
-        });
-      } else if (!isWalking) {
-        // Same section, gentle repositioning (e.g. on resize)
-        gsap.to(mascotEl, {
-          left: target.x, top: target.y,
-          duration: 0.4, ease: 'power2.out', overwrite: 'auto'
-        });
+        scrollShakeTimeout = setTimeout(function () {
+          container.classList.remove('mascota--shaking');
+          scrollShakeTimeout = null;
+        }, 450);
       }
-    }
-
-    var ticking = false;
-    function onScroll() {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(function () { updatePosition(); ticking = false; });
-      }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    setTimeout(updatePosition, 100);
+    }, { passive: true });
   }
 
-  /* =============================================
-     SPEECH BUBBLE
-     ============================================= */
-  var tapPhrases = [
-    '¡Guau!', '¡Woof!', '¡Viva los novios!', '¡Qué fiesta!',
-    '¡Te quiero!', '♡', '¡Salud!', '¡Felicidades!', '¡Woof woof!'
+  // ============================
+  // EASTER EGG — 10 TAPS
+  // ============================
+  function triggerEasterEgg() {
+    if (!container) return;
+
+    // Spin animation
+    container.classList.remove('mascota--spin');
+    void container.offsetWidth;
+    container.classList.add('mascota--spin');
+
+    // Mega burst
+    heartBurst(15);
+    goldenConfetti(20);
+
+    // Special message
+    setTimeout(function () {
+      showBubble('¡Natalia y Franco se casan! 💍');
+    }, 300);
+
+    // Second wave
+    setTimeout(function () {
+      heartBurst(10);
+      goldenConfetti(15);
+    }, 500);
+
+    setTimeout(function () {
+      container.classList.remove('mascota--spin');
+    }, 850);
+  }
+
+  // ============================
+  // INTERACCIÓN TAP
+  // ============================
+  function onTap() {
+    if (!container) return;
+
+    // Wake up if sleeping
+    if (isSleeping) {
+      wakeUp(true);
+      return;
+    }
+
+    tapCount++;
+
+    // Track rapid taps for easter egg
+    rapidTapCount++;
+    clearTimeout(rapidTapTimer);
+    rapidTapTimer = setTimeout(function () { rapidTapCount = 0; }, 2000);
+
+    // Easter egg: 10 rapid taps
+    if (rapidTapCount >= 10) {
+      rapidTapCount = 0;
+      triggerEasterEgg();
+      return;
+    }
+
+    // Jump animation
+    container.classList.remove('mascota--jump');
+    void container.offsetWidth;
+    container.classList.add('mascota--jump');
+
+    // Show phrase
+    showBubble(getRandomPhrase());
+
+    // Every 3 taps: hearts
+    if (tapCount % 3 === 0) {
+      heartBurst();
+    }
+
+    // Every 5 taps: golden confetti
+    if (tapCount % 5 === 0) {
+      goldenConfetti();
+    }
+
+    setTimeout(function () {
+      container.classList.remove('mascota--jump');
+    }, 500);
+
+    resetSleepTimer();
+  }
+
+  // ============================
+  // AUTO-HABLA PERIÓDICA
+  // ============================
+  function startAutoTalk() {
+    function scheduleNext() {
+      var delay = 8000 + Math.random() * 5000;
+      autoTalkTimer = setTimeout(function () {
+        if (!isBubbleVisible) {
+          // If sleeping, wake up first then speak
+          if (isSleeping) {
+            wakeUp(true);
+          } else {
+            showBubble(getRandomPhrase());
+          }
+        }
+        scheduleNext();
+      }, delay);
+    }
+    scheduleNext();
+  }
+
+  function stopAutoTalk() {
+    clearTimeout(autoTalkTimer);
+  }
+
+  // ============================
+  // MOVIMIENTO ENTRE SECCIONES
+  // ============================
+  var sectionMap = [
+    { selector: '.hero', side: 'right', key: 'hero' },
+    { selector: '.countdown', side: 'left', key: 'countdown' },
+    { selector: '.message', side: 'right', key: 'message' },
+    { selector: '.fecha', side: 'left', key: 'fecha' },
+    { selector: '.fiesta', side: 'right', key: 'fiesta' }
   ];
 
-  function showBubble(text) {
-    if (typeof gsap === 'undefined' || !mascotEl) return;
-    var bubble = document.getElementById('mascota-bubble');
-    var textEl = document.getElementById('mascota-bubble-text');
-    if (!bubble || !textEl) return;
-    textEl.textContent = text;
-    gsap.killTweensOf(bubble);
-    gsap.timeline()
-      .set(bubble, { scale: 0, opacity: 0, display: 'flex' })
-      .to(bubble, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(2)' })
-      .to(bubble, {
-        scale: 0, opacity: 0, duration: 0.2, ease: 'power2.in', delay: 2,
-        onComplete: function () { gsap.set(bubble, { display: 'none' }); }
+  function setupSectionMovement() {
+    if (typeof gsap === 'undefined' || !container) return;
+
+    var currentSection = null;
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+
+        var sectionInfo = null;
+        for (var i = 0; i < sectionMap.length; i++) {
+          if (entry.target.matches(sectionMap[i].selector)) {
+            sectionInfo = sectionMap[i];
+            break;
+          }
+        }
+        if (!sectionInfo || sectionInfo.key === currentSection) return;
+
+        currentSection = sectionInfo.key;
+        moveToSide(sectionInfo.side, sectionInfo.key);
       });
-  }
+    }, { threshold: 0.3 });
 
-  /* =============================================
-     TAP INTERACTIONS
-     ============================================= */
-  var tapCount = 0;
-
-  function bindTap() {
-    if (!mascotEl) return;
-    mascotEl.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (typeof gsap === 'undefined') return;
-      tapCount++;
-
-      // Every 5th tap → run!
-      if (tapCount % 5 === 0) {
-        playAnim('run', { once: true, returnTo: 'idle', force: true });
-        showBubble('¡Guau guau!');
-        doHeartBurst();
-        return;
-      }
-
-      // Jump with squash & stretch
-      var inner = mascotEl.querySelector('.mascota__inner');
-      if (inner) {
-        gsap.timeline()
-          .to(inner, { scaleX: 1.15, scaleY: 0.85, duration: 0.1, ease: 'power2.in', transformOrigin: '50% 100%' })
-          .to(inner, { y: -22, scaleX: 0.9, scaleY: 1.1, duration: 0.25, ease: 'power2.out', transformOrigin: '50% 100%' })
-          .to(inner, { y: 0, scaleX: 1.1, scaleY: 0.9, duration: 0.2, ease: 'power2.in', transformOrigin: '50% 100%' })
-          .to(inner, { scaleX: 1, scaleY: 1, duration: 0.2, ease: 'elastic.out(1,0.5)', transformOrigin: '50% 100%' });
-      }
-
-      showBubble(tapPhrases[Math.floor(Math.random() * tapPhrases.length)]);
-
-      if (tapCount % 3 === 0) doHeartBurst();
+    sectionMap.forEach(function (s) {
+      var el = document.querySelector(s.selector);
+      if (el) observer.observe(el);
     });
   }
 
-  function doHeartBurst() {
-    var container = document.getElementById('mascota-hearts');
-    if (!container || typeof gsap === 'undefined') return;
-    for (var i = 0; i < 6; i++) {
-      (function (idx) {
-        var heart = document.createElement('span');
-        heart.className = 'mascota__heart';
-        heart.textContent = '♥';
-        container.appendChild(heart);
-        var angle = -90 + (idx - 2.5) * 25 + (Math.random() - 0.5) * 20;
-        var rad = angle * Math.PI / 180;
-        var dist = 35 + Math.random() * 25;
-        gsap.set(heart, { x: 0, y: 0, scale: 0, opacity: 1 });
-        gsap.timeline()
-          .to(heart, { x: Math.cos(rad) * dist, y: Math.sin(rad) * dist, scale: 0.5 + Math.random() * 0.7, opacity: 1, duration: 0.4, ease: 'power2.out', delay: idx * 0.05 })
-          .to(heart, { y: Math.sin(rad) * dist - 25, opacity: 0, duration: 0.6, ease: 'power1.in', onComplete: function () { heart.remove(); } });
-      })(i);
+  function moveToSide(side, sectionKey) {
+    if (side === currentSide || isMoving || !container) return;
+    isMoving = true;
+
+    hideBubble();
+
+    var tl = gsap.timeline({
+      onComplete: function () {
+        currentSide = side;
+        isMoving = false;
+
+        setTimeout(function () {
+          if (sectionPhrases[sectionKey] && !isBubbleVisible && !isSleeping) {
+            showBubble(sectionPhrases[sectionKey]);
+          }
+        }, 800);
+      }
+    });
+
+    tl.to(container, {
+      scale: 0.7,
+      opacity: 0.6,
+      duration: 0.3,
+      ease: 'power2.in'
+    })
+    .call(function () {
+      if (side === 'left') {
+        container.style.right = 'auto';
+        container.style.left = '16px';
+        container.classList.add('mascota--left');
+      } else {
+        container.style.left = 'auto';
+        container.style.right = '16px';
+        container.classList.remove('mascota--left');
+      }
+    })
+    .to(container, {
+      scale: 1,
+      opacity: 1,
+      duration: 0.5,
+      ease: 'back.out(1.6)'
+    });
+  }
+
+  // ============================
+  // OCULTAR EN MODALES
+  // ============================
+  function setupModalHiding() {
+    if (!container) return;
+
+    var modals = document.querySelectorAll('.fullscreen');
+    modals.forEach(function (modal) {
+      new MutationObserver(function () {
+        var isOpen = modal.getAttribute('aria-hidden') === 'false';
+        container.style.opacity = isOpen ? '0' : '1';
+        container.style.pointerEvents = isOpen ? 'none' : 'auto';
+        if (isOpen) { stopAutoTalk(); hideBubble(); }
+        else { startAutoTalk(); }
+      }).observe(modal, { attributes: true, attributeFilter: ['aria-hidden'] });
+    });
+
+    var success = document.getElementById('success-screen');
+    if (success) {
+      new MutationObserver(function () {
+        var isOpen = success.getAttribute('aria-hidden') === 'false';
+        container.style.opacity = isOpen ? '0' : '1';
+        container.style.pointerEvents = isOpen ? 'none' : 'auto';
+        if (isOpen) { stopAutoTalk(); hideBubble(); }
+        else { startAutoTalk(); }
+      }).observe(success, { attributes: true, attributeFilter: ['aria-hidden'] });
     }
   }
 
-  /* =============================================
-     REACTIVE INTERACTIONS
-     ============================================= */
-  function bindReactiveInteractions() {
+  // ============================
+  // BUTTON INTERACTIONS
+  // ============================
+  function setupButtonInteractions() {
     var btnConfirmar = document.getElementById('btn-confirmar');
     if (btnConfirmar) {
       btnConfirmar.addEventListener('click', function () {
-        playAnim('run', { once: true, returnTo: 'idle', force: true });
-        showBubble('¡Sí, confirma!');
-        doHeartBurst();
+        showBubble('¡Genial, confirma!');
+        heartBurst();
       });
     }
 
     var btnPlaylist = document.getElementById('btn-playlist');
     if (btnPlaylist) {
       btnPlaylist.addEventListener('click', function () {
-        playAnim('run', { once: true, returnTo: 'idle', force: true });
-        showBubble('¡A bailar!');
+        showBubble('¡A bailar en la fiesta!');
       });
     }
   }
 
-  /* =============================================
-     MODAL VISIBILITY — hide mascot during modals
-     ============================================= */
-  function bindModalVisibility() {
-    var observer = new MutationObserver(function () {
-      if (!mascotEl || typeof gsap === 'undefined') return;
-      var isModalOpen = document.body.classList.contains('modal-open');
-      if (isModalOpen) {
-        gsap.to(mascotEl, { opacity: 0, duration: 0.3, ease: 'power2.in', pointerEvents: 'none' });
-      } else {
-        gsap.to(mascotEl, { opacity: 1, duration: 0.5, ease: 'power2.out', delay: 0.3, pointerEvents: 'auto' });
-      }
+  // ============================
+  // INIT
+  // ============================
+  function init() {
+    container = createMascotDOM();
+
+    // Entrance
+    if (typeof gsap !== 'undefined') {
+      gsap.set(container, { y: 60, opacity: 0, scale: 0.5 });
+      gsap.to(container, {
+        y: 0, opacity: 1, scale: 1,
+        duration: 0.8,
+        ease: 'back.out(1.8)',
+        delay: 0.3
+      });
+    } else {
+      container.style.opacity = '1';
+    }
+
+    // Tap
+    container.addEventListener('click', function (e) {
+      e.stopPropagation();
+      onTap();
     });
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    // First greeting
+    setTimeout(function () {
+      showBubble('¡Bienvenidos a la boda!');
+    }, 1800);
+
+    // Start systems
+    setTimeout(startAutoTalk, 6000);
+    resetSleepTimer();
+
+    setupScrollReaction();
+    setupSectionMovement();
+    setupModalHiding();
+    setupButtonInteractions();
   }
 
-  /* =============================================
-     BOOTSTRAP
-     ============================================= */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', waitForIntro);
+  // ============================
+  // WAIT FOR INTRO TO CLOSE
+  // ============================
+  var introEl = document.getElementById('intro');
+  if (introEl) {
+    var obs = new MutationObserver(function (mutations) {
+      mutations.forEach(function (m) {
+        m.removedNodes.forEach(function (node) {
+          if (node === introEl || node.id === 'intro') {
+            obs.disconnect();
+            setTimeout(init, 600);
+          }
+        });
+      });
+    });
+    obs.observe(introEl.parentNode, { childList: true });
   } else {
-    waitForIntro();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   }
-
 })();

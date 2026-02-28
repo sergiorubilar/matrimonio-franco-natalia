@@ -254,15 +254,9 @@
       ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 2.8
     });
 
-    // Seal subtle float
-    var sealFloat = gsap.to(seal, {
-      y: -3, duration: 3, ease: 'sine.inOut',
-      repeat: -1, yoyo: true, delay: 2.5
-    });
-
     // Tap text breathe
     var tapPulse = gsap.to(tap, {
-      opacity: 0.4, duration: 2.5, ease: 'sine.inOut',
+      opacity: 0.7, duration: 2.5, ease: 'sine.inOut',
       repeat: -1, yoyo: true, delay: 3.5
     });
 
@@ -277,7 +271,6 @@
 
       // Kill all looping tweens cleanly
       sealPulse.kill();
-      sealFloat.kill();
       tapPulse.kill();
       gsap.killTweensOf(tap);
       gsap.killTweensOf(seal);
